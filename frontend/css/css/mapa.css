@@ -128,9 +128,11 @@
   
   /* ============================= */
   /* Mapa */
+
+
   #map {
     width: 100%;
-    height: 100%;
+    height: 100vh; /* el mapa ocupa toda la pantalla */
   }
 
   /* Cuando el sidebar está activo */
@@ -147,5 +149,6 @@
   .sidebar.active ~ #map-container .topbar {
     left: 200px; /* deja espacio para el menú */
   }
+
 
   
