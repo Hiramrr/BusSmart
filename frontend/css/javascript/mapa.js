@@ -27,7 +27,6 @@ searchBar.addEventListener("keypress", (e) => {
 
 instanciarMapa();
 
-
 function instanciarMapa(){
     // Inicializar el mapa centrado en Xalapa
     const map = L.map('map', {
@@ -35,7 +34,6 @@ function instanciarMapa(){
         zoom: 30,
         zoomControl: false 
       });
-    // Coordenadas aproximadas de Xalapa
     // Cargar tiles de OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors'
