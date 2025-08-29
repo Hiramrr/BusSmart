@@ -9,6 +9,56 @@
     height: 100%;
     font-family: Arial, sans-serif;
   }
+
+  /* ============================= */
+/* Barra superior */
+.topbar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* separación entre elementos */
+  background: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 900;
+}
+
+/* Botones generales dentro de la topbar */
+.topbar button {
+  background: #2c3e50;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0; /* evita que el botón se encoja */
+}
+
+.topbar button:hover {
+  background: #34495e;
+}
+
+/* Inputs de origen y destino */
+#origen-input,
+#destino-input {
+  flex: 1; /* ocupan el espacio disponible */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Botón de buscar ruta */
+#btn-ruta {
+  background: #27ae60;
+}
+
+#btn-ruta:hover {
+  background: #2ecc71;
+}
   
   /* Contenedor principal */
   #app {

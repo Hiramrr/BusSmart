@@ -1,0 +1,10 @@
+# Dependencias de Node.js
+node_modules/
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Otros archivos temporales
+.DS_Store
