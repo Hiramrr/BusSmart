@@ -1,6 +1,4 @@
-# Nombre del Proyecto
-
-Descripción breve del proyecto:  
+# Nombre del Proyecto 
 Este proyecto permite interactuar con mapas, calcular rutas y mostrar información geográfica utilizando Leaflet.js y la API de OpenRouteService. Incluye un backend en Node.js + Express y un frontend en HTML, CSS y JavaScript.
 
 ---
