@@ -85,7 +85,7 @@ buscarRutaBtn.addEventListener("click", async () => {
 
 // Función para obtener coordenadas desde el backend
 async function getCoordsBackend(lugar) {
-  const url = `http://localhost:3000/geocode?text=${encodeURIComponent(lugar)}`;
+  const url = `https://bussmart.onrender.com/geocode?text=${encodeURIComponent(lugar)}`;
   const res = await fetch(url);
   const data = await res.json();
 
@@ -100,7 +100,7 @@ async function getCoordsBackend(lugar) {
 
 // Función para trazar ruta usando el backend
 async function trazarRutaBackend(origen, destino, map) {
-  const url = `http://localhost:3000/directions?startLng=${origen.lng}&startLat=${origen.lat}&endLng=${destino.lng}&endLat=${destino.lat}`;
+  const url = `https://bussmart.onrender.com/directions?startLng=${origen.lng}&startLat=${origen.lat}&endLng=${destino.lng}&endLat=${destino.lat}`;
   const res = await fetch(url);
   const data = await res.json();
 
