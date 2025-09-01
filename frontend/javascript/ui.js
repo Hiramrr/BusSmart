@@ -33,16 +33,16 @@ buscarRutaBtn.addEventListener("click", async () => {
   }
 });
 
-// Lugares de ejemplo
-import { lugaresEjemplo } from "./data.js";
+// // Lugares de ejemplo para pruebas
+// import { lugaresEjemplo } from "./data.js";
 
-(async () => {
-  for (const lugar of lugaresEjemplo) {
-    try {
-      const coords = await getCoords(lugar);
-      console.log(`${lugar} ➝ Lat: ${coords.lat}, Lng: ${coords.lng}`);
-    } catch (err) {
-      console.error(`Error en ${lugar}:`, err);
-    }
-  }
-})();
+// (async () => {
+//   for (const lugar of lugaresEjemplo) {
+//     try {
+//       const coords = await getCoords(lugar);
+//       console.log(`${lugar} ➝ Lat: ${coords.lat}, Lng: ${coords.lng}`);
+//     } catch (err) {
+//       console.error(`Error en ${lugar}:`, err);
+//     }
+//   }
+// })();
