@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rutas de Camión Xalapa</title>
+  <link rel="stylesheet" href="/frontend/css/mapa.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+  <!-- Contenedor principal -->
+  <div id="app">
+
+    <!-- Menú lateral (oculto/desplegable) -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2>Menú</h2>
+        <button id="close-sidebar">✖</button>
+      </div>
+      <nav class="sidebar-menu">
+        <ul>
+          <li><a href="#">Todas las rutas</a></li>
+          <li><a href="#">Favoritos</a></li>
+          <li><a href="#">Configuración</a></li>
+          <li><a href="#">Ayuda</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Contenedor del mapa -->
+    <main id="map-container">
+      <!-- Barra superior con botón menú y búsqueda -->
+      <header class="topbar">
+        <button id="open-sidebar">☰</button>
+      
+        <!-- Campo de origen -->
+        <input 
+          type="text" 
+          id="origen-input" 
+          placeholder="Ingresa el origen..."
+        >
+      
+        <!-- Campo de destino -->
+        <input 
+          type="text" 
+          id="destino-input" 
+          placeholder="Ingresa el destino..."
+        >
+      
+        <!-- Botón para calcular ruta -->
+        <button id="btn-ruta">🚍 Buscar Ruta</button>
+      </header>
+
+      <!-- Aquí va el mapa -->
+      <div id="map">
+        <!-- Aquí se renderizará el mapa (Leaflet, Google Maps API, etc.) -->
+      </div>
+    </main>
+    
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Scripts -->
+  <script type="module" src="/frontend/javascript/ui.js"></script>
+</body>
+</html>

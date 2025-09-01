@@ -1,0 +1,176 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    color: #362c42;
+    background-color: #f5f5f5;
+  }
+  
+/* Header: fijo y translúcido */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #2963b3;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    color: #362c42;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  .nav-links a:hover {
+    color: #a763ca;
+  }
+  
+/* Hero Section: gradiente y 100vh */
+#hero {
+    height: 100vh; /* ocupa toda la pantalla */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 2rem;
+    background: radial-gradient(circle at center, #60a2d3 0%, #2963b3 40%, #a763ca 100%);
+    color: #ffffff;
+    position: relative;
+
+  }
+  
+  /* Ajuste del texto para que no se oculte bajo la navbar */
+  #hero h1 {
+    margin-top: 4rem; /* separa el título de la navbar */
+  }
+  
+  .btn-primary {
+    padding: 0.75rem 1.5rem;
+    background-color: #2963b3;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  
+/* Botón principal */
+.btn-primary {
+    padding: 0.75rem 1.5rem;
+    background-color: rgba(41, 99, 179, 0.9); /* semitransparente */
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: rgba(167, 99, 202, 0.9);
+  }
+  
+ /* Bento Grid */
+ #features {
+    background-color: #f7f6f9; /* gris-lila claro */
+    padding: 5rem 2rem;
+    transition: background-color 0.6s ease-in-out;
+  }
+  
+  #features h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #362c42;
+  }
+  
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    grid-auto-rows: 200px; /* altura base */
+  }
+  
+  .feature {
+    background: #ffffff;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .feature:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  }
+  
+  /* Variaciones de tamaño para bento grid */
+  .feature.large {
+    grid-row: span 2; /* ocupa dos filas */
+  }
+  
+  .feature.wide {
+    grid-column: span 2; /* ocupa dos columnas */
+  }
+  
+  /* Títulos y texto */
+  .feature h3 {
+    color: #2963b3;
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature p {
+    color: #362c42;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #ffffff;
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.9rem;
+    color: #362c42;
+  }
+  
+  footer nav a {
+    color: #362c42;
+    text-decoration: none;
+    margin: 0 0.5rem;
+  }
+  
+  footer nav a:hover {
+    color: #a763ca;
+  }
+  

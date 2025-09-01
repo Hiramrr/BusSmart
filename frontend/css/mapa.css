@@ -1,0 +1,204 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body, html {
+    height: 100%;
+    font-family: Arial, sans-serif;
+  }
+
+  /* ============================= */
+/* Barra superior */
+.topbar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px; /* separación entre elementos */
+  background: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 900;
+}
+
+/* Botones generales dentro de la topbar */
+.topbar button {
+  background: #2c3e50;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0; /* evita que el botón se encoja */
+}
+
+.topbar button:hover {
+  background: #34495e;
+}
+
+/* Inputs de origen y destino */
+#origen-input,
+#destino-input {
+  flex: 1; /* ocupan el espacio disponible */
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Botón de buscar ruta */
+#btn-ruta {
+  background: #27ae60;
+}
+
+#btn-ruta:hover {
+  background: #2ecc71;
+}
+  
+  /* Contenedor principal */
+  #app {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  /* ============================= */
+  /* Menú lateral */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px; /* oculto por defecto */
+    width: 250px;
+    height: 100%;
+    background: #2c3e50;
+    color: #fff;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar.active {
+    left: 0; /* se muestra al abrir */
+  }
+  
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #1a252f;
+  }
+  
+  .sidebar-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .sidebar-header button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .sidebar-menu {
+    flex: 1;
+    padding: 15px;
+  }
+  
+  .sidebar-menu ul {
+    list-style: none;
+  }
+  
+  .sidebar-menu li {
+    margin: 15px 0;
+  }
+  
+  .sidebar-menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.2s;
+  }
+  
+  .sidebar-menu a:hover {
+    color: #f39c12;
+  }
+  
+  /* ============================= */
+  /* Área del mapa */
+  #map-container {
+    flex: 1;
+    height: 100%;
+    position: relative;
+  }
+  
+  /* Barra superior */
+  .topbar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 900;
+  }
+  
+  .topbar button {
+    background: #2c3e50;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .topbar button:hover {
+    background: #34495e;
+  }
+  
+  #search-bar {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* ============================= */
+  /* Mapa */
+
+
+  #map {
+    width: 100%;
+    height: 100vh; /* el mapa ocupa toda la pantalla */
+  }
+
+  /* Cuando el sidebar está activo */
+  .sidebar.active ~ #map-container {
+    margin-left: 50px; /* mismo ancho que el sidebar */
+    transition: margin-left 0.3s ease;
+  }
+  
+  /* Ajustar la barra de búsqueda cuando el sidebar está abierto */
+  .sidebar.active ~ #map-container .topbar {
+    left: 200px; /* deja espacio para el menú */
+  }
+
+  .sidebar.active ~ #map-container .topbar {
+    left: 200px; /* deja espacio para el menú */
+  }
+
+
+  
