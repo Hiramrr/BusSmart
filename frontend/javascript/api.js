@@ -1,6 +1,6 @@
 // api.js
 //En este archivo se consume nuestra api de backend
-const API_BASE = "https://bussmart.onrender.com"; //llamada a nuestra propia api
+const API_BASE = "https://bussmart.onrender.com/api/ors"; //llamada a nuestra propia api
 
 
 export async function getCoords(lugar) { //
