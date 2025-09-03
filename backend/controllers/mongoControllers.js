@@ -1,7 +1,8 @@
-import connectDB from "../config/mongo";
+import connectDB from "../config/mongo.js";
 
 export const getRuta = async (req, res) => {
     try{
+        
         const db = await connectDB();
         const rutas = await db.collection("rutas").find({}).toArray();
         res.json(rutas);
