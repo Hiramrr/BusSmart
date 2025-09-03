@@ -1,8 +1,6 @@
 // api.js
-//En este archivo se consume nuestra api de backend
+//En este archivo consume nuestra api de backend
 const API_BASE = "https://bussmart.onrender.com/api/ors"; //llamada a nuestra propia api
-
-
 export async function getCoords(lugar) { //
   const url = `${API_BASE}/geocode?text=${encodeURIComponent(lugar)}`;
   const res = await fetch(url);
