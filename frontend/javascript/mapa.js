@@ -1,3 +1,5 @@
+let currentRouteLayer = null; //creo que esta variable es la capa de la ruta
+
 //Se crea el mapa para luego llamarse desde UI
 export const map = L.map("map", {
   center: [19.5333, -96.9167],
