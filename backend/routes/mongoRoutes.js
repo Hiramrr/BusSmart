@@ -1,8 +1,8 @@
 import express from "express";
-import { getRuta } from "../controllers/mongoControllers.js";
+import { getRuta } from "../controllers/mongoControllers.js"; // Asegúrate de que el nombre sea correcto
 
 const router = express.Router();
 
-router.get("/rutas/:id", getRuta);
+router.get("/:id", getRuta);
 
 export default router;
