@@ -5,7 +5,9 @@ export const getRuta = async (req, res) => {
     const { id } = req.params;
     const db = await connectDB();
 
-    const ruta = await db.collection("rutas").findOne({ "properties.id": id });
+    const ruta = await db
+      .collection("rutas")
+      .findOne({ "features.properties.id": id });
 
     if (ruta) {
       res.json(ruta);
