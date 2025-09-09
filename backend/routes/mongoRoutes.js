@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/autocomplete", autocomplete);
 router.get("/:id", getRuta);
-
+router.get("/routes", getAllRoutes);
 
 export default router;
