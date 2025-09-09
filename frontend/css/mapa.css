@@ -51,6 +51,37 @@
   border-radius: 4px;
 }
 
+.autocomplete-container {
+  position: relative;
+  flex: 1; /* para mantener el mismo tamaño que el input original */
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%; /* justo debajo del input */
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: none; /* se muestra solo cuando hay sugerencias */
+}
+
+.suggestions-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background-color: #f0f0f0;
+}
+
 /* Botón de buscar ruta */
 #btn-ruta {
   background: #27ae60;

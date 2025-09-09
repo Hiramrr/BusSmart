@@ -1,4 +1,6 @@
-//Se crea el mapa para luego llamarse desde UI 
+let currentRouteLayer = null; //creo que esta variable es la capa de la ruta
+
+//Se crea el mapa para luego llamarse desde UI
 export const map = L.map("map", {
   center: [19.5333, -96.9167],
   zoom: 13,
@@ -19,7 +21,25 @@ export function instanciarMapa() {
     const { lat, lng } = e.latlng;
     L.marker([lat, lng])
       .addTo(map)
-      .bindPopup(`📍 Marcador en:<br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`)
+      .bindPopup(
+        `📍 Marcador en:<br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`,
+      )
       .openPopup();
   });
+}
+
+export function dibujarRuta(geojsonData, map) {
+  if (currentRouteLayer) {
+    map.removeLayer(currentRouteLayer);
+  }
+
+  currentRouteLayer = L.geoJSON(geojsonData, {
+    style: {
+      color: "#E42A2A",
+      weight: 5,
+      opacity: 0.85,
+    },
+  }).addTo(map);
+
+  map.fitBounds(currentRouteLayer.getBounds());
 }

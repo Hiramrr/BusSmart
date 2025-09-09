@@ -1,6 +1,6 @@
 // data.js
 export const lugaresEjemplo = [
-  "Parque Juárez Xalapa",
+  "Parque Juárez",
   "Catedral Metropolitana de Xalapa",
   "Parque de los Tecajetes",
   "Parque Los Berros",

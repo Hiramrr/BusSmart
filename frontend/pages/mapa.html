@@ -34,19 +34,27 @@
         <button id="open-sidebar">☰</button>
       
         <!-- Campo de origen -->
-        <input 
-          type="text" 
-          id="origen-input" 
-          placeholder="Ingresa el origen..."
-        >
+        <div class="autocomplete-container">
+          <input 
+            type="text" 
+            id="origen-input" 
+            placeholder="Ingresa el origen..."
+            autocomplete="off"
+          >
+          <ul id="origen-suggestions" class="suggestions-list"></ul>
+        </div>
       
         <!-- Campo de destino -->
-        <input 
-          type="text" 
-          id="destino-input" 
-          placeholder="Ingresa el destino..."
-        >
-      
+        <div class="autocomplete-container">
+          <input 
+            type="text" 
+            id="destino-input" 
+            placeholder="Ingresa el destino..."
+            autocomplete="off"
+          >
+          <ul id="destino-suggestions" class="suggestions-list"></ul>
+        </div>
+              
         <!-- Botón para calcular ruta -->
         <button id="btn-ruta">🚍 Buscar Ruta</button>
       </header>
