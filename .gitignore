@@ -1,10 +1,28 @@
-# Dependencias de Node.js
+# Dependencias
 node_modules/
+/frontend/node_modules/
+/backend/node_modules/
 
-# Logs
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+# Carpeta de compilación de Vue/Vite
+/frontend/dist/
+/dist/
 
-# Otros archivos temporales
+# Archivos de Log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Archivos de entorno - ¡MUY IMPORTANTE!
+
+# Archivos de sistema operativo
 .DS_Store
+Thumbs.db
+
+# Carpetas de configuración de Editores e IDEs
+.vscode/
+.idea/
+
+# Reportes de pruebas y cobertura
+coverage/
+.nyc_output/
