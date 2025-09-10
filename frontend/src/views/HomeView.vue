@@ -3,6 +3,8 @@
 import TheHeader from '@/components/layout/TheHeader.vue';
 import HeroSection from '@/components/home/HeroSection.vue';
 import FeaturesSection from '@/components/home/FeaturesSection.vue';
+import TheFooter from '@/components/layout/TheFooter.vue';
+
 </script>
 
 <template>
@@ -12,7 +14,8 @@ import FeaturesSection from '@/components/home/FeaturesSection.vue';
     <HeroSection />
     <FeaturesSection />
   </main>
-  
+    <TheFooter />
+
 </template>
 
 <style scoped>

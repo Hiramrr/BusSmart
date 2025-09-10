@@ -7,7 +7,7 @@
 
 <script setup>
 // Importas los componentes que uses aquí
-import { RouterView } from 'vue-router'
+import { RouterView } from 'vue-router' 
 </script>
 <style scoped>
 /* Estilos para el layout principal */
