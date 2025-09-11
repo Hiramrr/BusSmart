@@ -22,6 +22,6 @@ import TheFooter from '@/components/layout/TheFooter.vue';
 /* Puedes añadir estilos específicos para la HomeView aquí si es necesario */
 main {
   /* Ejemplo */
-  padding-top: 60px; /* Evita que el contenido se oculte detrás de un header fijo */
 }
+
 </style>

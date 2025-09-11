@@ -8,6 +8,7 @@
   </section>
 </template>
 <script>
+
 </script>
 <style scoped>
     #hero {
@@ -56,5 +57,4 @@
 
     }
     
-    /* Bento Grid */
 </style>
