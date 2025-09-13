@@ -11,7 +11,7 @@
 
         <!-- Botón para calcular ruta -->
         <button id="btn-ruta">🚍 Buscar Ruta</button>
-      </header>
+      <header></header>
 </template>
 
 <script setup>
