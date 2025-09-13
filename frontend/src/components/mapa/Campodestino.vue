@@ -1,14 +1,14 @@
 <template>
     <div class="autocomplete-container">
-          <input 
-            type="text" 
-            id="destino-input" 
+          <input
+            type="text"
+            id="destino-input"
             placeholder="Ingresa el destino..."
             autocomplete="off"
           >
           <ul id="destino-suggestions" class="suggestions-list"></ul>
         </div>
-              
+
         <!-- Botón para calcular ruta -->
         <button id="btn-ruta">🚍 Buscar Ruta</button>
       </header>

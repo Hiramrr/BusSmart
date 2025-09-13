@@ -1,8 +1,22 @@
+<script setup>
+defineProps({
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
+})
+const emit = defineEmits(['close'])
+
+function cerrarMenu() {
+  emit('close')
+}
+</script>
+
 <template>
-  <aside id="sidebar" class="sidebar">
+  <aside id="sidebar" class="sidebar" :class="{ active: isActive }">
     <div class="sidebar-header">
       <h2>Menú</h2>
-      <button id="close-sidebar">✖</button>
+      <button id="close-sidebar" @click="cerrarMenu">✖</button>
     </div>
     <nav class="sidebar-menu">
       <ul>
@@ -14,15 +28,6 @@
     </nav>
   </aside>
 </template>
-
-<script setup>
-const sidebar = document.getElementById('sidebar')
-const openSidebarBtn = document.getElementById('open-sidebar')
-const closeSidebarBtn = document.getElementById('close-sidebar')
-
-openSidebarBtn.addEventListener('click', () => sidebar.classList.toggle('active'))
-closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('active'))
-</script>
 
 <style scoped>
 .sidebar {
