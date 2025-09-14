@@ -5,7 +5,7 @@
       <p class="autoBlur">
         La forma más rápida y sencilla de moverte por Xalapa en transporte público.
       </p>
-      <router-link to="/MapView" class="map-btn">Ver rutas</router-link>
+      <router-link to="/map" class="map-btn">Ver rutas</router-link>
     </div>
   </section>
 </template>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import CampoDestino from '@/components/layout/CampoDestino.vue'
-import MenuLateral from '@/components/home/MenuLateral.vue'
+import CampoDestino from '@/components/mapa/CampoDestino.vue'
+import MenuLateral from '@/components/mapa/MenuLateral.vue'
 
 const isMenuOpen = ref(false)
 

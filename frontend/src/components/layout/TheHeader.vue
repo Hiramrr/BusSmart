@@ -5,7 +5,7 @@
                 <div class="nav-right">
                     <ul class="nav-links">
                         <li><a href="#features">Características</a></li>
-                        <li><a href="pages/mapa.html">Mapa</a></li>
+                        <li><router-link to="/map" class="nav-link">Mapa</router-link></li>
                         <li><a href="#descargar">Descargar</a></li>
                         <li><a href="#contacto">Contacto</a></li>
                     </ul>
