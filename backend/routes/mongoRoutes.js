@@ -1,10 +1,10 @@
 import express from "express";
-import { getRuta, autocomplete } from "../controllers/mongoControllers.js"; // Asegúrate de que el nombre sea correcto
+import { getRuta, autocomplete,getAllRutas } from "../controllers/mongoControllers.js"; // Asegúrate de que el nombre sea correcto
 
 const router = express.Router();
 
 router.get("/autocomplete", autocomplete);
 router.get("/:id", getRuta);
-router.get("/routes", getAllRoutes);
+router.get("/routes", getAllRutas);
 
 export default router;

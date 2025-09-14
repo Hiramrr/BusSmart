@@ -1,109 +1,73 @@
 <template>
-  <!-- Componente: mapaContenedor.vue -->
-  <div class="mapa-contenedor">
-    <main id="map-container">
-      <!-- El div con ref="mapRef" será donde Leaflet monte el mapa -->
-      <div id="map" ref="mapRef" aria-label="Mapa de Xalapa"></div>
-    </main>
-  </div>
+  <div id="mapa-leaflet" class="mapa-contenedor"></div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineExpose } from 'vue'
+import { onMounted, ref, watch } from 'vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+// --- Props ---
+// Definimos la 'prop' que recibirá los datos GeoJSON desde el componente padre (MapView).
+const props = defineProps({
+  rutaGeoJSON: {
+    type: Object,
+    default: null,
+  },
+});
 
-//Aqui mejor puse esto para que el codigo sea mas legible
-const XALAPA_COORDENADAS = [19.5333, -96.9167]
-const ZOOM = 13
-const COLOR = '#E42A2A'
+// --- Estado Reactivo ---
+// 'map' es una referencia para guardar la instancia del mapa de Leaflet.
+const map = ref(null);
+// 'rutaLayer' es una referencia para la capa de la ruta, para poder eliminarla y redibujarla.
+const rutaLayer = ref(null);
 
-let currentRouteLayer = null
-const mapRef = ref(null)
-let mapInstance = null
-
-function instanciarMapa() {
-  if (!mapRef.value) return
-
-  mapInstance = L.map(mapRef.value, {
-    center: XALAPA_COORDENADAS,
-    zoom: ZOOM,
-    zoomControl: false,
-  })
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-  }).addTo(mapInstance)
-
-  L.marker([19.5333, -96.9167])
-    .addTo(mapInstance)
-    .bindPopup('<b>Bienvenido a Xalapa</b><br>Aquí puedes mostrar rutas.')
-    .openPopup()
-
-  mapInstance.on('dblclick', function (e) {
-    const { lat, lng } = e.latlng
-    L.marker([lat, lng])
-      .addTo(mapInstance)
-      .bindPopup(`📍 Marcador en:<br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`)
-      .openPopup()
-  })
-}
-
-function dibujarRuta(geojsonData) {
-  if (currentRouteLayer) {
-    mapInstance.removeLayer(currentRouteLayer)
-  }
-
-  currentRouteLayer = L.geoJSON(geojsonData, {
-    style: {
-      color: COLOR,
-      weight: 5,
-      opacity: 0.85,
-    },
-  }).addTo(mapInstance)
-
-  mapInstance.fitBounds(currentRouteLayer.getBounds())
-}
-
-defineExpose({
-  dibujarRuta,
-})
-
+// --- Ciclo de Vida: onMounted ---
+// Se ejecuta una vez que el componente está montado en el DOM.
 onMounted(() => {
-  instanciarMapa()
-})
+  // Inicializamos el mapa en el div 'mapa-leaflet'.
+  map.value = L.map('mapa-leaflet', {
+  center: [19.5333, -96.9167],
+  zoom: 13,
+  zoomControl: false,
+});
+  // Añadimos una capa de teselas (el fondo del mapa).
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map.value);
+});
 
-onBeforeUnmount(() => {
-  if (mapInstance) {
-    mapInstance.remove()
-    mapInstance = null
+// --- Watcher ---
+// 'watch' observa cambios en la prop 'rutaGeoJSON'.
+// Cada vez que 'MapView' nos pasa una nueva ruta, esta función se ejecuta.
+watch(() => props.rutaGeoJSON, (newGeoJSON) => {
+  if (!map.value) return; // Si el mapa no está listo, no hacemos nada.
+
+  // Si ya hay una ruta dibujada, la eliminamos.
+  if (rutaLayer.value) {
+    map.value.removeLayer(rutaLayer.value);
   }
-})
+
+  // Si los nuevos datos GeoJSON no son nulos, los dibujamos.
+  if (newGeoJSON) {
+    rutaLayer.value = L.geoJSON(newGeoJSON, {
+      style: {
+        color: '#e44234', // Un color llamativo
+        weight: 5,
+        opacity: 0.8,
+      },
+    }).addTo(map.value);
+
+    // Hacemos zoom para que la ruta se vea completa.
+    map.value.fitBounds(rutaLayer.value.getBounds());
+  }
+});
 </script>
 
-<style>
-/* Estilos relacionados al contenedor del mapa */
-
-#map-container {
-  width: 100%;
-  height: 100vh; /* ocupa toda la ventana */
-  box-sizing: border-box;
-}
-
-#map {
-  width: 100%;
-  height: 100%;
-  min-height: 320px;
-}
-
+<style scoped>
 .mapa-contenedor {
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
 }
 </style>

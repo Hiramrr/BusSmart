@@ -1,6 +1,6 @@
 // Gracias al proxy de Vite, solo necesitamos la ruta relativa.
 // Esto funciona para desarrollo local. Para producción, se configurará diferente.
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:3000/api';
 
 async function apiFetch(url) {
   try {
@@ -44,5 +44,10 @@ export async function fetchAutocomplete(query) {
   if (!query) return [];
   const url = `${API_BASE}/rutas/autocomplete?query=${encodeURIComponent(query)}`;
   // Reutilizamos nuestra función apiFetch para mantener el código DRY.
+  return await apiFetch(url);
+}
+
+export async function fetchRutaPorId(id) {
+  const url = `${API_BASE}/rutas/${id}`;
   return await apiFetch(url);
 }

@@ -1,104 +1,74 @@
-<script setup>
-import { ref } from 'vue'
-import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue'
-import MenuLateral from '@/components/mapa/MenuLateral.vue'
-import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
-
-const isMenuOpen = ref(false)
-const mapaRef = ref(null)
-
-function dibujarLaRutaEnElMapa(geojsonData) {
-  if (mapaRef.value) {
-    mapaRef.value.dibujarRuta(geojsonData)
-  }
-}
-
-function openMenu() {
-  isMenuOpen.value = true
-}
-
-function closeMenu() {
-  isMenuOpen.value = false
-}
-</script>
-
 <template>
-  <div class="vista-mapa-principal">
-    <MenuLateral :isActive="isMenuOpen" @close="closeMenu" />
-
-    <div class="contenido-principal" :class="{ 'menu-abierto': isMenuOpen }">
-      <header>
-        <button class="menu-button" @click="openMenu">☰ Menú</button>
-        <h1>Mapa de Rutas de Camiones en Xalapa</h1>
-      </header>
-
-      <main>
-        <ControlesBusqueda @rutaEncontrada="dibujarLaRutaEnElMapa" />
-
-        <div class="mapa-wrapper">
-          <MapaContenedor ref="mapaRef" />
-        </div>
-      </main>
-    </div>
+  <div class="map-view-container">
+    <button @click="toggleSidebar" class="menu-button">☰</button>
+    
+    <MenuLateral :is-open="isSidebarOpen" @close="toggleSidebar" />
+    
+    <main class="main-content">
+      <ControlesBusqueda @buscar-ruta="handleBuscarRuta" />
+      <MapaContenedor :ruta-geo-json="rutaActualGeoJSON" />
+    </main>
   </div>
 </template>
 
+<script setup>
+import { ref } from 'vue';
+import MenuLateral from '@/components/mapa/MenuLateral.vue';
+import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue';
+import MapaContenedor from '@/components/mapa/MapaContenedor.vue';
+import { fetchRutaPorId } from '@/services/api.js'; // Asumimos que esta función existe en api.js
+
+// --- Estado Reactivo ---
+// Controla si el menú lateral está visible o no.
+const isSidebarOpen = ref(false);
+// Almacena los datos GeoJSON de la ruta que se está mostrando en el mapa.
+const rutaActualGeoJSON = ref(null);
+
+// --- Métodos ---
+// Cambia el estado de visibilidad del menú lateral.
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+// Manejador del evento 'buscar-ruta' emitido por ControlesBusqueda.
+const handleBuscarRuta = async (idRuta) => {
+  console.log(`Buscando datos para la ruta con ID: ${idRuta}`);
+  try {
+    // Llama a la API para obtener el GeoJSON y lo guarda en el estado.
+    const data = await fetchRutaPorId(idRuta);
+    rutaActualGeoJSON.value = data;
+  } catch (error) {
+    console.error("Error al obtener la ruta:", error);
+    alert("No se pudo encontrar la ruta solicitada.");
+    rutaActualGeoJSON.value = null; // Limpia la ruta en caso de error
+  }
+};
+</script>
+
 <style scoped>
-.vista-mapa-principal {
-  display: flex;
+.map-view-container {
+  position: relative;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-.contenido-principal {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.main-content {
   height: 100%;
-  transition: transform 0.3s ease;
-}
-
-.contenido-principal.menu-abierto {
-  transform: translateX(250px);
-}
-
-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .menu-button {
-  padding: 0.5rem 1rem;
-  background-color: #213261;
-  color: white;
-  border: none;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1001; /* Encima de todo, excepto el menú cuando está abierto */
+  background-color: white;
+  border: 1px solid #ccc;
   border-radius: 5px;
+  padding: 10px 15px;
+  font-size: 1.5rem;
   cursor: pointer;
-  font-size: 1rem;
-}
-
-h1 {
-  margin: 0;
-  color: #213261;
-  flex-grow: 1;
-  font-size: 1.2rem;
-}
-
-main {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.mapa-wrapper {
-  flex-grow: 1;
-  width: 100%;
-  height: 100%;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 </style>
