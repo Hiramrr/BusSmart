@@ -51,3 +51,8 @@ export async function fetchRutaPorId(id) {
   const url = `${API_BASE}/rutas/${id}`;
   return await apiFetch(url);
 }
+
+export async function fetchSugerenciasDeRuta(origen, destino) {
+  const url = `${API_BASE}/rutas/sugerir?latOrigen=${origen.lat}&lngOrigen=${origen.lng}&latDestino=${destino.lat}&lngDestino=${destino.lng}`;
+  return await apiFetch(url);
+}
