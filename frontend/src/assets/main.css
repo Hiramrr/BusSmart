@@ -2,6 +2,26 @@
   CSS Reset: Elimina los estilos por defecto del navegador para tener
   un punto de partida consistente.
 */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --color-primario: #2c3e50;
+  --color-acento: #42b983;
+  --color-fondo: #ffffff;
+  --color-borde: #e0e0e0;
+  --sombra-suave: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --radio-borde: 12px;
+  --font-principal: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-principal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
 *,
 *::before,
 *::after {
