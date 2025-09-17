@@ -15,7 +15,11 @@
         @close="limpiarBusqueda"
       />
 
-      <MapaContenedor :datos-viaje="datosDelViaje" />
+      <MapaContenedor 
+        :datos-viaje="datosDelViaje" 
+        :origen="puntoDeOrigen"
+        :destino="puntoDeDestino"
+      />
     </main>
   </div>
 </template>
@@ -25,13 +29,15 @@ import { ref } from 'vue';
 import MenuLateral from '@/components/mapa/MenuLateral.vue';
 import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue';
 import MapaContenedor from '@/components/mapa/MapaContenedor.vue';
-import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue'; // Importamos el nuevo componente
+import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue';
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js';
 
-// --- Estado Reactivo ---
 const isSidebarOpen = ref(false);
-const sugerenciasDeRuta = ref([]); // Guardará las sugerencias de la API
-const datosDelViaje = ref(null); // Guardará la ruta seleccionada para dibujarla
+const sugerenciasDeRuta = ref([]);
+const datosDelViaje = ref(null);
+
+const puntoDeOrigen = ref(null);
+const puntoDeDestino = ref(null);
 
 // --- Métodos ---
 const toggleSidebar = () => {
@@ -41,11 +47,16 @@ const toggleSidebar = () => {
 const limpiarBusqueda = () => {
   sugerenciasDeRuta.value = [];
   datosDelViaje.value = null;
+  puntoDeOrigen.value = null;
+  puntoDeDestino.value = null;
 };
 
-// Se ejecuta cuando ControlesBusqueda emite las coordenadas
 const handleBuscarRuta = async ({ origen, destino }) => {
-  limpiarBusqueda(); // Limpia resultados anteriores
+  limpiarBusqueda();
+  
+  puntoDeOrigen.value = origen;
+  puntoDeDestino.value = destino;
+
   console.log("Buscando rutas para:", { origen, destino });
   try {
     const sugerencias = await fetchSugerenciasDeRuta(origen, destino);
@@ -62,18 +73,14 @@ const handleBuscarRuta = async ({ origen, destino }) => {
 // Se ejecuta cuando el usuario selecciona una ruta desde ResultadosBusqueda
 const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
-    // Obtenemos el GeoJSON completo de la ruta para poder dibujarla
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId);
     
-    // Creamos un objeto con toda la información necesaria para el mapa
     datosDelViaje.value = {
       ...rutaSugerida,
-      geoJson: rutaGeoJSON, // El trazo completo de la ruta
+      geoJson: rutaGeoJSON,
     };
 
-    // Ocultamos el panel de sugerencias después de seleccionar
     sugerenciasDeRuta.value = []; 
-
   } catch (error) {
     console.error("Error al obtener el GeoJSON de la ruta:", error);
     alert("No se pudo cargar el detalle de la ruta seleccionada.");
@@ -82,7 +89,7 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
 </script>
 
 <style scoped>
-/* ... (Los estilos de MapView.vue se mantienen igual) ... */
+/* ... (Tus estilos se mantienen igual) ... */
 .map-view-container {
   position: relative;
   height: 100vh;
