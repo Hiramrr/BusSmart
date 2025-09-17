@@ -8,7 +8,7 @@ import orsRoutes from "./routes/orsRoutes.js";
 import mongoRoutes from "./routes/mongoRoutes.js";
 
 //inicializador de la caché con todas las paradas
-import { initStopCache } from "./cache.js";
+import { initializeCache } from "./cache.js";
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ const startServer = async () => {
     console.log("MongoDB conectado exitosamente.");
 
     //cargamos los datos en nuestra caché en memoria
-    await initStopCache();
+    await initializeCache();
 
     // Finalmente iniciamos el servidor
     app.listen(PORT, () => {

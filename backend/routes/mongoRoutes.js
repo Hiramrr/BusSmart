@@ -3,7 +3,7 @@ import {
     getRuta, 
     autocomplete,
     getAllRutas,
-    sugerirRuta
+    sugerirRuta,
 } from "../controllers/mongoControllers.js"; 
 
 const router = express.Router();

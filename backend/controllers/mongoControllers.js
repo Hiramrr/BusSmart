@@ -1,5 +1,5 @@
 import connectDB from "../config/mongo.js";
-import { getStopCache } from "../cache.js"; //IMPORTA LA CACHÉ
+import { getStopCache, getRoutesCache } from "../cache.js"; //IMPORTA LA CACHÉ
 import { getDistanceInMeters } from "../utils/geolocation.js"; //UTILIDAD DE DISTANCIA
 
 export const getRuta = async (req, res) => {
@@ -56,7 +56,7 @@ export const autocomplete = async (req, res) => {
   }
 };
 
-export const getAllRutas = async (req, res) => {
+export const getAllRutasforID = async (req, res) => {
   try {
     const db = await connectDB();
     const options = {
@@ -78,6 +78,20 @@ export const getAllRutas = async (req, res) => {
     res.status(500).json({ error: "Error al obtener las rutas" });
   }
 };
+
+export const getAllRutas = (req, res) => {
+  try {
+    const rutas = getRoutesCache();
+    if (rutas.length === 0) {
+      return res.status(503).json({ error: "El servicio no está disponible, por favor intente de nuevo en un momento." });
+    }
+    res.json(rutas);
+  } catch (error) {
+    console.error("Error en getAllRutas:", error);
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+};
+
 
 export const sugerirRuta = async (req, res) => {
   const { latOrigen, lngOrigen, latDestino, lngDestino } = req.query;

@@ -1,46 +1,46 @@
 import connectDB from "./config/mongo.js";
 
-// Aquí guardaremos nuestro arreglo plano de paradas.
 let paradasCache = [];
+let rutasCache = []; 
 
-/**
- * Inicializa la caché de paradas.
- * Lee todos los documentos de la colección 'paradas',
- * los aplana y los guarda en la variable paradasCache.
- */
-
-export async function initStopCache() {
+export const initializeCache = async () => {
   try {
-    console.log("Iniciando la carga de la caché de paradas...");
     const db = await connectDB();
-    const paradasCollection = db.collection("paradas");
+    console.log("Conectado a MongoDB para inicializar el caché...");
 
-    // Traemos todos los documentos de la colección
-    const todasLasRutasConParadas = await paradasCollection.find({}).toArray();
+    //Cargar Paradas
+    console.log("Cargando paradas en caché...");
+    paradasCache = await db.collection("paradas").find({}).toArray();
+    console.log(`✅ ${paradasCache.length} paradas cargadas en caché.`);
 
-    // Usamos flatMap para transformar la estructura anidada en un arreglo plano
-    paradasCache = todasLasRutasConParadas.flatMap((rutaDoc) => {
-      // Por cada documento de ruta, iteramos sobre sus 'features' (paradas)
-      return rutaDoc.features.map((paradaFeature) => {
-        // Creamos un objeto simple por cada parada
-        return {
-          routeId: paradaFeature.properties.routeId,
-          sequence: paradaFeature.properties.sequence,
-          coordinates: paradaFeature.geometry.coordinates, // [lng, lat]
-        };
-      });
-    });
+    //Cargar Rutas
+    console.log("Cargando lista de rutas en caché...");
+    const rutasProjection = {
+      projection: {
+        _id: 0,
+        "features.properties.id": 1,
+        "features.properties.name": 1,
+        "features.properties.desc": 1,
+      },
+    };
+    
+    const todasLasRutas = await db.collection("rutas").find({}, rutasProjection).toArray();
 
-    console.log(`Caché de paradas cargada exitosamente con ${paradasCache.length} paradas.`);
+    // Transformamos los datos para que sean más fáciles de usar en el frontend
+    rutasCache = todasLasRutas.map(ruta => ({
+        routeId: ruta.features[0].properties.id,
+        nombreRuta: ruta.features[0].properties.name,
+        descripcionRuta: ruta.features[0].properties.desc,
+    }));
+
+    console.log(`✅ ${rutasCache.length} rutas cargadas en caché.`);
+
   } catch (error) {
-    console.error("Error al inicializar la caché de paradas:", error);
-    // Si la caché no carga, es un error crítico. Salimos del proceso.
+    console.error("❌ Error al inicializar el caché:", error);
     process.exit(1);
   }
-}
+};
 
-
-//Devuelve la caché de paradas.
-export function getStopCache() {
-  return paradasCache;
-}
+// --- Getters para acceder a los datos cacheados ---
+export const getStopCache = () => paradasCache;
+export const getRoutesCache = () => rutasCache; 
