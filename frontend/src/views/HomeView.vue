@@ -20,8 +20,4 @@ import TheFooter from '@/components/layout/TheFooter.vue';
 
 <style scoped>
 /* Puedes añadir estilos específicos para la HomeView aquí si es necesario */
-main {
-  /* Ejemplo */
-}
-
 </style>

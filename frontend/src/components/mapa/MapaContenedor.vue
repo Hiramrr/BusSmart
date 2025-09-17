@@ -7,60 +7,51 @@ import { onMounted, ref, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// --- Props ---
-// Definimos la 'prop' que recibirá los datos GeoJSON desde el componente padre (MapView).
 const props = defineProps({
-  rutaGeoJSON: {
+  datosViaje: {
     type: Object,
     default: null,
   },
 });
 
-// --- Estado Reactivo ---
-// 'map' es una referencia para guardar la instancia del mapa de Leaflet.
 const map = ref(null);
-// 'rutaLayer' es una referencia para la capa de la ruta, para poder eliminarla y redibujarla.
 const rutaLayer = ref(null);
 
-// --- Ciclo de Vida: onMounted ---
-// Se ejecuta una vez que el componente está montado en el DOM.
 onMounted(() => {
-  // Inicializamos el mapa en el div 'mapa-leaflet'.
   map.value = L.map('mapa-leaflet', {
-  center: [19.5333, -96.9167],
-  zoom: 13,
-  zoomControl: false,
-});
-  // Añadimos una capa de teselas (el fondo del mapa).
+    center: [19.5333, -96.9167], // Centro en Xalapa
+    zoom: 13,
+    zoomControl: false,
+  });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map.value);
 });
 
 // --- Watcher ---
-// 'watch' observa cambios en la prop 'rutaGeoJSON'.
-// Cada vez que 'MapView' nos pasa una nueva ruta, esta función se ejecuta.
-watch(() => props.rutaGeoJSON, (newGeoJSON) => {
-  if (!map.value) return; // Si el mapa no está listo, no hacemos nada.
+//    Usamos una función `() => props.datosViaje` para observar cambios en el objeto.
+watch(() => props.datosViaje, (newViaje) => {
+  if (!map.value) return;
 
-  // Si ya hay una ruta dibujada, la eliminamos.
   if (rutaLayer.value) {
     map.value.removeLayer(rutaLayer.value);
   }
 
-  // Si los nuevos datos GeoJSON no son nulos, los dibujamos.
-  if (newGeoJSON) {
-    rutaLayer.value = L.geoJSON(newGeoJSON, {
+  // Comprobamos que existan tanto el objeto del viaje como la propiedad geoJson.
+  if (newViaje && newViaje.geoJson) {
+    rutaLayer.value = L.geoJSON(newViaje.geoJson, {
       style: {
-        color: '#e44234', // Un color llamativo
-        weight: 5,
-        opacity: 0.8,
+        color: '#e44234',
+        weight: 6, // Un poco más grueso para que resalte
+        opacity: 0.85,
       },
     }).addTo(map.value);
 
-    // Hacemos zoom para que la ruta se vea completa.
+    // Hacemos zoom para que la nueva ruta se vea completa.
     map.value.fitBounds(rutaLayer.value.getBounds());
   }
+}, {
+    deep: true 
 });
 </script>
 

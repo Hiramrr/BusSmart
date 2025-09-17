@@ -1,4 +1,3 @@
-// Gracias al proxy de Vite, solo necesitamos la ruta relativa.
 // Esto funciona para desarrollo local. Para producción, se configurará diferente.
 const API_BASE = 'http://localhost:3000/api';
 
