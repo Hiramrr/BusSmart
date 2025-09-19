@@ -3,7 +3,7 @@
     <button @click="toggleSidebar" class="menu-button">☰</button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
     
-    <MenuLateral :is-open="isSidebarOpen" @close="toggleSidebar" />
+  <MenuLateral :is-open="isSidebarOpen" @close="toggleSidebar" @mostrar-ruta="handleMostrarRuta" />
     
     <main class="main-content">
       <ControlesBusqueda @buscar-ruta="handleBuscarRuta" />
@@ -25,6 +25,22 @@
 </template>
 
 <script setup>
+// Mostrar ruta en el mapa al seleccionar una tarjeta
+const handleMostrarRuta = async (routeId) => {
+  try {
+    const geoJson = await fetchRutaPorId(routeId);
+    datosDelViaje.value = {
+      geoJson: geoJson
+    };
+    // Opcional: limpiar sugerencias y puntos si solo quieres mostrar la ruta
+    sugerenciasDeRuta.value = [];
+    puntoDeOrigen.value = null;
+    puntoDeDestino.value = null;
+  } catch (error) {
+    console.error('Error al mostrar la ruta:', error);
+    alert('No se pudo mostrar la ruta seleccionada.');
+  }
+};
 import { ref } from 'vue';
 import MenuLateral from '@/components/mapa/MenuLateral.vue';
 import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue';

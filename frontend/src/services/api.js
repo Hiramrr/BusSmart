@@ -1,3 +1,8 @@
+// Obtener todas las rutas desde /routes
+export async function getRutas() {
+  const url = `${API_BASE}/rutas/routes`;
+  return await apiFetch(url);
+}
 // Esto funciona para desarrollo local. Para producción, se configurará diferente.
 const API_BASE = 'http://localhost:3000/api'
 

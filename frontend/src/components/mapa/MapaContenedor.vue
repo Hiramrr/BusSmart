@@ -60,58 +60,47 @@ onMounted(() => {
 watch(() => props.datosViaje, (newViaje) => {
   if (!map.value) return;
 
-  // 1. Limpiamos las capas de la búsqueda anterior
+  // Limpiar capas anteriores
   if (rutaLayer.value) {
     map.value.removeLayer(rutaLayer.value);
     rutaLayer.value = null;
   }
-  // Limpia todos los marcadores y líneas anteriores de una vez
-  viajeMarkersLayer.value.clearLayers(); 
+  viajeMarkersLayer.value.clearLayers();
 
-  // 2. Si no hay un nuevo viaje válido, detenemos la ejecución.
-  if (!newViaje || !newViaje.geoJson || !props.origen || !props.destino) {
+  // Si no hay geoJson, no hacemos nada
+  if (!newViaje || !newViaje.geoJson) {
     return;
   }
 
-  // 3. Dibujamos la RUTA DEL CAMIÓN (línea sólida)
+  // Dibujar la ruta principal
   rutaLayer.value = L.geoJSON(newViaje.geoJson, {
     style: { color: '#e44234', weight: 6, opacity: 0.85 },
   }).addTo(map.value);
 
-  // 4. Extraemos todas las coordenadas necesarias
-  //    Nota: GeoJSON usa [longitud, latitud], mientras que Leaflet usa [latitud, longitud].
-  //    Por eso invertimos el orden de las coordenadas que vienen de las paradas.
-  const origenCoords = [props.origen.lat, props.origen.lng];
-  const destinoCoords = [props.destino.lat, props.destino.lng];
-  const paradaSubidaCoords = [newViaje.paradaSubida.coordinates[1], newViaje.paradaSubida.coordinates[0]];
-  const paradaBajadaCoords = [newViaje.paradaBajada.coordinates[1], newViaje.paradaBajada.coordinates[0]];
+  // Si hay origen/destino/paradas, dibuja marcadores y líneas de caminata
+  if (props.origen && props.destino && newViaje.paradaSubida && newViaje.paradaBajada) {
+    const origenCoords = [props.origen.lat, props.origen.lng];
+    const destinoCoords = [props.destino.lat, props.destino.lng];
+    const paradaSubidaCoords = [newViaje.paradaSubida.coordinates[1], newViaje.paradaSubida.coordinates[0]];
+    const paradaBajadaCoords = [newViaje.paradaBajada.coordinates[1], newViaje.paradaBajada.coordinates[0]];
 
-  // 5. Añadimos los MARCADORES al LayerGroup
-  L.marker(origenCoords, { icon: originIcon }).addTo(viajeMarkersLayer.value)
-    .bindPopup("📍 Tu Origen");
-  
-  L.marker(destinoCoords, { icon: destinationIcon }).addTo(viajeMarkersLayer.value)
-    .bindPopup("🏁 Tu Destino");
-    
-  L.marker(paradaSubidaCoords, { icon: busStopIcon }).addTo(viajeMarkersLayer.value)
-    .bindPopup(`🚍 Sube en: <b>${newViaje.paradaSubida.name}</b>`);
-    
-  L.marker(paradaBajadaCoords, { icon: busStopIcon }).addTo(viajeMarkersLayer.value)
-    .bindPopup(`🚶‍♂️ Baja en: <b>${newViaje.paradaBajada.name}</b>`);
+    L.marker(origenCoords, { icon: originIcon }).addTo(viajeMarkersLayer.value)
+      .bindPopup("📍 Tu Origen");
+    L.marker(destinoCoords, { icon: destinationIcon }).addTo(viajeMarkersLayer.value)
+      .bindPopup("🏁 Tu Destino");
+    L.marker(paradaSubidaCoords, { icon: busStopIcon }).addTo(viajeMarkersLayer.value)
+      .bindPopup(`🚍 Sube en: <b>${newViaje.paradaSubida.name}</b>`);
+    L.marker(paradaBajadaCoords, { icon: busStopIcon }).addTo(viajeMarkersLayer.value)
+      .bindPopup(`🚶‍♂️ Baja en: <b>${newViaje.paradaBajada.name}</b>`);
 
-  // 6. Dibujamos las LÍNEAS DE CAMINATA (punteadas)
-  const estiloCaminata = { color: '#1a73e8', weight: 4, dashArray: '5, 10' };
-  
-  L.polyline([origenCoords, paradaSubidaCoords], estiloCaminata).addTo(viajeMarkersLayer.value);
-  L.polyline([paradaBajadaCoords, destinoCoords], estiloCaminata).addTo(viajeMarkersLayer.value);
+    const estiloCaminata = { color: '#1a73e8', weight: 4, dashArray: '5, 10' };
+    L.polyline([origenCoords, paradaSubidaCoords], estiloCaminata).addTo(viajeMarkersLayer.value);
+    L.polyline([paradaBajadaCoords, destinoCoords], estiloCaminata).addTo(viajeMarkersLayer.value);
+  }
 
-  // 7. Hacemos zoom para que todo el viaje sea visible en el mapa
-  const bounds = L.featureGroup([
-      ...viajeMarkersLayer.value.getLayers(), 
-      rutaLayer.value
-  ]).getBounds();
-  
-  map.value.fitBounds(bounds, { padding: [50, 50] }); // Añadimos padding para que no quede justo en los bordes
+  // Ajusta el zoom para mostrar la ruta
+  const bounds = rutaLayer.value.getBounds();
+  map.value.fitBounds(bounds, { padding: [50, 50] });
 
 }, { deep: true });
 </script>
