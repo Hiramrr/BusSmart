@@ -22,21 +22,16 @@
         <div v-else>
           <div
             v-for="ruta in rutas"
-            :key="ruta.routeId"
-            class="ruta-card"
-            @click="seleccionarRuta(ruta.routeId)"
-            style="cursor:pointer;"
+            :key="ruta.id" class="ruta-card"
+            @click="seleccionarRuta(ruta.id)" style="cursor:pointer;"
           >
             <div class="ruta-card-header">
               <span class="ruta-icon">🚌</span>
-              <h4 class="ruta-nombre">{{ ruta.nombreRuta || 'Ruta sin nombre' }}</h4>
-            </div>
+              <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4> </div>
             <div class="ruta-card-body">
-              <div class="ruta-id"><strong>ID:</strong> {{ ruta.routeId || 'N/A' }}</div>
-              <div class="ruta-desc">{{ ruta.descripcionRuta || 'Sin descripción' }}</div>
-            </div>
+              <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div> <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div> </div>
           </div>
-        </div>
+          </div>
       </div>
       <button @click="cerrarMenuRutas" class="close-btn">Cerrar</button>
     </div>
@@ -54,7 +49,8 @@ const loadingRutas = ref(false);
 const props = defineProps({
   isOpen: Boolean,
 });
-const emit = defineEmits(['close']);
+// ✅ CAMBIO: Se define el emit correctamente
+const emit = defineEmits(['close', 'mostrar-ruta']);
 
 async function mostrarRutas() {
   mostrarMenuRutas.value = true;
@@ -71,12 +67,14 @@ function cerrarMenuRutas() {
   mostrarMenuRutas.value = false;
 }
 
-function seleccionarRuta(routeId) {
-  emit('mostrar-ruta', routeId);
+// ✅ CAMBIO: El parámetro ahora se llama 'id' para mayor claridad
+function seleccionarRuta(id) {
+  emit('mostrar-ruta', id);
 }
 </script>
 
 <style scoped>
+/* Tus estilos se mantienen exactamente iguales */
 .menu-btn {
   background: none;
   border: none;
@@ -103,7 +101,6 @@ function seleccionarRuta(routeId) {
   z-index: 2100;
   box-shadow: 4px 0 10px rgba(0,0,0,0.08);
 }
-/* Tarjeta de ruta mejorada */
 .ruta-card {
   background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
   border: none;
@@ -154,7 +151,6 @@ function seleccionarRuta(routeId) {
   color: #555;
   margin-top: 0.2rem;
 }
-/* ...existing code... */
 .sidebar {
   position: fixed;
   top: 0;

@@ -1,6 +1,6 @@
 import connectDB from "../config/mongo.js";
-import { getStopCache, getRoutesCache } from "../cache.js"; //IMPORTA LA CACHÉ
-import { getDistanceInMeters } from "../utils/geolocation.js"; //UTILIDAD DE DISTANCIA
+import { getStopCache, getRoutesCache } from "../cache.js"; // IMPORTA AMBAS CACHÉS
+import { getDistanceInMeters } from "../utils/geolocation.js"; // UTILIDAD DE DISTANCIA
 
 export const getRuta = async (req, res) => {
   try {
@@ -29,7 +29,7 @@ export const autocomplete = async (req, res) => {
       return res.status(400).json({ error: "Se requiere el parámetro query" });
     }
 
-    const db = await connectDB(); // 👈 conexión reutilizable
+    const db = await connectDB();
     const collection = db.collection("geocodificacion");
 
     const results = await collection
@@ -40,7 +40,6 @@ export const autocomplete = async (req, res) => {
       .limit(10)
       .toArray();
 
-    // Imprimir coordenadas en consola
     results.forEach((r) => {
       if (r.location?.coordinates) {
         console.log(
@@ -56,32 +55,10 @@ export const autocomplete = async (req, res) => {
   }
 };
 
-export const getAllRutasforID = async (req, res) => {
-  try {
-    const db = await connectDB();
-    const options = {
-      projection: {
-        name: 1,
-        desc: 1,
-        notes: 1,
-        id: 1,
-        peak_am: 1,
-        midday: 1,
-        peak_pm: 10,
-        night: 1,
-      },
-    };
-    const rutas = await db.collection("rutas").find({}, options).toArray();
-    res.json(rutas);
-  } catch (error) {
-    console.error("Error al obtener todas las rutas", error);
-    res.status(500).json({ error: "Error al obtener las rutas" });
-  }
-};
-
+// --- Endpoint optimizado con caché ---
 export const getAllRutas = (req, res) => {
   try {
-    const rutas = getRoutesCache();
+    const rutas = getRoutesCache(); // Lee desde la memoria RAM
     if (rutas.length === 0) {
       return res.status(503).json({ error: "El servicio no está disponible, por favor intente de nuevo en un momento." });
     }
@@ -93,59 +70,57 @@ export const getAllRutas = (req, res) => {
 };
 
 
+// --- Endpoint funcional y robusto para sugerir rutas ---
 export const sugerirRuta = async (req, res) => {
   const { latOrigen, lngOrigen, latDestino, lngDestino } = req.query;
 
-  // 1. Validación de entrada
   if (!latOrigen || !lngOrigen || !latDestino || !lngDestino) {
     return res.status(400).json({ message: "Faltan coordenadas de origen o destino." });
   }
 
   const origen = { lat: parseFloat(latOrigen), lng: parseFloat(lngOrigen) };
   const destino = { lat: parseFloat(latDestino), lng: parseFloat(lngDestino) };
-  const radioBusqueda = 400; // Radio en metros para buscar paradas cercanas
+  const radioBusqueda = 800; // Radio en metros aumentado para mejores resultados
 
   try {
     const paradasCache = getStopCache();
-    if (paradasCache.length === 0) {
-      return res.status(500).json({ message: "El servidor aún no está listo, intente de nuevo." });
+    if (!paradasCache || paradasCache.length === 0) {
+      return res.status(503).json({ message: "El servidor aún no está listo, intente de nuevo." });
     }
 
-    // 2. Buscar paradas cercanas (en memoria)
     const paradasCercanasOrigen = [];
     const paradasCercanasDestino = [];
 
     for (const parada of paradasCache) {
-      const [lngParada, latParada] = parada.coordinates;
+      // Validación para asegurar que la parada tiene coordenadas válidas
+      if (parada.coordinates && Array.isArray(parada.coordinates) && parada.coordinates.length === 2) {
+        const [lngParada, latParada] = parada.coordinates;
 
-      const distOrigen = getDistanceInMeters(origen.lat, origen.lng, latParada, lngParada);
-      if (distOrigen <= radioBusqueda) {
-        paradasCercanasOrigen.push({ ...parada, distancia: distOrigen });
-      }
+        const distOrigen = getDistanceInMeters(origen.lat, origen.lng, latParada, lngParada);
+        if (distOrigen <= radioBusqueda) {
+          paradasCercanasOrigen.push({ ...parada, distancia: distOrigen });
+        }
 
-      const distDestino = getDistanceInMeters(destino.lat, destino.lng, latParada, lngParada);
-      if (distDestino <= radioBusqueda) {
-        paradasCercanasDestino.push({ ...parada, distancia: distDestino });
+        const distDestino = getDistanceInMeters(destino.lat, destino.lng, latParada, lngParada);
+        if (distDestino <= radioBusqueda) {
+          paradasCercanasDestino.push({ ...parada, distancia: distDestino });
+        }
       }
     }
 
-    // 3. Encontrar Rutas Candidatas
     const rutasOrigen = new Set(paradasCercanasOrigen.map(p => p.routeId));
     const rutasDestino = new Set(paradasCercanasDestino.map(p => p.routeId));
     const rutasCandidatas = [...rutasOrigen].filter(id => rutasDestino.has(id));
 
-    // 4. Validar y calificar cada ruta candidata
     const opcionesDeViaje = [];
     for (const routeId of rutasCandidatas) {
       const paradasDeRutaEnOrigen = paradasCercanasOrigen.filter(p => p.routeId === routeId);
       const paradasDeRutaEnDestino = paradasCercanasDestino.filter(p => p.routeId === routeId);
 
-      // Encontrar la parada más cercana para subir y bajar de ESTA ruta
       const paradaSubidaOptima = paradasDeRutaEnOrigen.sort((a, b) => a.distancia - b.distancia)[0];
       const paradaBajadaOptima = paradasDeRutaEnDestino.sort((a, b) => a.distancia - b.distancia)[0];
 
-      // Validar la dirección
-      if (paradaSubidaOptima.sequence < paradaBajadaOptima.sequence) {
+      if (paradaSubidaOptima && paradaBajadaOptima && paradaSubidaOptima.sequence < paradaBajadaOptima.sequence) {
         opcionesDeViaje.push({
           routeId,
           paradaSubida: paradaSubidaOptima,
@@ -155,24 +130,21 @@ export const sugerirRuta = async (req, res) => {
       }
     }
 
-    // 5. Ordenar resultados
     opcionesDeViaje.sort((a, b) => a.distanciaTotalCaminando - b.distanciaTotalCaminando);
     
-    // (Opcional) Enriquecer con el nombre de la ruta
     const db = await connectDB();
     const rutasInfo = await db.collection("rutas").find({ "features.properties.id": { $in: opcionesDeViaje.map(o => o.routeId) } }).toArray();
     
     const respuestaFinal = opcionesDeViaje.map(opcion => {
-        const info = rutasInfo.find(r => r.features[0].properties.id === opcion.routeId);
+        const info = rutasInfo.find(r => r.features[0]?.properties.id === opcion.routeId);
         return {
             ...opcion,
-            nombreRuta: info ? info.features[0].properties.name : "Nombre no encontrado",
-            descripcionRuta: info ? info.features[0].properties.desc : ""
+            nombreRuta: info ? info.features[0]?.properties.name : "Nombre no encontrado",
+            descripcionRuta: info ? info.features[0]?.properties.desc : ""
         }
     });
 
-
-    res.json(respuestaFinal.slice(0, 5)); // Devolver las 5 mejores opciones
+    res.json(respuestaFinal.slice(0, 5));
 
   } catch (error) {
     console.error("Error al sugerir la ruta:", error);
