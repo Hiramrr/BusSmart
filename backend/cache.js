@@ -1,6 +1,12 @@
 // backend/cache.js
 
 import connectDB from "./config/mongo.js";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import fs from "fs";
 
 let paradasCache = [];
 let rutasCache = []; // Agregamos la caché para las rutas
@@ -43,11 +49,37 @@ export const initializeCaches = async () => {
     const todasLasRutas = await rutasCollection.find({}, projection).toArray();
     
     // Transformamos las rutas a un formato simple y útil para el listado.
-    rutasCache = todasLasRutas.map(ruta => ({
-        id: ruta.features[0]?.properties.id,
-        name: ruta.features[0]?.properties.name,
-        desc: ruta.features[0]?.properties.desc,
-    }));
+  rutasCache = todasLasRutas.map(ruta => {
+    const id = ruta.features[0]?.properties.id;
+    const name = ruta.features[0]?.properties.name;
+    // Extraer el número de la ruta del nombre (asume formato 'Ruta XX ...')
+    let numeroRuta = null;
+    if (name) {
+      const match = name.match(/Ruta\s*(\d+)/i);
+      if (match) {
+        numeroRuta = match[1].padStart(3, '0');
+      }
+    }
+
+    // Buscar la primera imagen disponible en la carpeta por número de ruta
+    let image = null;
+    if (numeroRuta) {
+      const imageDir = path.join(__dirname, 'Datos de las rutas', 'codeandoxalapa mapmap master data', numeroRuta, 'imagen');
+      if (fs.existsSync(imageDir)) {
+        const files = fs.readdirSync(imageDir);
+        const imageFile = files.find(f => f.match(/\.(jpg|jpeg|png|webp)$/i));
+        if (imageFile) {
+          image = `/images/${numeroRuta}/imagen/${imageFile}`;
+        }
+      }
+    }
+    return {
+      id,
+      name,
+      desc: ruta.features[0]?.properties.desc,
+      image
+    };
+  });
     console.log(`✅ ${rutasCache.length} rutas cargadas en caché.`);
 
   } catch (error) {

@@ -11,6 +11,16 @@ import { checkJwt, checkPermissions } from "./middleware/auth.js";
 dotenv.config();
 
 const app = express();
+
+// Servir imágenes estáticas
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const imagesPath = path.join(__dirname, "Datos de las rutas", "codeandoxalapa mapmap master data");
+app.use("/images", express.static(imagesPath));
+
 app.use(cors());
 app.use(express.json());
 

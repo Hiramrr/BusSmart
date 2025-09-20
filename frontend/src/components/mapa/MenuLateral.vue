@@ -27,9 +27,15 @@
           >
             <div class="ruta-card-header">
               <span class="ruta-icon">🚌</span>
-              <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4> </div>
+              <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4>
+            </div>
+            <div v-if="ruta.image" class="ruta-imagen" style="margin-bottom:8px;">
+              <img :src="getImageUrl(ruta.image)" :alt="'Imagen de ' + (ruta.name || ruta.id)" style="width:100%;max-height:120px;object-fit:contain;border-radius:16px;margin-top:8px;display:block;margin-left:auto;margin-right:auto;" />
+            </div>
             <div class="ruta-card-body">
-              <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div> <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div> </div>
+              <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div>
+              <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div>
+            </div>
           </div>
           </div>
       </div>
@@ -39,8 +45,13 @@
 </template>
 
 <script setup>
+
 import { ref } from 'vue';
 import { getRutas } from '../../services/api';
+
+function getImageUrl(imagePath) {
+  return imagePath ? `http://localhost:3000${imagePath}` : '';
+}
 
 const rutas = ref([]);
 const mostrarMenuRutas = ref(false);
