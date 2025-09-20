@@ -1,13 +1,12 @@
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/mongo.js";
-
 import orsRoutes from "./routes/orsRoutes.js";
 import mongoRoutes from "./routes/mongoRoutes.js";
 import { initializeCaches } from "./cache.js";
-
-const { checkJwt, checkPermissions } = require("./middleware/auth.js");
+import { checkJwt, checkPermissions } from "./middleware/auth.js";
 
 dotenv.config();
 

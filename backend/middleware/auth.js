@@ -1,5 +1,6 @@
-const { expressjwt: jwt } = require("express-jwt");
-const jwksRsa = require("jwks-rsa");
+
+import { expressjwt as jwt } from "express-jwt";
+import jwksRsa from "jwks-rsa";
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -29,7 +30,5 @@ const checkPermissions = (requiredPermissions) => {
   };
 };
 
-module.exports = {
-  checkJwt,
-  checkPermissions,
-};
+
+export { checkJwt, checkPermissions };
