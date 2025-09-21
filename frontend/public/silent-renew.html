@@ -1,0 +1,14 @@
+<!-- public/silent-renew.html -->
+<!doctype html>
+<html>
+  <head>
+    <title>Silent Renew</title>
+  </head>
+  <body>
+    <script>
+      new URLSearchParams(window.location.search).forEach((value, key) => {
+        console.log(key, value)
+      })
+    </script>
+  </body>
+</html>

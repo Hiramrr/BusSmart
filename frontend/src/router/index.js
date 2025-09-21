@@ -19,6 +19,11 @@ const router = createRouter({
       name: 'Map',
       component: () => import('../views/MapView.vue'),
     },
+    {
+      path: '/callback',
+      name: 'Callback',
+      component: () => import('../views/CallBack.vue'),
+    },
   ],
 })
 

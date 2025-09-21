@@ -1,36 +1,18 @@
 <template>
-  <div class="login-main-bg"></div>
-  <div class="login-overlay"></div>
-  <div class="login-wrapper">
-
-    <AuthBranding />
-
-    <div class="login-right">
-
-      <LoginForm 
-        v-if="!showRegister" 
-        @switchToRegister="showRegister = true" 
-      />
-      <RegisterForm 
-        v-else 
-        @switchToLogin="showRegister = false" 
-      />
-      
-    </div>
+  <div class="loading-container">
+    <p>Redirigiendo a la página de inicio de sesión...</p>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted } from 'vue'
+import { useAuth } from '@/componibles/useAuth.js'
 
-// 1. Importamos los componentes hijos que vamos a orquestar.
-import AuthBranding from '@/components/auth/AuthBranding.vue';
-import LoginForm from '@/components/auth/LoginForm.vue';
-import RegisterForm from '@/components/auth/RegisterForm.vue';
+const { login } = useAuth()
 
-// 2. Este es el único estado que la vista necesita manejar:
-// si se debe mostrar el formulario de registro o no.
-const showRegister = ref(false);
+onMounted(() => {
+  login()
+})
 </script>
 
 <style scoped>
@@ -41,14 +23,20 @@ const showRegister = ref(false);
 */
 .login-main-bg {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: linear-gradient(120deg, #2963b3 0%, #a763ca 100%);
   z-index: 0;
 }
 .login-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(255,255,255,0.7);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.7);
   z-index: 1;
 }
 .login-wrapper {
@@ -59,7 +47,7 @@ const showRegister = ref(false);
   margin: 4rem auto;
   background: #fff;
   border-radius: 1.5rem;
-  box-shadow: 0 2px 24px rgba(41,99,179,0.12);
+  box-shadow: 0 2px 24px rgba(41, 99, 179, 0.12);
   overflow: hidden;
 }
 .login-right {
