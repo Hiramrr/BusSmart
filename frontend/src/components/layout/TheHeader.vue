@@ -18,7 +18,7 @@
           </router-link>
 
           <div v-else class="user-profile">
-            <span class="usuario">Bienvenido, {{ user.profile.name }}</span>
+            <span class="usuario" @click="Pagina_Usuario">Bienvenido, {{ user.profile.name }}</span>
             <button @click="logout" class="logout-btn">Cerrar Sesion</button>
           </div>
         </template>
@@ -29,8 +29,15 @@
 
 <script setup>
 import { useAuth } from '@/componibles/useAuth.js'
+import { useRouter } from 'vue-router'
 
 const { user, isAuthenticated, logout, isInitialized } = useAuth()
+
+const router = useRouter()
+
+function Pagina_Usuario() {
+  router.push('perfil')
+}
 </script>
 
 <style scoped>
