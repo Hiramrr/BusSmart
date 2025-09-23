@@ -1,6 +1,10 @@
 <template>
   <div class="map-view-container" :class="{ 'theme-dark': isDarkTheme }">
-    <button @click="toggleSidebar" class="menu-button">☰</button>
+    <button @click="toggleSidebar" class="menu-button" :class="{ open: isSidebarOpen }">
+      <div></div>
+      <div></div>
+      <div></div>
+    </button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
     
     <MenuLateral 
@@ -142,22 +146,33 @@ const handleMostrarRuta = async (routeId) => {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 5000;
+  z-index: 3000;
   border: none;
   border-radius: 50%;
   padding: 0;
-  width: 50px;
-  height: 50px;
-  font-size: 1.5rem;
+  font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  display: flex;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
-  
+  transition: left 0.4s cubic-bezier(0.77, 0, .18, 1), transform 0.2s cubic-bezier(0.77, 0, .18, 1), background-color 0.3s, color 0.3s;
   background-color: var(--color-surface-light);
   color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  gap: 5px;
+}
+
+.menu-button > div {
+  background: black;
+  height: 2.5px;
+  width: 100%;
+  border-radius: 5px;
+  transition: all .6s;
+  transform-origin: center;
 }
 
 .map-view-container.theme-dark .menu-button {
@@ -165,8 +180,20 @@ const handleMostrarRuta = async (routeId) => {
   color: var(--color-text-dark);
 }
 
-.menu-button:hover {
-  transform: scale(1.1);
+.menu-button.open {
+  left: 250px;
+}
+
+.menu-button.open div:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+
+}
+.menu-button.open div:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-button.open div:last-child {
+  transform: translateY(-7.5px) rotate(-45deg);
 }
 
 .sidebar-overlay {

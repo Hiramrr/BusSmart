@@ -4,7 +4,7 @@
       <div class="main-menu">
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
-          <button @click="$emit('close')" class="close-btn">✖</button>
+          <button @click="$emit('close')" class="close-btn"></button>
         </div>
         <nav class="sidebar-menu">
           <ul>
@@ -19,9 +19,10 @@
           </ul>
         </nav>
       </div>
+      
       <div v-if="mostrarMenuRutas" class="rutas-menu-container">
         <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
-          <span class="icon-x-circle">&#x2716;</span>
+          <span class="icon-x-circle">&lt;</span>
         </button>
         <MenuRutas
           :rutas="rutas"
@@ -31,7 +32,7 @@
       </div>
       <div v-if="mostrarFavoritos" class="rutas-menu-container">
         <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
-          <span class="icon-x-circle">&#x2716;</span>
+          <span class="icon-x-circle">&lt;</span>
         </button>
         <MenuRutas
           :rutas="favoritos"
@@ -175,12 +176,12 @@ const { favoritos } = useFavoritos();
 }
 
 .close-btn {
-  background: #fff;
+  background: rgba(255,255,255,0.90);
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  box-shadow: none;
   transition: background 0.2s;
   color: #2c3e50;
 }
@@ -191,7 +192,7 @@ const { favoritos } = useFavoritos();
 }
 
 .close-btn:hover {
-  background: #f8d7da;
+  background: rgba(255,255,255,0.85);
 }
 
 .sidebar-menu ul {
@@ -208,8 +209,8 @@ const { favoritos } = useFavoritos();
    background: none;
   border: none;
   box-shadow: none !important;
-  padding: 0;
-  margin: 0;
+  padding: 10px;
+  margin: 0px;
   border-radius: 0;
   color: inherit;
   font: inherit;
@@ -256,7 +257,7 @@ const { favoritos } = useFavoritos();
   background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
   z-index: 2100;
   box-shadow: 8px 0 24px rgba(44,62,80,0.12);
-  padding: 2rem 2rem 1rem 2rem;
+  padding: 4rem 3.5rem 1rem 3rem;
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;
   animation: fadeInMenuRutas 0.4s cubic-bezier(.77,0,.18,1);
@@ -273,13 +274,13 @@ const { favoritos } = useFavoritos();
 
 .rutas-close-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.2rem;
+  left: 1rem;
   background: #eee;
   border: none;
   border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -288,6 +289,7 @@ const { favoritos } = useFavoritos();
   z-index: 2;
   box-shadow: 0 2px 8px rgba(44,62,80,0.08);
   transition: background 0.2s;
+  
 }
 
 .sidebar.theme-dark .rutas-close-btn {
@@ -296,14 +298,14 @@ const { favoritos } = useFavoritos();
 }
 
 .rutas-close-btn:hover {
-  background: #f8d7da;
+  background: #d7f8d8;
 }
 
 .icon-x-circle {
-  color: #d32f2f;
+  color: #25a72be4;
 }
 
 .sidebar.theme-dark .icon-x-circle {
-  color: #e57373;
+  color: #80e573;
 }
 </style>
