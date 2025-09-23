@@ -4,6 +4,8 @@
     <img :src="user.profile.picture" alt="Foto de perfil del usuario" class="profile-picture" />
     <h2>Bienvenido {{ user.profile.name }}</h2>
     <p>Email: {{ user.profile.email }}</p>
+
+    <h4>Rutas favoritas:</h4>
   </section>
 </template>
 
