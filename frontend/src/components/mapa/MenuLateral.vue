@@ -9,7 +9,9 @@
         <li>
           <button @click="abrirMenuRutas" class="menu-btn">🗺️ Todas las rutas</button>
         </li>
-        <li><a href="#">⭐ Favoritos</a></li>
+        <li>
+          <button @click="abrirFavoritos" class="menu-btn">⭐ Favoritos</button>
+        </li>
         <li><a href="#">⚙️ Configuración</a></li>
         <li><a href="#">❓ Ayuda</a></li>
       </ul>
@@ -23,6 +25,15 @@
         @mostrar-ruta="seleccionarRuta"
       />
     </div>
+    <div v-if="mostrarFavoritos" class="rutas-menu-container">
+      <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
+        <span class="icon-x-circle">&#x2716;</span>
+      </button>
+      <MenuRutas
+        :rutas="favoritos"
+        @mostrar-ruta="seleccionarRuta"
+      />
+    </div>
   </aside>
 </template>
 
@@ -30,6 +41,7 @@
 
 import { ref } from 'vue';
 import { getRutas } from '../../services/api';
+import { useFavoritos } from '../../stores/favoritos';
 import MenuRutas from './MenuRutas.vue';
 
 function getImageUrl(imagePath) {
@@ -38,6 +50,7 @@ function getImageUrl(imagePath) {
 
 const rutas = ref([]);
 const mostrarMenuRutas = ref(false);
+const mostrarFavoritos = ref(false);
 const loadingRutas = ref(false);
 
 const props = defineProps({
@@ -47,7 +60,8 @@ const props = defineProps({
 const emit = defineEmits(['close', 'mostrar-ruta']);
 
 const abrirMenuRutas = async () => {
-  emit('close'); // Cierra el MenuLateral primero
+  mostrarFavoritos.value = false;
+  emit('close');
   setTimeout(async () => {
     mostrarMenuRutas.value = true;
     loadingRutas.value = true;
@@ -60,14 +74,23 @@ const abrirMenuRutas = async () => {
   }, 350); // Espera 350ms para que la animación de cierre termine
 }
 
+function abrirFavoritos() {
+  mostrarMenuRutas.value = false;
+  mostrarFavoritos.value = true;
+  emit('close');
+}
+
 function cerrarMenuRutas() {
   mostrarMenuRutas.value = false;
+  mostrarFavoritos.value = false;
 }
 
 // ✅ CAMBIO: El parámetro ahora se llama 'id' para mayor claridad
 function seleccionarRuta(id) {
   emit('mostrar-ruta', id);
 }
+
+const { favoritos } = useFavoritos();
 </script>
 
 <style scoped>

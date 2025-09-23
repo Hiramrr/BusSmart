@@ -8,10 +8,8 @@
         v-for="ruta in rutas"
         :key="ruta.id"
         class="ruta-card"
-        @click="$emit('mostrar-ruta', ruta.id)"
-        style="cursor:pointer;"
       >
-        <div class="ruta-card-header">
+        <div class="ruta-card-header" @click="$emit('mostrar-ruta', ruta.id)" style="cursor:pointer;">
           <span class="ruta-icon">🚌</span>
           <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4>
         </div>
@@ -22,12 +20,22 @@
           <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div>
           <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div>
         </div>
+        <button
+          class="favorito-btn"
+          :class="{ activo: esFavorito(ruta.id) }"
+          @click.stop="toggleFavorito(ruta)"
+          :aria-label="esFavorito(ruta.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+        >
+          <span class="estrella-icon" v-if="esFavorito(ruta.id)">&#9733;</span>
+          <span class="estrella-icon" v-else>&#9734;</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { useFavoritos } from '../../stores/favoritos';
 
 const props = defineProps({
   rutas: {
@@ -36,6 +44,16 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['close', 'mostrar-ruta'])
+
+const { favoritos, agregarFavorito, quitarFavorito, esFavorito } = useFavoritos();
+
+function toggleFavorito(ruta) {
+  if (esFavorito(ruta.id)) {
+    quitarFavorito(ruta.id);
+  } else {
+    agregarFavorito(ruta);
+  }
+}
 
 function getImageUrl(imagePath) {
   return imagePath ? `http://localhost:3000${imagePath}` : '';
@@ -135,5 +153,30 @@ function getImageUrl(imagePath) {
     padding: 2rem;
     text-align: center;
     color: #888;
+  }
+  .favorito-btn {
+    margin-top: 0.5rem;
+    background: #fff;
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    border-radius: 8px;
+    padding: 0.4rem 1rem;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .favorito-btn.activo {
+    background: #ffd700;
+    color: #fff;
+    font-weight: bold;
+  }
+  .estrella-icon {
+    font-size: 1.6rem;
+    pointer-events: none;
   }
 </style>
