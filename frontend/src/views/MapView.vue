@@ -1,9 +1,14 @@
 <template>
-  <div class="map-view-container">
+  <div class="map-view-container" :class="{ 'theme-dark': isDarkTheme }">
     <button @click="toggleSidebar" class="menu-button">☰</button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
     
-  <MenuLateral :is-open="isSidebarOpen" @close="toggleSidebar" @mostrar-ruta="handleMostrarRuta" />
+    <MenuLateral 
+      :is-open="isSidebarOpen" 
+      :is-dark-theme="isDarkTheme" 
+      @close="toggleSidebar" 
+      @mostrar-ruta="handleMostrarRuta" 
+    />
     
     <main class="main-content">
       <ControlesBusqueda @buscar-ruta="handleBuscarRuta" />
@@ -19,28 +24,13 @@
         :datos-viaje="datosDelViaje" 
         :origen="puntoDeOrigen"
         :destino="puntoDeDestino"
+        :is-dark-theme="isDarkTheme"
       />
     </main>
   </div>
 </template>
 
 <script setup>
-// Mostrar ruta en el mapa al seleccionar una tarjeta
-const handleMostrarRuta = async (routeId) => {
-  try {
-    const geoJson = await fetchRutaPorId(routeId);
-    datosDelViaje.value = {
-      geoJson: geoJson
-    };
-    // Opcional: limpiar sugerencias y puntos si solo quieres mostrar la ruta
-    sugerenciasDeRuta.value = [];
-    puntoDeOrigen.value = null;
-    puntoDeDestino.value = null;
-  } catch (error) {
-    console.error('Error al mostrar la ruta:', error);
-    alert('No se pudo mostrar la ruta seleccionada.');
-  }
-};
 import { ref } from 'vue';
 import MenuLateral from '@/components/mapa/MenuLateral.vue';
 import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue';
@@ -48,14 +38,16 @@ import MapaContenedor from '@/components/mapa/MapaContenedor.vue';
 import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue';
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js';
 
+const props = defineProps({
+  isDarkTheme: Boolean
+});
+
 const isSidebarOpen = ref(false);
 const sugerenciasDeRuta = ref([]);
 const datosDelViaje = ref(null);
-
 const puntoDeOrigen = ref(null);
 const puntoDeDestino = ref(null);
 
-// --- Métodos ---
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
 };
@@ -86,7 +78,6 @@ const handleBuscarRuta = async ({ origen, destino }) => {
   }
 };
 
-// Se ejecuta cuando el usuario selecciona una ruta desde ResultadosBusqueda
 const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId);
@@ -102,15 +93,44 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
     alert("No se pudo cargar el detalle de la ruta seleccionada.");
   }
 };
+
+const handleMostrarRuta = async (routeId) => {
+  try {
+    const geoJson = await fetchRutaPorId(routeId);
+    datosDelViaje.value = {
+      geoJson: geoJson
+    };
+    sugerenciasDeRuta.value = [];
+    puntoDeOrigen.value = null;
+    puntoDeDestino.value = null;
+  } catch (error) {
+    console.error('Error al mostrar la ruta:', error);
+    alert('No se pudo mostrar la ruta seleccionada.');
+  }
+};
 </script>
 
 <style scoped>
-/* ... (Tus estilos se mantienen igual) ... */
+:root {
+  --color-text-light: #2c3e50;
+  --color-text-dark: #f0f0f0;
+  --color-bg-light: #ffffff;
+  --color-bg-dark: #1e1e1e;
+  --color-surface-light: #f7f7f7;
+  --color-surface-dark: #2a2a2a;
+}
+
 .map-view-container {
   position: relative;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  transition: background-color 0.3s ease;
+  background-color: var(--color-bg-light);
+}
+
+.map-view-container.theme-dark {
+  background-color: var(--color-bg-dark);
 }
 
 .main-content {
@@ -122,8 +142,7 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1001;
-  background-color: white;
+  z-index: 5000;
   border: none;
   border-radius: 50%;
   padding: 0;
@@ -135,7 +154,15 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+  
+  background-color: var(--color-surface-light);
+  color: var(--color-text-light);
+}
+
+.map-view-container.theme-dark .menu-button {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-dark);
 }
 
 .menu-button:hover {

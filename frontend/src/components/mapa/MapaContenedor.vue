@@ -7,31 +7,25 @@ import { onMounted, ref, watch } from 'vue';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// --- Props ---
-// 👇 NUEVO: Recibimos el origen y destino originales de la búsqueda
 const props = defineProps({
   datosViaje: { type: Object, default: null },
   origen: { type: Object, default: null },
   destino: { type: Object, default: null },
+  isDarkTheme: Boolean
 });
 
-// --- Estado Reactivo del Mapa ---
 const map = ref(null);
 const rutaLayer = ref(null);
-// 👇 NUEVO: LayerGroup para manejar marcadores y líneas de caminata.
-// Esto nos permite añadirlos o quitarlos del mapa todos a la vez.
 const viajeMarkersLayer = ref(null);
+const lightTileLayer = ref(null);
+const darkTileLayer = ref(null);
 
-
-// --- Iconos Personalizados ---
-// 👇 NUEVO: Define iconos para un mejor aspecto visual.
-// Puedes cambiar estas URLs por las de tus propios archivos de imagen.
 const createIcon = (iconUrl, size = [35, 35]) => {
   return L.icon({
     iconUrl: iconUrl,
     iconSize: size,
-    iconAnchor: [size[0] / 2, size[1]], // La punta inferior del icono
-    popupAnchor: [0, -size[1]] // El popup aparece arriba del icono
+    iconAnchor: [size[0] / 2, size[1]],
+    popupAnchor: [0, -size[1]]
   });
 };
 
@@ -39,45 +33,58 @@ const originIcon = createIcon('https://api.iconify.design/material-symbols:my-lo
 const destinationIcon = createIcon('https://api.iconify.design/material-symbols:flag.svg?color=%23e44234');
 const busStopIcon = createIcon('https://api.iconify.design/material-symbols:bus-stop.svg?color=%23fbbc05', [30, 30]);
 
-
-// --- Ciclo de Vida: onMounted ---
 onMounted(() => {
   map.value = L.map('mapa-leaflet', {
-    center: [19.5333, -96.9167], // Xalapa
+    center: [19.5333, -96.9167],
     zoom: 13,
     zoomControl: false,
   });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map.value);
 
-  // 👇 NUEVO: Inicializamos nuestro LayerGroup y lo añadimos al mapa una sola vez.
+  lightTileLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  });
+  darkTileLayer.value = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+  });
+
   viajeMarkersLayer.value = L.layerGroup().addTo(map.value);
+
+  if (props.isDarkTheme) {
+    darkTileLayer.value.addTo(map.value);
+  } else {
+    lightTileLayer.value.addTo(map.value);
+  }
 });
 
+watch(() => props.isDarkTheme, (isDark) => {
+  if (!map.value) return;
 
-// --- Watcher (Observa los cambios y redibuja todo) ---
+  if (isDark) {
+    map.value.removeLayer(lightTileLayer.value);
+    darkTileLayer.value.addTo(map.value);
+  } else {
+    map.value.removeLayer(darkTileLayer.value);
+    lightTileLayer.value.addTo(map.value);
+  }
+});
+
 watch(() => props.datosViaje, (newViaje) => {
   if (!map.value) return;
 
-  // Limpiar capas anteriores
   if (rutaLayer.value) {
     map.value.removeLayer(rutaLayer.value);
     rutaLayer.value = null;
   }
   viajeMarkersLayer.value.clearLayers();
 
-  // Si no hay geoJson, no hacemos nada
   if (!newViaje || !newViaje.geoJson) {
     return;
   }
 
-  // Dibujar la ruta principal
   rutaLayer.value = L.geoJSON(newViaje.geoJson, {
     style: { color: '#e44234', weight: 6, opacity: 0.85 },
   }).addTo(map.value);
 
-  // Si hay origen/destino/paradas, dibuja marcadores y líneas de caminata
   if (props.origen && props.destino && newViaje.paradaSubida && newViaje.paradaBajada) {
     const origenCoords = [props.origen.lat, props.origen.lng];
     const destinoCoords = [props.destino.lat, props.destino.lng];
@@ -98,7 +105,6 @@ watch(() => props.datosViaje, (newViaje) => {
     L.polyline([paradaBajadaCoords, destinoCoords], estiloCaminata).addTo(viajeMarkersLayer.value);
   }
 
-  // Ajusta el zoom para mostrar la ruta
   const bounds = rutaLayer.value.getBounds();
   map.value.fitBounds(bounds, { padding: [50, 50] });
 

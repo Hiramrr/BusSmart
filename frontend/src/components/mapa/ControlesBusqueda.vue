@@ -47,10 +47,8 @@ import { ref } from 'vue';
 import { fetchAutocomplete } from '@/services/api.js';
 import { debounce } from '@/utils/debounce.js';
 
-// --- Emits ---
 const emit = defineEmits(['buscar-ruta']);
 
-// --- Estado Reactivo ---
 const origenQuery = ref('');
 const destinoQuery = ref('');
 const origenSeleccionado = ref(null);
@@ -58,7 +56,6 @@ const destinoSeleccionado = ref(null);
 const origenSuggestions = ref([]);
 const destinoSuggestions = ref([]);
 
-// --- Lógica de Autocompletado ---
 const onOrigenInput = debounce(async () => {
   if (origenQuery.value.length < 2) {
     origenSuggestions.value = [];
@@ -75,7 +72,6 @@ const onDestinoInput = debounce(async () => {
   destinoSuggestions.value = await fetchAutocomplete(destinoQuery.value);
 }, 300);
 
-// --- Métodos ---
 function selectOrigen(lugar) {
   origenSeleccionado.value = lugar;
   origenQuery.value = lugar.nombre;
@@ -114,7 +110,6 @@ function emitBuscarRuta() {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  background-color: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 90%;
@@ -124,6 +119,13 @@ function emitBuscarRuta() {
   flex-direction: row;
   align-items: center; 
   gap: 0.75rem;
+
+  transition: background-color 0.3s ease;
+  background-color: var(--color-bg-light);
+}
+
+.map-view-container.theme-dark .controles-container {
+  background-color: var(--color-surface-dark);
 }
 
 .input-wrapper {
@@ -139,6 +141,15 @@ input {
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  
+  background-color: #fff;
+  color: #2c3e50;
+}
+
+.map-view-container.theme-dark input {
+  background-color: #383838;
+  color: #f0f0f0;
+  border-color: #4a4a4a;
 }
 
 input:focus {
@@ -152,11 +163,23 @@ input::placeholder {
 }
 
 #origen-input {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E") no-repeat 12px center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
 }
 
 #destino-input {
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E") no-repeat 12px center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 12px center;
+}
+
+.map-view-container.theme-dark #origen-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.map-view-container.theme-dark #destino-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
 }
 
 .buscar-btn {
@@ -168,7 +191,7 @@ input::placeholder {
   cursor: pointer;
   font-weight: 500;
   font-size: 1rem;
-  white-space: nowrap; /* Evita que el texto del botón se parta en dos líneas */
+  white-space: nowrap;
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
@@ -182,7 +205,6 @@ input::placeholder {
 
 .suggestions-list {
   position: absolute;
-  background-color: white;
   width: 100%;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -193,15 +215,32 @@ input::placeholder {
   max-height: 200px;
   overflow-y: auto;
   z-index: 10;
+  transition: background-color 0.3s ease;
+  
+  background-color: #fff;
+}
+
+.map-view-container.theme-dark .suggestions-list {
+  background-color: #2a2a2a;
+  border-color: #4a4a4a;
 }
 
 .suggestions-list li {
   padding: 0.75rem 1rem;
   cursor: pointer;
   font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.map-view-container.theme-dark .suggestions-list li {
+  color: #f0f0f0;
 }
 
 .suggestions-list li:hover {
   background-color: #f0f0f0;
+}
+
+.map-view-container.theme-dark .suggestions-list li:hover {
+  background-color: #383838;
 }
 </style>
