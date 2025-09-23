@@ -9,13 +9,13 @@
         <nav class="sidebar-menu">
           <ul>
             <li>
-              <button @click="abrirMenuRutas" class="menu-btn">🗺️ Todas las rutas</button>
+              <button @click="abrirMenuRutas" class="menu-btn" href="#">🗺️ Todas las rutas</button>
             </li>
             <li>
-              <button @click="abrirFavoritos" class="menu-btn">⭐ Favoritos</button>
+              <button @click="abrirFavoritos" class="menu-btn" href="#">⭐ Favoritos</button>
             </li>
-            <li><a href="#">⚙️ Configuración</a></li>
-            <li><a href="#">❓ Ayuda</a></li>
+            <li><button class="menu-btn" href="#">⚙️ Configuración</button></li>
+            <li><button class="menu-btn" href="#">❓ Ayuda</button></li>
           </ul>
         </nav>
       </div>
@@ -104,20 +104,24 @@ const { favoritos } = useFavoritos();
   width: 300px;
   height: 100%;
   z-index: 2000;
+  border-radius: 20px;
   transition: left 0.4s cubic-bezier(.77,0,.18,1);
   box-shadow: 8px 0 24px rgba(44,62,80,0.12);
   font-family: 'Montserrat', Arial, sans-serif;
-  
-  background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
   color: #2c3e50;
 }
 
 .sidebar.active {
   left: 0;
+  color: #2c3e50; 
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.2);
+  box-shadow: 8px 0 24px rgba(44,62,80,0.25);
 }
 
 .sidebar.active.theme-dark {
-  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  background: rgba(0,0,0,0.2);
+  backdrop-filter: blur(10px);
   color: #f0f0f0;
   box-shadow: 8px 0 24px rgba(0,0,0,0.5);
 }
@@ -145,6 +149,7 @@ const { favoritos } = useFavoritos();
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-radius: 20px;
   padding: 1.2rem 1rem 1rem 1rem;
   border-bottom: 1px solid #e0e7ef;
   background: rgba(255,255,255,0.85);
@@ -199,12 +204,30 @@ const { favoritos } = useFavoritos();
   margin-bottom: 0.5rem;
 }
 
+.menu-btn {
+   background: none;
+  border: none;
+  box-shadow: none !important;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
 .sidebar-menu li a, .menu-btn {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   padding: 1rem 1.5rem;
-  color: #2c3e50;
+  color: #06090c;
   text-decoration: none;
   font-size: 1.1rem;
   font-family: inherit;
@@ -218,8 +241,9 @@ const { favoritos } = useFavoritos();
 }
 
 .sidebar-menu li a:hover, .menu-btn:hover {
-  background: #e3f0ff;
-  color: #3498db;
+  background: #ffffffbd;
+  color: #0b0c0c;
+  
 }
 
 .sidebar.theme-dark .sidebar-menu li a:hover, .sidebar.theme-dark .menu-btn:hover {

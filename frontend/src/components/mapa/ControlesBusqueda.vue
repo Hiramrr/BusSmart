@@ -111,7 +111,7 @@ function emitBuscarRuta() {
   transform: translateX(-50%);
   z-index: 1000;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.60);
   width: 90%;
   max-width: 700px; 
   padding: 0.75rem;

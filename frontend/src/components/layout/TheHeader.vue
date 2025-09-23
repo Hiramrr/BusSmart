@@ -96,8 +96,8 @@ header {
 .login-btn {
   padding: 0.5rem 1.2rem;
   background-color: #2963b3;
+  border: 2px solid #2963b3;
   color: #fff;
-  border: none;
   border-radius: 0.5rem;
   font-weight: 600;
   text-decoration: none;

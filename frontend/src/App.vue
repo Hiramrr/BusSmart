@@ -32,8 +32,8 @@ main {
 
 .theme-toggle-container {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 80px;
+  right: 33px;
   z-index: 2000;
 }
 </style>
