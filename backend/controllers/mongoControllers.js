@@ -1,6 +1,7 @@
 import connectDB from "../config/mongo.js";
 import { getStopCache, getRoutesCache } from "../cache.js"; // IMPORTA AMBAS CACHÉS
 import { getDistanceInMeters } from "../utils/geolocation.js"; // UTILIDAD DE DISTANCIA
+//const mongoose = require("mongoose.cjs");
 
 export const getRuta = async (req, res) => {
   try {
@@ -60,12 +61,10 @@ export const getAllRutas = (req, res) => {
   try {
     const rutas = getRoutesCache(); // Lee desde la memoria RAM
     if (rutas.length === 0) {
-      return res
-        .status(503)
-        .json({
-          error:
-            "El servicio no está disponible, por favor intente de nuevo en un momento.",
-        });
+      return res.status(503).json({
+        error:
+          "El servicio no está disponible, por favor intente de nuevo en un momento.",
+      });
     }
     res.json(rutas);
   } catch (error) {
@@ -197,16 +196,15 @@ export const sugerirRuta = async (req, res) => {
     res.json(respuestaFinal.slice(0, 5));
   } catch (error) {
     console.error("Error al sugerir la ruta:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error interno del servidor al procesar la solicitud.",
-      });
+    res.status(500).json({
+      message: "Error interno del servidor al procesar la solicitud.",
+    });
   }
 };
 
 //esto de aqui es el esquema para lo de las rutas favoritas, no le muevan por favor jaja
-
+/*
+const Schema = mongoose.Schema;
 const esquemaUsuarioRutas = new Schema({
   _id: {
     type: String,
@@ -230,3 +228,4 @@ const esquemaUsuarioRutas = new Schema({
   },
   collection: "usuariosRutasFavoritas",
 });
+*/
