@@ -34,12 +34,12 @@ app.use("/api/user", userRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.get("api/rutas", (req, res) => {
+app.get("/api/rutas", (req, res) => {
   res.send({ messsage: "rutas publicas" });
 });
 
 app.post(
-  "api/rutas",
+  "/api/rutas",
   checkJwt,
   checkPermissions(["create:routes"]),
   (req, res) => {
@@ -48,7 +48,7 @@ app.post(
 );
 
 app.delete(
-  "api/rutas/:id",
+  "/api/rutas/:id",
   checkJwt,
   checkPermissions(["delete:routes"]),
   (req, res) => {

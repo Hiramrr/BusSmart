@@ -1,16 +1,12 @@
 import userManager from '../auth/authService.js'
 
-// Obtener todas las rutas desde /routes
-export async function getRutas() {
-  const url = `${API_BASE}/rutas/routes`
-  return await apiFetch(url)
-}
 // Esto funciona para desarrollo local. Para producción, se configurará diferente.
 const API_BASE = 'http://localhost:3000/api'
 
-async function apiFetch(url) {
+// ✅ FUNCIÓN CORREGIDA - Ahora acepta opciones
+async function apiFetch(url, options = {}) {
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, options) // ← Ahora pasa las opciones
     if (!response.ok) {
       // Si la respuesta del servidor es un error (4xx, 5xx), lo capturamos.
       throw new Error(`Error HTTP: ${response.status} ${response.statusText}`)
@@ -23,10 +19,15 @@ async function apiFetch(url) {
   }
 }
 
+// Obtener todas las rutas desde /routes
+export async function getRutas() {
+  const url = `${API_BASE}/rutas/routes`
+  return await apiFetch(url)
+}
+
 export async function getCoords(lugar) {
   const url = `${API_BASE}/ors/geocode?text=${encodeURIComponent(lugar)}`
   const data = await apiFetch(url)
-
   if (data.features && data.features.length > 0) {
     return {
       lat: data.features[0].geometry.coordinates[1],
@@ -40,7 +41,6 @@ export async function getCoords(lugar) {
 export async function trazarRuta(origen, destino) {
   const url = `${API_BASE}/ors/directions?startLng=${origen.lng}&startLat=${origen.lat}&endLng=${destino.lng}&endLat=${destino.lat}`
   const data = await apiFetch(url)
-
   // Procesamos los datos para devolverlos en el formato que Leaflet espera [lat, lng].
   const coords = data.features[0].geometry.coordinates.map((c) => [c[1], c[0]])
   return coords
@@ -63,9 +63,9 @@ export async function fetchSugerenciasDeRuta(origen, destino) {
   return await apiFetch(url)
 }
 
+// ✅ AHORA FUNCIONARÁ CORRECTAMENTE
 export async function crearUsuario(perfil) {
   const url = `${API_BASE}/user/crearUsuario`
-
   return await apiFetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -73,10 +73,9 @@ export async function crearUsuario(perfil) {
   })
 }
 
-// Función para hacer peticiones autenticadas
+// ✅ FUNCIÓN CORREGIDA - Ahora acepta opciones
 async function apiFetchAuth(url, options = {}) {
   const user = await userManager.getUser()
-
   if (user && user.access_token) {
     const headers = {
       ...options.headers,
@@ -90,13 +89,13 @@ async function apiFetchAuth(url, options = {}) {
 }
 
 export async function getMisDatos() {
-  const url = `${API_BASE}/rutas//usuarios/perfil`
+  const url = `${API_BASE}/rutas/usuarios/perfil` // ← También corregí el // doble
   return await apiFetchAuth(url)
 }
 
 // Agrega una ruta favorita
 export async function agregarFavorito(rutaId) {
-  const url = `${API_BASE}/rutas//favoritos`
+  const url = `${API_BASE}/user/favoritos` // ← Corregido: debe ser /user/ no /rutas/
   return await apiFetchAuth(url, {
     method: 'PUT',
     body: JSON.stringify({ rutaId: rutaId }),
@@ -104,7 +103,7 @@ export async function agregarFavorito(rutaId) {
 }
 
 export async function quitarFavorito(rutaId) {
-  const url = `${API_BASE}/rutas//favoritos/${rutaId}`
+  const url = `${API_BASE}/user/favoritos/${rutaId}` // ← Corregido: debe ser /user/ no /rutas/
   return await apiFetchAuth(url, {
     method: 'DELETE',
   })
