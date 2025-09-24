@@ -4,17 +4,15 @@
       <div class="main-menu">
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
-          <button @click="$emit('close')" class="close-btn"></button>
+          <button @click="handleClose" class="close-btn"></button>
         </div>
         <nav class="sidebar-menu">
           <ul>
             <li>
               <button @click="abrirMenuRutas" class="menu-btn" href="#">🗺️ Todas las rutas</button>
             </li>
-            <li>
-              <button @click="abrirFavoritos" class="menu-btn" href="#">⭐ Favoritos</button>
-            </li>
-            <li><button class="menu-btn" href="#">⚙️ Configuración</button></li>
+            <li><button @click="abrirFavoritos" class="menu-btn" href="#">⭐ Favoritos</button></li>
+            <li><button @click="abrirForo" class="menu-btn" href="#">💬 Foro</button></li>
             <li><button class="menu-btn" href="#">❓ Ayuda</button></li>
             <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
             Iniciar sesion
@@ -43,23 +41,24 @@
           @mostrar-ruta="seleccionarRuta"
         />
       </div>
+      <div v-if="mostrarForo" class="rutas-menu-container">
+        <Foro :is-dark-theme="isDarkTheme" @close="cerrarMenuRutas" />
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { getRutas } from '../../services/api';
+import { ref, watch } from 'vue';
 import { useFavoritos } from '../../stores/favoritos';
+import { getRutas } from '../../services/api';
 import MenuRutas from './MenuRutas.vue';
-
-function getImageUrl(imagePath) {
-  return imagePath ? `http://localhost:3000${imagePath}` : '';
-}
+import Foro from './Foro.vue';
 
 const rutas = ref([]);
 const mostrarMenuRutas = ref(false);
 const mostrarFavoritos = ref(false);
+const mostrarForo = ref(false);
 const loadingRutas = ref(false);
 
 const props = defineProps({
@@ -72,6 +71,7 @@ const emit = defineEmits(['close', 'mostrar-ruta']);
 const abrirMenuRutas = async () => {
   mostrarFavoritos.value = false;
   mostrarMenuRutas.value = true;
+  mostrarForo.value = false;
   loadingRutas.value = true;
   try {
     rutas.value = await getRutas();
@@ -79,6 +79,13 @@ const abrirMenuRutas = async () => {
     rutas.value = [];
   }
   loadingRutas.value = false;
+}
+
+
+function abrirForo() {
+  mostrarMenuRutas.value = false;
+  mostrarFavoritos.value = false;
+  mostrarForo.value = true;
 }
 
 function abrirFavoritos() {
@@ -89,6 +96,7 @@ function abrirFavoritos() {
 function cerrarMenuRutas() {
   mostrarMenuRutas.value = false;
   mostrarFavoritos.value = false;
+  mostrarForo.value = false;
 }
 
 function seleccionarRuta(id) {
@@ -96,11 +104,27 @@ function seleccionarRuta(id) {
 }
 
 const { favoritos } = useFavoritos();
+
+// Watch for menu open to reset submenu states
+watch(() => props.isOpen, (val) => {
+  if (val) {
+    mostrarMenuRutas.value = false;
+    mostrarFavoritos.value = false;
+    mostrarForo.value = false;
+  }
+});
+
+function handleClose() {
+  mostrarMenuRutas.value = false;
+  mostrarFavoritos.value = false;
+  mostrarForo.value = false;
+  emit('close');
+}
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-
+/* ...existing code... */
 .sidebar {
   position: fixed;
   top: 0;
