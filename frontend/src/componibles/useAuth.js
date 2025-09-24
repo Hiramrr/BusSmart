@@ -1,10 +1,12 @@
 import { ref, computed } from 'vue'
 import userManager from '@/auth/authService'
 import { useRouter } from 'vue-router'
+import { crearUsuario } from '@/services/api.js'
 
 const user = ref(null)
 const isLoading = ref(true)
-const isInitialized = ref(false) // <--- NUEVO ESTADO
+const isInitialized = ref(false)
+const isAuthenticated = ref(false)
 
 const initializeAuth = async () => {
   console.log('1. Iniciando comprobación de autenticación...')
@@ -12,7 +14,7 @@ const initializeAuth = async () => {
     const userFromStorage = await userManager.getUser()
     if (userFromStorage && !userFromStorage.expired) {
       user.value = userFromStorage
-      console.log('2. Usuario encontrado en sesión:', user.value)
+      console.log('2. Usuario encontrado en sesión:', user.value.profile)
     } else {
       console.log('2. No se encontró sesión de usuario válida.')
     }
@@ -31,29 +33,30 @@ initializeAuth()
 export function useAuth() {
   const router = useRouter()
 
-  const handleLoginCallback = async () => {
-    console.log('CALLBACK: Entrando en handleLoginCallback...')
+  async function handleLoginCallback() {
     try {
-      const returnedUser = await userManager.signinRedirectCallback()
-      console.log('CALLBACK SUCCESS: Usuario procesado correctamente.', returnedUser)
+      const oidcUser = await userManager.signinRedirectCallback()
 
-      if (returnedUser) {
-        user.value = returnedUser
-        console.log('CALLBACK: Estado de usuario actualizado. Redirigiendo a /')
+      if (oidcUser && !oidcUser.expired) {
+        const perfilParaBackend = {
+          _id: oidcUser.profile.sub,
+          email: oidcUser.profile.email,
+          nombreUsuario: oidcUser.profile.name,
+        }
+
+        const usuarioDeMiDB = await crearUsuario(perfilParaBackend)
+
+        user.value = oidcUser.profile
+        isAuthenticated.value = true
+        localStorage.setItem('usuarioId', usuarioDeMiDB._id)
+
         router.push('/')
       } else {
-        console.warn('CALLBACK WARN: No se retornó ningún usuario. Redirigiendo a /')
         router.push('/')
       }
     } catch (error) {
-      console.error('CALLBACK ERROR: Falló el signinRedirectCallback.', error)
-      console.error('Detalles del error:', {
-        name: error.name,
-        message: error.message,
-        error_details: error.error,
-      })
-
-      router.push('/')
+      console.error('Error en el proceso de callback:', error)
+      router.push('/login-error')
     }
   }
 
@@ -62,8 +65,13 @@ export function useAuth() {
     isLoading,
     isInitialized,
     isAuthenticated: computed(() => !!user.value && !user.value.expired),
+    // Funciones para que tus componentes las usen
     login: () => userManager.signinRedirect(),
-    logout: () => userManager.signoutRedirect(),
+    logout: () => {
+      // Limpia el localStorage al cerrar sesión
+      localStorage.removeItem('usuarioId')
+      userManager.signoutRedirect()
+    },
     handleLoginCallback,
   }
 }

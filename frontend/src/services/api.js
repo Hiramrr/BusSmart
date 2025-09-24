@@ -1,7 +1,9 @@
+import userManager from '../auth/authService.js'
+
 // Obtener todas las rutas desde /routes
 export async function getRutas() {
-  const url = `${API_BASE}/rutas/routes`;
-  return await apiFetch(url);
+  const url = `${API_BASE}/rutas/routes`
+  return await apiFetch(url)
 }
 // Esto funciona para desarrollo local. Para producción, se configurará diferente.
 const API_BASE = 'http://localhost:3000/api'
@@ -59,4 +61,51 @@ export async function fetchRutaPorId(id) {
 export async function fetchSugerenciasDeRuta(origen, destino) {
   const url = `${API_BASE}/rutas/sugerir?latOrigen=${origen.lat}&lngOrigen=${origen.lng}&latDestino=${destino.lat}&lngDestino=${destino.lng}`
   return await apiFetch(url)
+}
+
+export async function crearUsuario(perfil) {
+  const url = `${API_BASE}/user/crearUsuario`
+
+  return await apiFetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(perfil),
+  })
+}
+
+// Función para hacer peticiones autenticadas
+async function apiFetchAuth(url, options = {}) {
+  const user = await userManager.getUser()
+
+  if (user && user.access_token) {
+    const headers = {
+      ...options.headers,
+      Authorization: `Bearer ${user.access_token}`,
+      'Content-Type': 'application/json',
+    }
+    return await apiFetch(url, { ...options, headers })
+  } else {
+    throw new Error('Usuario no autenticado. No se puede realizar la petición.')
+  }
+}
+
+export async function getMisDatos() {
+  const url = `${API_BASE}/rutas//usuarios/perfil`
+  return await apiFetchAuth(url)
+}
+
+// Agrega una ruta favorita
+export async function agregarFavorito(rutaId) {
+  const url = `${API_BASE}/rutas//favoritos`
+  return await apiFetchAuth(url, {
+    method: 'PUT',
+    body: JSON.stringify({ rutaId: rutaId }),
+  })
+}
+
+export async function quitarFavorito(rutaId) {
+  const url = `${API_BASE}/rutas//favoritos/${rutaId}`
+  return await apiFetchAuth(url, {
+    method: 'DELETE',
+  })
 }

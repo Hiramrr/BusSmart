@@ -9,7 +9,7 @@
         class="ruta-card"
         @click="$emit('mostrar-ruta', ruta.id)"
       >
-        <div class="ruta-card-header" style="cursor:pointer;">
+        <div class="ruta-card-header" style="cursor: pointer">
           <span class="ruta-icon">🚌</span>
           <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4>
         </div>
@@ -23,7 +23,7 @@
         <button
           class="favorito-btn"
           :class="{ activo: esFavorito(ruta.id) }"
-          @click.stop="toggleFavorito(ruta)"
+          @click.stop="manejarClicFavorito(ruta)"
           :aria-label="esFavorito(ruta.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
         >
           <span class="estrella-icon" v-if="esFavorito(ruta.id)">&#9733;</span>
@@ -35,37 +35,41 @@
 </template>
 
 <script setup>
-import { useFavoritos } from '../../stores/favoritos';
+import { useFavoritos } from '../../stores/favoritos'
+import { onMounted } from 'vue'
 
 const props = defineProps({
   rutas: {
     type: Array,
-    required: true
+    required: true,
   },
-  isDarkTheme: Boolean
-});
+  isDarkTheme: Boolean,
+})
 
-const emit = defineEmits(['close', 'mostrar-ruta']);
+const emit = defineEmits(['close', 'mostrar-ruta'])
 
-const { favoritos, agregarFavorito, quitarFavorito, esFavorito } = useFavoritos();
+const { esFavorito, agregarFavorito, quitarFavorito, cargarFavoritos } = useFavoritos()
 
-function toggleFavorito(ruta) {
+onMounted(() => {
+  cargarFavoritos()
+})
+
+function manejarClicFavorito(ruta) {
   if (esFavorito(ruta.id)) {
-    quitarFavorito(ruta.id);
+    quitarFavorito(ruta)
   } else {
-    agregarFavorito(ruta);
+    agregarFavorito(ruta)
   }
 }
 
 function getImageUrl(imagePath) {
-  return imagePath ? `http://localhost:3000${imagePath}` : '';
+  return imagePath ? `http://localhost:3000${imagePath}` : ''
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
- 
-.menu-rutas {
+  .menu-rutas {
   position: relative;
   width: 350px; /* Ancho ajustado para que quepa el contenido */
   min-width: 300px; /* Asegura un ancho mínimo en dispositivos pequeños */
@@ -73,7 +77,7 @@ function getImageUrl(imagePath) {
   padding: 1rem;
   overflow-y: auto;
   font-family: 'Montserrat', Arial, sans-serif;
-  
+
   background: #fff;
   color: #2c3e50;
 }
@@ -87,27 +91,27 @@ function getImageUrl(imagePath) {
   border-radius: 16px;
   margin-bottom: 1.2rem;
   padding: 1.2rem 1.4rem;
-  box-shadow: 0 4px 16px rgba(44,62,80,0.08);
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
   transition: transform 0.15s;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  
+
   background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
 }
 
 .menu-rutas.theme-dark .ruta-card {
   background: linear-gradient(135deg, #333 0%, #2a2a2a 100%);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .ruta-card:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 24px rgba(44,62,80,0.12);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12);
 }
 
 .menu-rutas.theme-dark .ruta-card:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .ruta-card-header {
@@ -122,7 +126,7 @@ function getImageUrl(imagePath) {
   color: #3498db;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(52,152,219,0.08);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.08);
   padding: 0.2rem 0.4rem;
 }
 
@@ -205,7 +209,9 @@ function getImageUrl(imagePath) {
   padding: 0.4rem 1rem;
   font-size: 1.4rem;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;

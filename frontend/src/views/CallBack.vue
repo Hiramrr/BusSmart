@@ -1,5 +1,7 @@
 <template>
-  <div>Procesando inicio de sesión...</div>
+  <div class="callback-container">
+    <p>Procesando inicio de sesión, por favor espera...</p>
+  </div>
 </template>
 
 <script setup>
@@ -9,7 +11,6 @@ import { useAuth } from '../componibles/useAuth.js'
 const { handleLoginCallback } = useAuth()
 
 onMounted(() => {
-  console.log('CALLBACK: Componente Callback.vue montado. Llamando a handleLoginCallback...')
   handleLoginCallback()
 })
 </script>

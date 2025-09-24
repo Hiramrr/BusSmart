@@ -9,7 +9,9 @@
     </div>
   </section>
 </template>
+
 <script></script>
+
 <style scoped>
 #hero {
   height: 100vh; /* ocupa toda la pantalla */
