@@ -9,6 +9,8 @@ import {
   crearUsuario,
 } from "../controllers/mongoControllers.js";
 
+import { crearRuta } from "../controllers/rutasControllers.js";
+
 import { checkJwt, asegurarUsuario } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -17,6 +19,13 @@ router.get("/autocomplete", autocomplete);
 router.get("/routes", getAllRutas);
 router.get("/sugerir", sugerirRuta);
 router.get("/:id", getRuta);
+
+router.post(
+  "/",
+  checkJwt,
+  checkPermissions(["create:routes"]),
+  crearRuta
+);
 
 /*
 router.post("/usuarios/crearUsuario", crearUsuario);
