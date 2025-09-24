@@ -33,6 +33,36 @@ const originIcon = createIcon('https://api.iconify.design/material-symbols:my-lo
 const destinationIcon = createIcon('https://api.iconify.design/material-symbols:flag.svg?color=%23e44234');
 const busStopIcon = createIcon('https://api.iconify.design/material-symbols:bus-stop.svg?color=%23fbbc05', [30, 30]);
 
+
+// Ícono personalizado para mostrar la ubicación del usuario en el mapa
+const userLocationIcon = createIcon('https://api.iconify.design/material-symbols:person-pin-circle.svg?color=%2300c853', [38, 38]);
+
+
+// Función para obtener y mostrar la ubicación actual del usuario en el mapa
+// Utiliza la API de geolocalización del navegador
+function mostrarUbicacionUsuario() {
+  // Verifica que el navegador soporte geolocalización y que el mapa esté inicializado
+  if (!navigator.geolocation || !map.value) return;
+  // Solicita la ubicación actual al navegador
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      // Extrae latitud y longitud de la respuesta
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      // Crea y agrega un marcador en la ubicación del usuario usando el ícono personalizado
+      const marker = L.marker([lat, lng], { icon: userLocationIcon }).addTo(map.value);
+      // Muestra un popup sobre el marcador con el texto "Mi ubicación actual"
+      marker.bindPopup('📍 Mi ubicación actual').openPopup();
+      // Centra el mapa en la ubicación del usuario con un nivel de zoom adecuado
+      map.value.setView([lat, lng], 15);
+    },
+    (err) => {
+      // Si ocurre un error (por ejemplo, permisos denegados), muestra un mensaje en consola
+      console.warn('No se pudo obtener la ubicación:', err);
+    }
+  );
+}
+
 onMounted(() => {
   map.value = L.map('mapa-leaflet', {
     center: [19.5333, -96.9167],
@@ -54,6 +84,9 @@ onMounted(() => {
   } else {
     lightTileLayer.value.addTo(map.value);
   }
+
+  // Llama a la función para mostrar la ubicación del usuario al cargar el mapa
+  mostrarUbicacionUsuario();
 });
 
 watch(() => props.isDarkTheme, (isDark) => {
