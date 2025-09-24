@@ -1,6 +1,6 @@
 <template>
   <aside class="sidebar" :class="{ active: isOpen, 'theme-dark': isDarkTheme }">
-    <div class="sidebar-content-wrapper" :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos }">
+    <div class="sidebar-content-wrapper" :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo }">
       <div class="main-menu">
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
@@ -15,8 +15,8 @@
             <li><button @click="abrirForo" class="menu-btn" href="#">💬 Foro</button></li>
             <li><button class="menu-btn" href="#">❓ Ayuda</button></li>
             <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
-            Iniciar sesion
-          </router-link>
+              Iniciar sesion
+            </router-link>
           </ul>
         </nav>
       </div>
@@ -91,6 +91,7 @@ function abrirForo() {
 function abrirFavoritos() {
   mostrarMenuRutas.value = false;
   mostrarFavoritos.value = true;
+  mostrarForo.value = false;
 }
 
 function cerrarMenuRutas() {
@@ -220,7 +221,7 @@ function handleClose() {
   cursor: pointer;
   margin: 5rem;
   white-space: nowrap;
- 
+  
 
 }
 .login-btn:hover {
@@ -254,7 +255,7 @@ function handleClose() {
 .sidebar-menu ul {
   list-style: none;
   padding: 1rem 0;
-  margin: 0;  
+  margin: 0;   
 }
 
 .sidebar-menu li {
@@ -309,7 +310,11 @@ function handleClose() {
 }
 
 .rutas-menu-container {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 300px;      /* Justo después del sidebar */
+  width: 40vw;      /* 40% del ancho de la ventana */
+  height: 100vh;
   background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
   z-index: 2100;
   box-shadow: 8px 0 24px rgba(44,62,80,0.12);
@@ -317,6 +322,7 @@ function handleClose() {
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;
   animation: fadeInMenuRutas 0.4s cubic-bezier(.77,0,.18,1);
+  overflow-y: auto;
 }
 
 .sidebar.theme-dark .rutas-menu-container {
@@ -331,7 +337,7 @@ function handleClose() {
 .rutas-close-btn {
   position: absolute;
   top: 1.2rem;
-  left: 1rem;
+  right: 1rem;   /* <-- Mueve el botón al borde derecho */
   background: #eee;
   border: none;
   border-radius: 50%;
@@ -345,7 +351,6 @@ function handleClose() {
   z-index: 2;
   box-shadow: 0 2px 8px rgba(44,62,80,0.08);
   transition: background 0.2s;
-  
 }
 
 .sidebar.theme-dark .rutas-close-btn {

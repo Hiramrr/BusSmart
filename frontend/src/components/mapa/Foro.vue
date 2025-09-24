@@ -202,4 +202,52 @@ function enviarReporte() {
   background: #383838;
   color: #64b5f6;
 }
+
+.sidebar.theme-dark .rutas-close-btn {
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a1e2b;
+  border: none;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: background 0.2s;
+  /* Puedes ajustar el color de fondo si usas tema oscuro */
+}
+
+.close-btn {
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: background 0.2s;
+  /* Puedes ajustar el color de fondo si usas tema oscuro */
+}
+
+.icon-x-circle {
+  color: #3498db;
+
+}
+
+.sidebar.theme-dark .icon-x-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #3498db;
+  width: 100%;
+  height: 100%;
+}
+
 </style>
