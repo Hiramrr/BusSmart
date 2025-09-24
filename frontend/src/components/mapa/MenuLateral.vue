@@ -16,6 +16,9 @@
             </li>
             <li><button class="menu-btn" href="#">⚙️ Configuración</button></li>
             <li><button class="menu-btn" href="#">❓ Ayuda</button></li>
+            <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
+            Iniciar sesion
+          </router-link>
           </ul>
         </nav>
       </div>
@@ -175,6 +178,34 @@ const { favoritos } = useFavoritos();
   color: #64b5f6;
 }
 
+/* Botón de inicio de sesión */
+.login-btn {
+  position: absolute;
+  bottom: 1px;
+  padding: 0.5rem 1.2rem;
+  background-color: #2963b3;
+  border: 2px solid #2963b3;
+  color: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.3s,
+    color 0.3s;
+  box-shadow: 0 2px 8px rgba(41, 99, 179, 0.08);
+  cursor: pointer;
+  margin: 5rem;
+  white-space: nowrap;
+ 
+
+}
+.login-btn:hover {
+  background: #fff;
+  color: #2963b3;
+  border: 2px solid #2963b3;
+}
+
+/* botón de cierre del menú lateral */
 .close-btn {
   background: rgba(255,255,255,0.90);
   border: none;
@@ -186,6 +217,7 @@ const { favoritos } = useFavoritos();
   color: #2c3e50;
 }
 
+/* botón de cierre del menú lateral modo oscuro */
 .sidebar.theme-dark .close-btn {
   background: #333;
   color: #f0f0f0;
@@ -198,7 +230,7 @@ const { favoritos } = useFavoritos();
 .sidebar-menu ul {
   list-style: none;
   padding: 1rem 0;
-  margin: 0;
+  margin: 0;  
 }
 
 .sidebar-menu li {
@@ -206,7 +238,7 @@ const { favoritos } = useFavoritos();
 }
 
 .menu-btn {
-   background: none;
+  background: none;
   border: none;
   box-shadow: none !important;
   padding: 10px;
