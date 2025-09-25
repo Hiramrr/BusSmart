@@ -4,7 +4,8 @@
       <div class="main-menu">
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
-          <button @click="handleClose" class="close-btn"></button>
+          <button @click="handleClose" class="close-btn" :class="{ 'submenu-active-btn': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"></button>
+
         </div>
         <nav class="sidebar-menu">
           <ul>
@@ -25,6 +26,7 @@
         <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
           <span class="icon-x-circle">&lt;</span>
         </button>
+
         <MenuRutas
           :rutas="rutas"
           :is-dark-theme="isDarkTheme"
@@ -108,11 +110,17 @@ const { favoritos } = useFavoritos();
 
 // Watch for menu open to reset submenu states
 watch(() => props.isOpen, (val) => {
-  if (val) {
+  if (!val) {
     mostrarMenuRutas.value = false;
     mostrarFavoritos.value = false;
     mostrarForo.value = false;
   }
+  
+});
+// este hace que detecte cuando se abre un submenu
+watch([mostrarMenuRutas, mostrarFavoritos, mostrarForo], ([rutas, favs, foro]) => {
+  const anyActive = rutas || favs || foro;
+  emit("submenu-toggle", anyActive);
 });
 
 function handleClose() {
@@ -126,6 +134,8 @@ function handleClose() {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 /* ...existing code... */
+
+
 .sidebar {
   position: fixed;
   top: 0;
@@ -139,6 +149,14 @@ function handleClose() {
   font-family: 'Montserrat', Arial, sans-serif;
   color: #2c3e50;
 }
+
+.sidebar.close-btn {
+  justify-content: center;
+  align-items: center;
+  display: none;
+  left : -300px;
+}
+
 
 .sidebar.active {
   left: 0;
@@ -230,15 +248,25 @@ function handleClose() {
   border: 2px solid #2963b3;
 }
 
+.close-btn .submenu-active-btn {
+  justify-content: center;
+  align-items: center;
+  transform: translateX(30vw); /* se mueve a la derecha igual que el submenú */
+}
+
 /* botón de cierre del menú lateral */
 .close-btn {
   background: rgba(255,255,255,0.90);
+  top: 1rem;
+  left: 1rem;
+  z-index: 2200;
+  /* quita right: 1rem; */
   border: none;
-  font-size: 1.5rem;
+  font-size: 1rem;
   cursor: pointer;
   border-radius: 50%;
   box-shadow: none;
-  transition: background 0.2s;
+  transition: left 0.4s cubic-bezier(.77,0,.18,1);
   color: #2c3e50;
 }
 
@@ -313,7 +341,7 @@ function handleClose() {
   position: fixed;
   top: 0;
   left: 300px;      /* Justo después del sidebar */
-  width: 40vw;      /* 40% del ancho de la ventana */
+  width: 30vw;      /* 40% del ancho de la ventana */
   height: 100vh;
   background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
   z-index: 2100;
@@ -334,10 +362,23 @@ function handleClose() {
   to { opacity: 1; }
 }
 
+.rutas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e0e7ef;
+  background: rgba(255,255,255,0.85);
+  border-top-right-radius: 24px;
+}
+
+.sidebar.theme-dark .rutas-header {
+  border-bottom: 1px solid #333;
+  background: rgba(42,42,42,0.85);
+}
+
 .rutas-close-btn {
-  position: absolute;
-  top: 1.2rem;
-  right: 1rem;   /* <-- Mueve el botón al borde derecho */
+ /* <-- Mueve el botón al borde derecho */
   background: #eee;
   border: none;
   border-radius: 50%;
@@ -348,7 +389,6 @@ function handleClose() {
   justify-content: center;
   cursor: pointer;
   font-size: 1.5rem;
-  z-index: 2;
   box-shadow: 0 2px 8px rgba(44,62,80,0.08);
   transition: background 0.2s;
 }
