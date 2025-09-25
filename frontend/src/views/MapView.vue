@@ -1,6 +1,6 @@
 <template>
   <div class="map-view-container" :class="{ 'theme-dark': isDarkTheme }">
-    <button @click="toggleSidebar" class="menu-button" :class="{ open: isSidebarOpen }">
+    <button @click="toggleSidebar" class="menu-button" :class="{ open: isSidebarOpen, 'submenu-open': isSubmenuOpen }">
       <div></div>
       <div></div>
       <div></div>
@@ -12,6 +12,8 @@
       :is-dark-theme="isDarkTheme" 
       @close="toggleSidebar" 
       @mostrar-ruta="handleMostrarRuta" 
+      @submenu-toggle="handleSubmenuToggle"
+
     />
     
     <main class="main-content">
@@ -47,6 +49,7 @@ const props = defineProps({
 });
 
 const isSidebarOpen = ref(false);
+const isSubmenuOpen = ref(false);
 const sugerenciasDeRuta = ref([]);
 const datosDelViaje = ref(null);
 const puntoDeOrigen = ref(null);
@@ -54,6 +57,10 @@ const puntoDeDestino = ref(null);
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;
+};
+
+const handleSubmenuToggle = (val) => {
+  isSubmenuOpen.value = val;
 };
 
 const limpiarBusqueda = () => {
@@ -166,10 +173,19 @@ const handleMostrarRuta = async (routeId) => {
   gap: 5px;
 }
 
-.menu-button > div {
-  background: black;
+.theme-dark .menu-button > div {
+  background: rgb(255, 255, 255);
   height: 2.5px;
-  width: 100%;
+  width: 50%;
+  border-radius: 5px;
+  transition: all .6s;
+  transform-origin: center;
+}
+
+.menu-button > div {
+  background: rgb(0, 0, 0);
+  height: 2.5px;
+  width: 50%;
   border-radius: 5px;
   transition: all .6s;
   transform-origin: center;
@@ -182,6 +198,10 @@ const handleMostrarRuta = async (routeId) => {
 
 .menu-button.open {
   left: 250px;
+}
+
+.menu-button.open.submenu-open {
+  left: 350px; /* Ajusta 30vw si el ancho del sidebar cambia */
 }
 
 .menu-button.open div:nth-child(1) {
