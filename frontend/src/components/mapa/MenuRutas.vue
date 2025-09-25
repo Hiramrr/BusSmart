@@ -1,17 +1,37 @@
 <template>
   <div class="menu-rutas" :class="{ 'theme-dark': isDarkTheme }">
-    <h2>Rutas disponibles</h2>
-    <div v-if="rutas.length === 0" class="sin-rutas">No hay rutas disponibles.</div>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <h2 style="margin: 0;">Rutas disponibles</h2>
+      <button
+        class="filtro-mujer-btn"
+        :class="{ activo: soloMujer }"
+        @click="toggleFiltroMujer"
+        style="background: none; border: none; cursor: pointer; padding: 0; margin-left: 12px;"
+        title="Mostrar solo rutas de mujer"
+      >
+        <span class="filtro-mujer-circulo" :class="{ activo: soloMujer }">
+          <svg width="28" height="28" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10" cy="10" r="10" :fill="soloMujer ? '#888' : '#A259D9'"/>
+            <circle cx="10" cy="7" r="5" :stroke="'#fff'" stroke-width="2" fill="none"/>
+            <line x1="10" y1="12" x2="10" y2="18" :stroke="'#fff'" stroke-width="2"/>
+            <line x1="7" y1="15" x2="13" y2="15" :stroke="'#fff'" stroke-width="2"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div v-if="rutasFiltradas.length === 0" class="sin-rutas">No hay rutas disponibles.</div>
     <div v-else>
       <div
-        v-for="ruta in rutas"
+        v-for="ruta in rutasFiltradas"
         :key="ruta.id"
         class="ruta-card"
         @click="$emit('mostrar-ruta', ruta.id)"
       >
         <div class="ruta-card-header" style="cursor:pointer;">
           <span class="ruta-icon">🚌</span>
-          <h4 class="ruta-nombre">{{ ruta.name || 'Ruta sin nombre' }}</h4>
+            <h4 class="ruta-nombre">
+              {{ ruta.name || 'Ruta sin nombre' }}
+            </h4>
         </div>
         <div v-if="ruta.image" class="ruta-imagen">
           <img :src="getImageUrl(ruta.image)" :alt="'Imagen de ' + (ruta.name || ruta.id)" />
@@ -20,15 +40,24 @@
           <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div>
           <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div>
         </div>
-        <button
-          class="favorito-btn"
-          :class="{ activo: esFavorito(ruta.id) }"
-          @click.stop="toggleFavorito(ruta)"
-          :aria-label="esFavorito(ruta.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
-        >
-          <span class="estrella-icon" v-if="esFavorito(ruta.id)">&#9733;</span>
-          <span class="estrella-icon" v-else>&#9734;</span>
-        </button>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 0.5rem;">
+          <button
+            class="favorito-btn"
+            :class="{ activo: esFavorito(ruta.id) }"
+            @click.stop="toggleFavorito(ruta)"
+            :aria-label="esFavorito(ruta.id) ? 'Quitar de favoritos' : 'Agregar a favoritos'"
+          >
+            <span class="estrella-icon" v-if="esFavorito(ruta.id)">&#9733;</span>
+            <span class="estrella-icon" v-else>&#9734;</span>
+          </button>
+          <span v-if="ruta.mujer === 'true'" class="mujer-icon" title="Ruta para mujer">
+            <svg width="28" height="28" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="7" r="5" stroke="#A259D9" stroke-width="2" fill="none"/>
+              <line x1="10" y1="12" x2="10" y2="18" stroke="#A259D9" stroke-width="2"/>
+              <line x1="7" y1="15" x2="13" y2="15" stroke="#A259D9" stroke-width="2"/>
+            </svg>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -37,6 +66,7 @@
 <script setup>
 import { useFavoritos } from '../../stores/favoritos';
 
+import { ref, computed } from 'vue';
 const props = defineProps({
   rutas: {
     type: Array,
@@ -48,6 +78,19 @@ const props = defineProps({
 const emit = defineEmits(['close', 'mostrar-ruta']);
 
 const { favoritos, agregarFavorito, quitarFavorito, esFavorito } = useFavoritos();
+
+const soloMujer = ref(false);
+
+function toggleFiltroMujer() {
+  soloMujer.value = !soloMujer.value;
+}
+
+const rutasFiltradas = computed(() => {
+  if (soloMujer.value) {
+    return props.rutas.filter(r => r.mujer === 'true');
+  }
+  return props.rutas;
+});
 
 function toggleFavorito(ruta) {
   if (esFavorito(ruta.id)) {
@@ -63,6 +106,24 @@ function getImageUrl(imagePath) {
 </script>
 
 <style scoped>
+.filtro-mujer-circulo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: none;
+  transition: box-shadow 0.2s;
+}
+.filtro-mujer-circulo.activo {
+  box-shadow: 0 0 0 3px #88888844;
+}
+.filtro-mujer-btn.activo {
+  background: #fff;
+  color: #A259D9;
+  border: 2px solid #A259D9;
+}
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
  
 .menu-rutas {
@@ -234,4 +295,12 @@ function getImageUrl(imagePath) {
   font-size: 1.6rem;
   pointer-events: none;
 }
+
+.mujer-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  /* El color morado se define en el SVG */
+}
+
 </style>
