@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-
 const Schema = mongoose.Schema;
-export const esquemaUsuarioRutas = new Schema(
+
+const esquemaUsuarioRutas = new Schema(
   {
     _id: {
       type: String,
@@ -26,5 +26,9 @@ export const esquemaUsuarioRutas = new Schema(
   },
   {
     collection: "usuariosRutasFavoritas",
+    _id: false,
   },
 );
+
+const UsuarioRutas = mongoose.model("UsuarioRutas", esquemaUsuarioRutas);
+export default UsuarioRutas;

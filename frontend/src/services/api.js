@@ -95,9 +95,13 @@ export async function getMisDatos() {
 
 // Agrega una ruta favorita
 export async function agregarFavorito(rutaId) {
-  const url = `${API_BASE}/user/favoritos` // ← Corregido: debe ser /user/ no /rutas/
+  const url = `${API_BASE}/user/favoritos`
+
   return await apiFetchAuth(url, {
     method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({ rutaId: rutaId }),
   })
 }

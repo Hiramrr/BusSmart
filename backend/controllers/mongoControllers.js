@@ -1,7 +1,7 @@
 import connectDB from "../config/mongo.js";
 import { getStopCache, getRoutesCache } from "../cache.js"; // IMPORTA AMBAS CACHÉS
 import { getDistanceInMeters } from "../utils/geolocation.js"; // UTILIDAD DE DISTANCIA
-import { esquemaUsuarioRutas } from "../models/EsquemasMongo.js";
+import UsuarioRutas from "../models/EsquemasMongo.js";
 import mongoose from "mongoose";
 
 export const getRuta = async (req, res) => {
@@ -203,11 +203,13 @@ export const sugerirRuta = async (req, res) => {
   }
 };
 
-export const UsuarioRutas = mongoose.model("UsuarioRutas", esquemaUsuarioRutas);
-
 export const crearUsuario = async (req, res) => {
   try {
+    console.log("📝 Datos recibidos:", req.body);
+
     const { _id, email, nombreUsuario } = req.body;
+
+    console.log("🔍 Datos extraídos:", { _id, email, nombreUsuario });
 
     if (!_id || !email || !nombreUsuario) {
       return res
@@ -215,27 +217,44 @@ export const crearUsuario = async (req, res) => {
         .json({ message: "El ID, email y nombre son requeridos." });
     }
 
-    const usuarioExistente = await UsuarioRutas.findById(_id);
+    console.log("🔎 Buscando usuario existente con ID:", _id);
+
+    // Obtener la base de datos
+    const db = await connectDB();
+    const collection = db.collection("usuariosRutasFavoritas");
+
+    // Buscar usuario existente
+    const usuarioExistente = await collection.findOne({ _id: _id });
 
     if (usuarioExistente) {
       console.log(
-        `Usuario ya existente encontrado: ${usuarioExistente.nombreUsuario}`,
+        `✅ Usuario ya existente encontrado: ${usuarioExistente.nombreUsuario}`,
       );
       return res.status(200).json(usuarioExistente);
     } else {
-      console.log(`Creando nuevo registro en MongoDB para: ${nombreUsuario}`);
-      const nuevoUsuario = new UsuarioRutas({
+      console.log(
+        `👤 Creando nuevo registro en MongoDB para: ${nombreUsuario}`,
+      );
+
+      const nuevoUsuario = {
         _id,
         email,
         nombreUsuario,
-      });
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
 
-      const usuarioGuardado = await nuevoUsuario.save();
+      const resultado = await collection.insertOne(nuevoUsuario);
 
-      return res.status(201).json(usuarioGuardado);
+      if (resultado.acknowledged) {
+        console.log("✅ Usuario creado exitosamente");
+        return res.status(201).json(nuevoUsuario);
+      } else {
+        throw new Error("No se pudo insertar el usuario");
+      }
     }
   } catch (error) {
-    console.error("Error en crearUsuario:", error);
+    console.error("❌ Error completo en crearUsuario:", error);
     res
       .status(500)
       .json({ message: "Error interno del servidor al registrar el usuario." });
