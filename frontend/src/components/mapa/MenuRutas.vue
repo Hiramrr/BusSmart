@@ -35,8 +35,11 @@
 </template>
 
 <script setup>
-import { useFavoritos } from '../../stores/favoritos'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useAuth } from '../../componibles/useAuth.js'
+import { agregarFavorito, quitarFavorito, obtenerFavoritos } from '../../services/api.js'
+
+const { user, isAuthenticated } = useAuth()
 
 const props = defineProps({
   rutas: {
@@ -48,19 +51,62 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'mostrar-ruta'])
 
-const { esFavorito, agregarFavorito, quitarFavorito, cargarFavoritos } = useFavoritos()
+// Estado local de favoritos
+const favoritos = ref([])
+
+// Cargar favoritos del usuario
+const cargarFavoritos = async () => {
+  if (!isAuthenticated.value) return
+
+  try {
+    const respuesta = await obtenerFavoritos()
+    favoritos.value = respuesta.rutasFavoritas || []
+    console.log('Favoritos cargados:', favoritos.value)
+  } catch (error) {
+    console.error('Error al cargar favoritos:', error)
+    favoritos.value = []
+  }
+}
+
+// Verificar si una ruta es favorita
+const esFavorito = (rutaId) => {
+  return favoritos.value.includes(rutaId)
+}
+
+const manejarClicFavorito = async (ruta) => {
+  console.log('🎯 Clic en favorito para ruta:', ruta)
+  console.log('👤 Usuario autenticado:', isAuthenticated.value)
+
+  if (!isAuthenticated.value) {
+    console.error('❌ Usuario no autenticado')
+    alert('Debes iniciar sesión para agregar favoritos')
+    return
+  }
+
+  try {
+    const rutaId = ruta.id
+    console.log('🆔 ID de la ruta:', rutaId)
+
+    if (esFavorito(rutaId)) {
+      // Quitar favorito
+      await quitarFavorito(rutaId)
+      favoritos.value = favoritos.value.filter((id) => id !== rutaId)
+      console.log('✅ Favorito quitado exitosamente')
+    } else {
+      // Agregar favorito
+      await agregarFavorito(rutaId)
+      favoritos.value.push(rutaId)
+      console.log('✅ Favorito agregado exitosamente')
+    }
+  } catch (error) {
+    console.error('❌ Error al manejar favorito:', error)
+    alert('Error al actualizar favorito. Inténtalo de nuevo.')
+  }
+}
 
 onMounted(() => {
   cargarFavoritos()
 })
-
-function manejarClicFavorito(ruta) {
-  if (esFavorito(ruta.id)) {
-    quitarFavorito(ruta)
-  } else {
-    agregarFavorito(ruta)
-  }
-}
 
 function getImageUrl(imagePath) {
   return imagePath ? `http://localhost:3000${imagePath}` : ''
@@ -69,7 +115,7 @@ function getImageUrl(imagePath) {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-  .menu-rutas {
+.menu-rutas {
   position: relative;
   width: 350px; /* Ancho ajustado para que quepa el contenido */
   min-width: 300px; /* Asegura un ancho mínimo en dispositivos pequeños */

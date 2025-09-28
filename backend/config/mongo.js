@@ -9,7 +9,7 @@ const connectDB = async () => {
   try {
     client = new MongoClient(process.env.MONGO_URI);
     await client.connect();
-    console.log("Conexion a mongo exitgosa");
+    console.log("Conexion a mongo exitosa");
     return client.db("xalapa_rutas");
   } catch (error) {
     console.error("❌ Error de conexión:", error.message);

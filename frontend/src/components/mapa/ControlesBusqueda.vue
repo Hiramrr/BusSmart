@@ -10,11 +10,7 @@
         autocomplete="off"
       />
       <ul v-if="origenSuggestions.length > 0" class="suggestions-list">
-        <li
-          v-for="lugar in origenSuggestions"
-          :key="lugar._id"
-          @click="selectOrigen(lugar)"
-        >
+        <li v-for="lugar in origenSuggestions" :key="lugar._id" @click="selectOrigen(lugar)">
           {{ lugar.nombre }}
         </li>
       </ul>
@@ -29,11 +25,7 @@
         autocomplete="off"
       />
       <ul v-if="destinoSuggestions.length > 0" class="suggestions-list">
-        <li
-          v-for="lugar in destinoSuggestions"
-          :key="lugar._id"
-          @click="selectDestino(lugar)"
-        >
+        <li v-for="lugar in destinoSuggestions" :key="lugar._id" @click="selectDestino(lugar)">
           {{ lugar.nombre }}
         </li>
       </ul>
@@ -43,51 +35,51 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { fetchAutocomplete } from '@/services/api.js';
-import { debounce } from '@/utils/debounce.js';
+import { ref } from 'vue'
+import { fetchAutocomplete } from '@/services/api.js'
+import { debounce } from '@/utils/debounce.js'
 
-const emit = defineEmits(['buscar-ruta']);
+const emit = defineEmits(['buscar-ruta'])
 
-const origenQuery = ref('');
-const destinoQuery = ref('');
-const origenSeleccionado = ref(null);
-const destinoSeleccionado = ref(null);
-const origenSuggestions = ref([]);
-const destinoSuggestions = ref([]);
+const origenQuery = ref('')
+const destinoQuery = ref('')
+const origenSeleccionado = ref(null)
+const destinoSeleccionado = ref(null)
+const origenSuggestions = ref([])
+const destinoSuggestions = ref([])
 
 const onOrigenInput = debounce(async () => {
   if (origenQuery.value.length < 2) {
-    origenSuggestions.value = [];
-    return;
+    origenSuggestions.value = []
+    return
   }
-  origenSuggestions.value = await fetchAutocomplete(origenQuery.value);
-}, 300);
+  origenSuggestions.value = await fetchAutocomplete(origenQuery.value)
+}, 300)
 
 const onDestinoInput = debounce(async () => {
   if (destinoQuery.value.length < 2) {
-    destinoSuggestions.value = [];
-    return;
+    destinoSuggestions.value = []
+    return
   }
-  destinoSuggestions.value = await fetchAutocomplete(destinoQuery.value);
-}, 300);
+  destinoSuggestions.value = await fetchAutocomplete(destinoQuery.value)
+}, 300)
 
 function selectOrigen(lugar) {
-  origenSeleccionado.value = lugar;
-  origenQuery.value = lugar.nombre;
-  origenSuggestions.value = [];
+  origenSeleccionado.value = lugar
+  origenQuery.value = lugar.nombre
+  origenSuggestions.value = []
 }
 
 function selectDestino(lugar) {
-  destinoSeleccionado.value = lugar;
-  destinoQuery.value = lugar.nombre;
-  destinoSuggestions.value = [];
+  destinoSeleccionado.value = lugar
+  destinoQuery.value = lugar.nombre
+  destinoSuggestions.value = []
 }
 
 function emitBuscarRuta() {
   if (!origenSeleccionado.value || !destinoSeleccionado.value) {
-    alert("Por favor, selecciona un origen y un destino de la lista.");
-    return;
+    alert('Por favor, selecciona un origen y un destino de la lista.')
+    return
   }
 
   emit('buscar-ruta', {
@@ -99,7 +91,7 @@ function emitBuscarRuta() {
       lat: destinoSeleccionado.value.location.coordinates[1],
       lng: destinoSeleccionado.value.location.coordinates[0],
     },
-  });
+  })
 }
 </script>
 
@@ -111,13 +103,13 @@ function emitBuscarRuta() {
   transform: translateX(-50%);
   z-index: 1000;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.60);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
   width: 90%;
-  max-width: 700px; 
+  max-width: 700px;
   padding: 0.75rem;
   display: flex;
   flex-direction: row;
-  align-items: center; 
+  align-items: center;
   gap: 0.75rem;
 
   transition: background-color 0.3s ease;
@@ -130,7 +122,7 @@ function emitBuscarRuta() {
 
 .input-wrapper {
   position: relative;
-  flex-grow: 1; 
+  flex-grow: 1;
   width: 100%;
 }
 
@@ -140,8 +132,10 @@ input {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
   background-color: #fff;
   color: #2c3e50;
 }
@@ -192,7 +186,9 @@ input::placeholder {
   font-weight: 500;
   font-size: 1rem;
   white-space: nowrap;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .buscar-btn:hover {
@@ -216,7 +212,7 @@ input::placeholder {
   overflow-y: auto;
   z-index: 10;
   transition: background-color 0.3s ease;
-  
+
   background-color: #fff;
 }
 

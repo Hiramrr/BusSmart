@@ -205,37 +205,21 @@ export const sugerirRuta = async (req, res) => {
 
 export const crearUsuario = async (req, res) => {
   try {
-    console.log("📝 Datos recibidos:", req.body);
-
     const { _id, email, nombreUsuario } = req.body;
-
-    console.log("🔍 Datos extraídos:", { _id, email, nombreUsuario });
-
     if (!_id || !email || !nombreUsuario) {
       return res
         .status(400)
         .json({ message: "El ID, email y nombre son requeridos." });
     }
 
-    console.log("🔎 Buscando usuario existente con ID:", _id);
-
-    // Obtener la base de datos
     const db = await connectDB();
     const collection = db.collection("usuariosRutasFavoritas");
 
-    // Buscar usuario existente
     const usuarioExistente = await collection.findOne({ _id: _id });
 
     if (usuarioExistente) {
-      console.log(
-        `✅ Usuario ya existente encontrado: ${usuarioExistente.nombreUsuario}`,
-      );
       return res.status(200).json(usuarioExistente);
     } else {
-      console.log(
-        `👤 Creando nuevo registro en MongoDB para: ${nombreUsuario}`,
-      );
-
       const nuevoUsuario = {
         _id,
         email,
@@ -247,7 +231,6 @@ export const crearUsuario = async (req, res) => {
       const resultado = await collection.insertOne(nuevoUsuario);
 
       if (resultado.acknowledged) {
-        console.log("✅ Usuario creado exitosamente");
         return res.status(201).json(nuevoUsuario);
       } else {
         throw new Error("No se pudo insertar el usuario");
@@ -279,35 +262,42 @@ export const getUsuario = async (req, res) => {
 };
 
 export const agregarRutaFavorita = async (req, res) => {
+  console.log("=== INICIO agregarRutaFavorita ===");
+  console.log("userId:", req.userId);
+  console.log("rutaId:", req.body.rutaId);
   try {
-    const { userId } = req.params;
-    const { ruta } = req.body;
-
-    if (!ruta) {
-      return res
-        .status(400)
-        .json({ message: "El nombre de la ruta es requerido." });
-    }
-
-    const usuarioActualizado = await UsuarioRutas.findByIdAndUpdate(
-      userId,
-      { $addToSet: { rutasFavoritas: ruta } },
-      { new: true },
+    const { rutaId } = req.body;
+    const userId = req.userId;
+    const db = await connectDB();
+    const collection = db.collection("usuariosRutasFavoritas");
+    const usuarioActualizado = await collection.findOneAndUpdate(
+      { _id: userId },
+      { $addToSet: { rutasFavoritas: rutaId } },
+      { returnDocument: "after" },
     );
+    console.log("Resultado de findOneAndUpdate:", usuarioActualizado);
 
     if (!usuarioActualizado) {
-      return res.status(404).json({ message: "Usuario no encontrado." });
+      console.log("Usuario no encontrado, devolviendo 404");
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
-
-    res.status(200).json(usuarioActualizado);
+    console.log("Enviando respuesta exitosa");
+    return res.status(200).json({
+      success: true,
+      user: usuarioActualizado,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };
 
 export const quitarRutaFavorita = async (req, res) => {
   try {
-    const { userId, rutaId } = req.params; // Obtenemos ambos de los parámetros de la URL
+    const { userId, rutaId } = req.params;
 
     if (!rutaId) {
       return res
@@ -317,7 +307,7 @@ export const quitarRutaFavorita = async (req, res) => {
 
     const usuarioActualizado = await UsuarioRutas.findByIdAndUpdate(
       userId,
-      { $pull: { rutasFavoritas: rutaId } }, // $pull quita el elemento del arreglo
+      { $pull: { rutasFavoritas: rutaId } },
       { new: true },
     );
 
@@ -329,5 +319,29 @@ export const quitarRutaFavorita = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Error al quitar la ruta favorita." });
+  }
+};
+
+export const obtenerFavoritosUsuario = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const db = await connectDB();
+    const collection = db.collection("usuariosRutasFavoritas");
+    const usuario = await collection.findOne({ _id: userId });
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      rutasFavoritas: usuario.rutasFavoritas || [],
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };

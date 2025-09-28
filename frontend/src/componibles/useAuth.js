@@ -44,19 +44,26 @@ export function useAuth() {
           nombreUsuario: oidcUser.profile.name,
         }
 
-        const usuarioDeMiDB = await crearUsuario(perfilParaBackend)
+        try {
+          const usuarioDeMiDB = await crearUsuario(perfilParaBackend)
 
-        user.value = oidcUser.profile
-        isAuthenticated.value = true
-        localStorage.setItem('usuarioId', usuarioDeMiDB._id)
+          user.value = oidcUser
+          isAuthenticated.value = true
+          localStorage.setItem('usuarioId', usuarioDeMiDB._id)
 
-        router.push('/')
+          await router.push('/')
+        } catch (backendError) {
+          console.error('❌ Error del backend, pero permitiendo login:', backendError)
+          user.value = oidcUser
+          isAuthenticated.value = true
+          await router.push('/')
+        }
       } else {
-        router.push('/')
+        await router.push('/')
       }
     } catch (error) {
-      console.error('Error en el proceso de callback:', error)
-      router.push('/login-error')
+      console.error('❌ Error en callback:', error)
+      await router.push('/?error=login_failed')
     }
   }
 
@@ -73,5 +80,33 @@ export function useAuth() {
       userManager.signoutRedirect()
     },
     handleLoginCallback,
+  }
+}
+
+// En useAuth.js, actualiza la función debugAuth
+if (typeof window !== 'undefined') {
+  window.debugAuth = async () => {
+    try {
+      const user = await userManager.getUser()
+      if (user && user.access_token) {
+        console.log('🎫 Token completo para curl:')
+        console.log(user.access_token)
+        console.log('\n📋 Comando curl listo para usar:')
+        console.log(`curl -X PUT http://localhost:3000/api/user/favoritos \\
+  -H "Content-Type: application/json" \\
+  -H "Authorization: Bearer ${user.access_token}" \\
+  -d '{"rutaId": "2744"}' \\
+  -v`)
+
+        const tokenParts = user.access_token.split('.')
+        const payload = JSON.parse(atob(tokenParts[1]))
+        console.log('Audience en token:', payload.aud)
+        return { user, payload }
+      } else {
+        console.log('No hay usuario autenticado')
+      }
+    } catch (error) {
+      console.error('Error al obtener info del usuario:', error)
+    }
   }
 }

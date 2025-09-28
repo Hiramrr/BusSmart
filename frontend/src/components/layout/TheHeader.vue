@@ -18,7 +18,9 @@
           </router-link>
 
           <div v-else class="user-profile">
-            <span class="usuario" @click="Pagina_Usuario">Bienvenido, {{ user.profile.name }}</span>
+            <span class="usuario" @click="Pagina_Usuario"
+              >Bienvenido, {{ user?.name || user?.profile?.name || 'Usuario' }}</span
+            >
             <button @click="logout" class="logout-btn">Cerrar Sesion</button>
           </div>
         </template>
