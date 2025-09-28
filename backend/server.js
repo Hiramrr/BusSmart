@@ -7,6 +7,7 @@ import mongoRoutes from "./routes/mongoRoutes.js";
 import { initializeCaches } from "./cache.js";
 import { checkJwt, checkPermissions } from "./middleware/auth.js";
 import userRoutes from "./routes/userRoutes.js";
+import foroRoutes from "./routes/foroRoutes.js";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use("/api/ors", orsRoutes);
 app.use("/api/rutas", mongoRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/foro", foroRoutes);
 
 const PORT = process.env.PORT || 3000;
 
