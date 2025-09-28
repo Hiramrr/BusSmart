@@ -296,8 +296,13 @@ export const agregarRutaFavorita = async (req, res) => {
 };
 
 export const quitarRutaFavorita = async (req, res) => {
+  console.log("=== INICIO quitarRutaFavorita ===");
+  console.log("userId:", req.userId);
+  console.log("rutaId desde params:", req.params.rutaId);
+
   try {
-    const { userId, rutaId } = req.params;
+    const rutaId = req.params.rutaId; // Viene de la URL
+    const userId = req.userId; // Viene del middleware
 
     if (!rutaId) {
       return res
@@ -305,20 +310,33 @@ export const quitarRutaFavorita = async (req, res) => {
         .json({ message: "El ID de la ruta es requerido." });
     }
 
-    const usuarioActualizado = await UsuarioRutas.findByIdAndUpdate(
-      userId,
+    const db = await connectDB(); // Mismo patrón que agregarRutaFavorita
+    const collection = db.collection("usuariosRutasFavoritas");
+
+    const usuarioActualizado = await collection.findOneAndUpdate(
+      { _id: userId },
       { $pull: { rutasFavoritas: rutaId } },
-      { new: true },
+      { returnDocument: "after" },
     );
 
+    console.log("Resultado de findOneAndUpdate:", usuarioActualizado);
+
     if (!usuarioActualizado) {
-      return res.status(404).json({ message: "Usuario no encontrado." });
+      console.log("Usuario no encontrado, devolviendo 404");
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    res.status(200).json(usuarioActualizado);
+    console.log("Enviando respuesta exitosa");
+    return res.status(200).json({
+      success: true,
+      user: usuarioActualizado,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error al quitar la ruta favorita." });
+    console.error("Error:", error);
+    return res.status(500).json({
+      message: "Error interno del servidor",
+      error: error.message,
+    });
   }
 };
 

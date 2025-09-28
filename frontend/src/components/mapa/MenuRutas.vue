@@ -68,15 +68,11 @@ const cargarFavoritos = async () => {
   }
 }
 
-// Verificar si una ruta es favorita
 const esFavorito = (rutaId) => {
   return favoritos.value.includes(rutaId)
 }
 
 const manejarClicFavorito = async (ruta) => {
-  console.log('🎯 Clic en favorito para ruta:', ruta)
-  console.log('👤 Usuario autenticado:', isAuthenticated.value)
-
   if (!isAuthenticated.value) {
     console.error('❌ Usuario no autenticado')
     alert('Debes iniciar sesión para agregar favoritos')
@@ -85,18 +81,13 @@ const manejarClicFavorito = async (ruta) => {
 
   try {
     const rutaId = ruta.id
-    console.log('🆔 ID de la ruta:', rutaId)
 
     if (esFavorito(rutaId)) {
-      // Quitar favorito
       await quitarFavorito(rutaId)
       favoritos.value = favoritos.value.filter((id) => id !== rutaId)
-      console.log('✅ Favorito quitado exitosamente')
     } else {
-      // Agregar favorito
       await agregarFavorito(rutaId)
       favoritos.value.push(rutaId)
-      console.log('✅ Favorito agregado exitosamente')
     }
   } catch (error) {
     console.error('❌ Error al manejar favorito:', error)
