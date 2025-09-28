@@ -206,10 +206,8 @@ export const sugerirRuta = async (req, res) => {
 export const crearUsuario = async (req, res) => {
   try {
     const { _id, email, nombreUsuario } = req.body;
-    if (!_id || !email || !nombreUsuario) {
-      return res
-        .status(400)
-        .json({ message: "El ID, email y nombre son requeridos." });
+    if (!_id || !nombreUsuario) {
+      return res.status(400).json({ message: "El ID nombre son requeridos." });
     }
 
     const db = await connectDB();
@@ -262,7 +260,6 @@ export const getUsuario = async (req, res) => {
 };
 
 export const agregarRutaFavorita = async (req, res) => {
-  console.log("=== INICIO agregarRutaFavorita ===");
   console.log("userId:", req.userId);
   console.log("rutaId:", req.body.rutaId);
   try {

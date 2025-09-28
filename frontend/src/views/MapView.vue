@@ -1,9 +1,23 @@
 <template>
-  <div class="map-view-container">
-    <button @click="toggleSidebar" class="menu-button">☰</button>
+  <div class="map-view-container" :class="{ 'theme-dark': isDarkTheme }">
+    <button
+      @click="toggleSidebar"
+      class="menu-button"
+      :class="{ open: isSidebarOpen, 'submenu-open': isSubmenuOpen }"
+    >
+      <div></div>
+      <div></div>
+      <div></div>
+    </button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
 
-    <MenuLateral :is-open="isSidebarOpen" @close="toggleSidebar" />
+    <MenuLateral
+      :is-open="isSidebarOpen"
+      :is-dark-theme="isDarkTheme"
+      @close="toggleSidebar"
+      @mostrar-ruta="handleMostrarRuta"
+      @submenu-toggle="handleSubmenuToggle"
+    />
 
     <main class="main-content">
       <ControlesBusqueda @buscar-ruta="handleBuscarRuta" />
@@ -30,17 +44,22 @@ import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
 import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue' // Importamos el nuevo componente
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js'
 
-// --- Estado Reactivo ---
-const isSidebarOpen = ref(false)
-const sugerenciasDeRuta = ref([])
-const datosDelViaje = ref(null)
-
 const { isAuthenticated, isInitialized } = useAuth()
 const { cargarFavoritos } = useFavoritos()
+const isSidebarOpen = ref(false)
+const isSubmenuOpen = ref(false)
+const sugerenciasDeRuta = ref([])
+const datosDelViaje = ref(null)
+const puntoDeOrigen = ref(null)
+const puntoDeDestino = ref(null)
 
 // --- Métodos ---
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
+}
+
+const handleSubmenuToggle = (val) => {
+  isSubmenuOpen.value = val
 }
 
 const limpiarBusqueda = () => {
@@ -98,7 +117,6 @@ watch(
 </script>
 
 <style scoped>
-/* ... (Los estilos de MapView.vue se mantienen igual) ... */
 .map-view-container {
   position: relative;
   height: 100vh;
@@ -133,6 +151,47 @@ watch(
 
 .menu-button:hover {
   transform: scale(1.1);
+}
+.theme-dark .menu-button > div {
+  background: rgb(255, 255, 255);
+  height: 2.5px;
+  width: 50%;
+  border-radius: 5px;
+  transition: all 0.6s;
+  transform-origin: center;
+}
+
+.menu-button > div {
+  background: rgb(0, 0, 0);
+  height: 2.5px;
+  width: 50%;
+  border-radius: 5px;
+  transition: all 0.6s;
+  transform-origin: center;
+}
+
+.map-view-container.theme-dark .menu-button {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-dark);
+}
+
+.menu-button.open {
+  left: 250px;
+}
+
+.menu-button.open.submenu-open {
+  left: 350px; /* Ajusta 30vw si el ancho del sidebar cambia */
+}
+
+.menu-button.open div:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+.menu-button.open div:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-button.open div:last-child {
+  transform: translateY(-7.5px) rotate(-45deg);
 }
 
 .sidebar-overlay {

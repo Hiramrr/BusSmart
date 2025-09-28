@@ -39,19 +39,21 @@ export const initializeCaches = async () => {
 
     // --- 2. Cargar y procesar la caché de RUTAS (la nueva funcionalidad) ---
     const rutasCollection = db.collection("rutas");
-    const projection = {
-        projection: {
-            "features.properties.id": 1,
-            "features.properties.name": 1,
-            "features.properties.desc": 1,
-        }
-    };
+  const projection = {
+    projection: {
+      "features.properties.id": 1,
+      "features.properties.name": 1,
+      "features.properties.desc": 1,
+      "features.properties.mujer": 1,
+    }
+  };
     const todasLasRutas = await rutasCollection.find({}, projection).toArray();
     
     // Transformamos las rutas a un formato simple y útil para el listado.
   rutasCache = todasLasRutas.map(ruta => {
-    const id = ruta.features[0]?.properties.id;
-    const name = ruta.features[0]?.properties.name;
+    const props = ruta.features[0]?.properties || {};
+    const id = props.id;
+    const name = props.name;
     // Extraer el número de la ruta del nombre (asume formato 'Ruta XX ...')
     let numeroRuta = null;
     if (name) {
@@ -76,8 +78,9 @@ export const initializeCaches = async () => {
     return {
       id,
       name,
-      desc: ruta.features[0]?.properties.desc,
-      image
+      desc: props.desc,
+      image,
+      mujer: typeof props.mujer !== 'undefined' ? String(props.mujer) : undefined
     };
   });
     console.log(`✅ ${rutasCache.length} rutas cargadas en caché.`);
