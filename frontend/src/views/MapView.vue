@@ -4,10 +4,24 @@
       @click="toggleSidebar"
       class="menu-button"
       :class="{ open: isSidebarOpen, 'submenu-open': isSubmenuOpen }"
+      aria-label="Menú"
     >
-      <div></div>
-      <div></div>
-      <div></div>
+      <img
+        v-if="!isSidebarOpen"
+        src="https://cdn.jsdelivr.net/npm/heroicons@2.0.16/24/outline/bars-3.svg"
+        width="24"
+        height="24"
+        alt="Menu"
+        :class="{ 'icon-dark': isDarkTheme }"
+      />
+      <img
+        v-else
+        src="https://cdn.jsdelivr.net/npm/heroicons@2.0.16/24/outline/x-mark.svg"
+        width="24"
+        height="24"
+        alt="Close"
+        :class="{ 'icon-dark': isDarkTheme }"
+      />
     </button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
 
@@ -41,7 +55,7 @@ import { useFavoritos } from '@/stores/favoritos.js'
 import MenuLateral from '@/components/mapa/MenuLateral.vue'
 import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue'
 import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
-import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue' // Importamos el nuevo componente
+import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue'
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js'
 
 const { isAuthenticated, isInitialized } = useAuth()
@@ -67,9 +81,8 @@ const limpiarBusqueda = () => {
   datosDelViaje.value = null
 }
 
-// Se ejecuta cuando ControlesBusqueda emite las coordenadas
 const handleBuscarRuta = async ({ origen, destino }) => {
-  limpiarBusqueda() // Limpia resultados anteriores
+  limpiarBusqueda()
   console.log('Buscando rutas para:', { origen, destino })
   try {
     const sugerencias = await fetchSugerenciasDeRuta(origen, destino)
@@ -85,19 +98,15 @@ const handleBuscarRuta = async ({ origen, destino }) => {
   }
 }
 
-// Se ejecuta cuando el usuario selecciona una ruta desde ResultadosBusqueda
 const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
-    // Obtenemos el GeoJSON completo de la ruta para poder dibujarla
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId)
 
-    // Creamos un objeto con toda la información necesaria para el mapa
     datosDelViaje.value = {
       ...rutaSugerida,
-      geoJson: rutaGeoJSON, // El trazo completo de la ruta
+      geoJson: rutaGeoJSON,
     }
 
-    // Ocultamos el panel de sugerencias después de seleccionar
     sugerenciasDeRuta.value = []
   } catch (error) {
     console.error('Error al obtener el GeoJSON de la ruta:', error)
@@ -131,67 +140,81 @@ watch(
 
 .menu-button {
   position: absolute;
-  top: 20px;
+  top: 15px;
   left: 20px;
   z-index: 2001;
   background-color: white;
   border: none;
-  border-radius: 50%;
-  padding: 0;
-  width: 50px;
-  height: 50px;
-  font-size: 1.5rem;
+  border-radius: 12px;
+  padding: 12px;
+  width: 52px;
+  height: 52px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease;
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .menu-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.95);
 }
-.theme-dark .menu-button > div {
-  background: rgb(255, 255, 255);
-  height: 2.5px;
-  width: 50%;
-  border-radius: 5px;
-  transition: all 0.6s;
-  transform-origin: center;
+.menu-button img {
+  transition: filter 0.2s ease;
 }
 
-.menu-button > div {
-  background: rgb(0, 0, 0);
-  height: 2.5px;
-  width: 50%;
-  border-radius: 5px;
-  transition: all 0.6s;
-  transform-origin: center;
+.menu-button img.icon-dark {
+  filter: invert(1);
 }
 
 .map-view-container.theme-dark .menu-button {
-  background-color: var(--color-surface-dark);
-  color: var(--color-text-dark);
+  background-color: rgba(45, 45, 45, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-view-container.theme-dark .menu-button:hover {
+  background-color: rgba(55, 55, 55, 0.95);
 }
 
 .menu-button.open {
-  left: 250px;
+  left: 230px;
+}
+
+@media (max-width: 768px) {
+  .menu-button.open {
+    left: calc(100vw - 72px);
+  }
 }
 
 .menu-button.open.submenu-open {
-  left: 350px; /* Ajusta 30vw si el ancho del sidebar cambia */
+  left: 300px;
 }
 
-.menu-button.open div:nth-child(1) {
-  transform: translateY(7.5px) rotate(45deg);
-}
-.menu-button.open div:nth-child(2) {
-  opacity: 0;
+@media (max-width: 768px) {
+  .menu-button.open.submenu-open {
+    left: calc(100vw - 72px);
+  }
 }
 
-.menu-button.open div:last-child {
-  transform: translateY(-7.5px) rotate(-45deg);
+@media (max-width: 768px) {
+  .menu-button {
+    top: 16px;
+    left: 16px;
+    width: 48px;
+    height: 48px;
+    padding: 10px;
+  }
+
+  .menu-button svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .sidebar-overlay {
