@@ -11,7 +11,7 @@ import {
 
 import { crearRuta } from "../controllers/rutasControllers.js";
 
-import { checkJwt, asegurarUsuario } from "../middleware/auth.js";
+import { checkJwt, checkPermissions } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -20,12 +20,7 @@ router.get("/routes", getAllRutas);
 router.get("/sugerir", sugerirRuta);
 router.get("/:id", getRuta);
 
-router.post(
-  "/",
-  checkJwt,
-  checkPermissions(["create:routes"]),
-  crearRuta
-);
+router.post("/", checkJwt, checkPermissions(["create:routes"]), crearRuta);
 
 /*
 router.post("/usuarios/crearUsuario", crearUsuario);
