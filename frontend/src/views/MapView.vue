@@ -113,6 +113,23 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
     alert('No se pudo cargar el detalle de la ruta seleccionada.')
   }
 }
+const handleMostrarRuta = async (rutaId) => {
+  try {
+    limpiarBusqueda()
+
+    const rutaGeoJSON = await fetchRutaPorId(rutaId)
+
+    datosDelViaje.value = {
+      routeId: rutaId,
+      geoJson: rutaGeoJSON,
+    }
+
+    isSidebarOpen.value = false
+  } catch (error) {
+    console.error('Error al cargar la ruta:', error)
+    alert('No se pudo cargar la ruta seleccionada.')
+  }
+}
 
 watch(
   isInitialized,
