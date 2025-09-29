@@ -360,3 +360,64 @@ export const obtenerFavoritosUsuario = async (req, res) => {
     });
   }
 };
+
+export const crearRuta = async (req, res) => {
+  const { rutaData, paradasData } = req.body;
+
+  // 1. Validación de entrada
+  if (!rutaData || !paradasData) {
+    return res.status(400).json({
+      message: "Se requiere tanto la información de la ruta (rutaData) como de las paradas (paradasData).",
+    });
+  }
+
+  // 2. Iniciar una transacción para asegurar la integridad de los datos
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // 3. Crear y guardar el documento de la Ruta
+    const nuevaRuta = new Ruta(rutaData);
+    const rutaGuardada = await nuevaRuta.save({ session });
+
+    // 4. Vincular las paradas a la ruta y guardarlas
+    paradasData.ruta = rutaGuardada.ruta; // Vincula usando el identificador 'ruta'
+    const nuevasParadas = new Parada(paradasData);
+    await nuevasParadas.save({ session });
+
+    // 5. Si todo fue bien, confirmar la transacción
+    await session.commitTransaction();
+
+    // 6. Refrescar la caché para que los cambios sean visibles inmediatamente
+    console.log("Ruta creada. Refrescando la caché...");
+    await initializeCaches();
+    console.log("Caché refrescada exitosamente.");
+
+    // 7. Enviar respuesta de éxito
+    res.status(201).json({
+      message: "Ruta y paradas creadas exitosamente.",
+      ruta: rutaGuardada,
+    });
+  } catch (error) {
+    // 8. Si algo falla, revertir todos los cambios
+    await session.abortTransaction();
+    console.error("Error en la transacción al crear la ruta:", error);
+
+    // Manejo de errores específicos
+    if (error.code === 11000) { // Error de clave duplicada
+      return res.status(409).json({
+        message: `El identificador de ruta '${rutaData.ruta}' ya existe.`,
+      });
+    }
+
+    if (error.name === 'ValidationError') { // Error de validación del esquema Mongoose
+      return res.status(400).json({ message: "Datos inválidos.", error: error.message });
+    }
+
+    // Error genérico del servidor
+    res.status(500).json({ message: "Error interno del servidor al crear la ruta." });
+  } finally {
+    // 9. Siempre cerrar la sesión
+    session.endSession();
+  }
+};

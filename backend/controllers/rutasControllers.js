@@ -2,8 +2,10 @@ import mongoose from "mongoose";
 import connectDB from "../config/mongo.js";
 import { getStopCache, getRoutesCache, initializeCaches } from "../cache.js";
 import { getDistanceInMeters } from "../utils/geolocation.js";
+import { connectMongoose } from '../config/mongo.js';
 import Ruta from '../models/ruta.model.js';
 import Parada from '../models/parada.model.js';
+
 
 // --- CONTROLADORES EXISTENTES (LIGERAMENTE AJUSTADOS PARA USAR MODELOS) ---
 
@@ -187,64 +189,71 @@ export const autocomplete = async (req, res) => {
 
 
 // --- NUEVO CONTROLADOR PARA CREAR RUTAS (ADMIN) ---
-
 export const crearRuta = async (req, res) => {
-  const { rutaData, paradasData } = req.body;
-
-  // 1. Validación de entrada
-  if (!rutaData || !paradasData) {
-    return res.status(400).json({
-      message: "Se requiere tanto la información de la ruta (rutaData) como de las paradas (paradasData).",
-    });
-  }
-
-  // 2. Iniciar una transacción para asegurar la integridad de los datos
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    // 3. Crear y guardar el documento de la Ruta
-    const nuevaRuta = new Ruta(rutaData);
-    const rutaGuardada = await nuevaRuta.save({ session });
+    // --- CONEXIÓN ---
+    await connectMongoose(); 
 
-    // 4. Vincular las paradas a la ruta y guardarlas
-    paradasData.ruta = rutaGuardada.ruta; // Vincula usando el identificador 'ruta'
-    const nuevasParadas = new Parada(paradasData);
-    await nuevasParadas.save({ session });
+    // --- LÓGICA EXISTENTE (CON AJUSTES) ---
+    const { rutaData, paradasData } = req.body;
 
-    // 5. Si todo fue bien, confirmar la transacción
-    await session.commitTransaction();
-
-    // 6. Refrescar la caché para que los cambios sean visibles inmediatamente
-    console.log("Ruta creada. Refrescando la caché...");
-    await initializeCaches();
-    console.log("Caché refrescada exitosamente.");
-
-    // 7. Enviar respuesta de éxito
-    res.status(201).json({
-      message: "Ruta y paradas creadas exitosamente.",
-      ruta: rutaGuardada,
-    });
-  } catch (error) {
-    // 8. Si algo falla, revertir todos los cambios
-    await session.abortTransaction();
-    console.error("Error en la transacción al crear la ruta:", error);
-
-    // Manejo de errores específicos
-    if (error.code === 11000) { // Error de clave duplicada
-      return res.status(409).json({
-        message: `El identificador de ruta '${rutaData.ruta}' ya existe.`,
+    // 1. Validación de entrada (sin cambios)
+    if (!rutaData || !paradasData) {
+      return res.status(400).json({
+        message: "Se requiere tanto la información de la ruta (rutaData) como de las paradas (paradasData).",
       });
     }
 
-    if (error.name === 'ValidationError') { // Error de validación del esquema Mongoose
-      return res.status(400).json({ message: "Datos inválidos.", error: error.message });
-    }
+    // (2/3) CORRECCIÓN: Seleccionamos la base de datos correcta.
+    const db = mongoose.connection.useDb('xalapa_rutas');
 
-    // Error genérico del servidor
-    res.status(500).json({ message: "Error interno del servidor al crear la ruta." });
-  } finally {
-    // 9. Siempre cerrar la sesión
-    session.endSession();
+    // (3/3) CORRECCIÓN: Ahora que los modelos están registrados por los imports,
+    // los "re-compilamos" para que apunten a la base de datos 'xalapa_rutas'.
+    const RutaModel = db.model('Ruta', Ruta.schema); 
+    const ParadaModel = db.model('Parada', Parada.schema);
+
+    const session = await db.startSession(); 
+    session.startTransaction();
+
+    try {
+      // Usamos los modelos que apuntan a la base de datos correcta
+      const nuevaRuta = new RutaModel(rutaData);
+      const rutaGuardada = await nuevaRuta.save({ session });
+
+      paradasData.ruta = rutaGuardada.ruta;
+      const nuevasParadas = new ParadaModel(paradasData);
+      await nuevasParadas.save({ session });
+
+      await session.commitTransaction();
+
+      console.log("Ruta creada. Refrescando la caché...");
+      await initializeCaches();
+      console.log("Caché refrescada exitosamente.");
+
+      res.status(201).json({
+        message: "Ruta y paradas creadas exitosamente en 'xalapa_rutas'.",
+        ruta: rutaGuardada,
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      console.error("Error en la transacción al crear la ruta:", error);
+
+      if (error.code === 11000) { 
+        return res.status(409).json({
+          message: `El identificador de ruta '${rutaData.ruta}' ya existe.`,
+        });
+      }
+
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: "Datos inválidos.", error: error.message });
+      }
+
+      res.status(500).json({ message: "Error interno del servidor al crear la ruta." });
+    } finally {
+      session.endSession();
+    }
+  } catch (dbError) {
+    console.error("Error al intentar conectar con Mongoose o al compilar modelos:", dbError);
+    res.status(500).json({ message: "No se pudo establecer la conexión con la base de datos." });
   }
 };

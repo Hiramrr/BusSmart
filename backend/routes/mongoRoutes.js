@@ -6,7 +6,7 @@ import {
   sugerirRuta,
   agregarRutaFavorita,
   quitarRutaFavorita,
-  crearUsuario,
+  crearUsuario
 } from "../controllers/mongoControllers.js";
 
 import { crearRuta } from "../controllers/rutasControllers.js";
@@ -18,9 +18,10 @@ const router = express.Router();
 router.get("/autocomplete", autocomplete);
 router.get("/routes", getAllRutas);
 router.get("/sugerir", sugerirRuta);
+router.post("/crearRuta", crearRuta);
 router.get("/:id", getRuta);
 
-router.post("/", checkJwt, checkPermissions(["create:routes"]), crearRuta);
+
 
 /*
 router.post("/usuarios/crearUsuario", crearUsuario);

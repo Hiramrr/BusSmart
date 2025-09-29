@@ -8,7 +8,7 @@ const geometrySchema = new mongoose.Schema({
     required: true,
   },
   coordinates: {
-    type: [[[Number]]], // Un array de arrays de arrays de números [long, lat]
+    type: [[Number]], // Un array de arrays de arrays de números [long, lat]
     required: true,
   },
 }, { _id: false });
