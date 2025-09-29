@@ -165,6 +165,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
 .filtro-mujer-circulo {
   display: inline-flex;
   align-items: center;
@@ -183,7 +185,7 @@ onMounted(() => {
   color: #a259d9;
   border: 2px solid #a259d9;
 }
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
 .menu-rutas {
   position: relative;
   width: 350px; /* Ancho ajustado para que quepa el contenido */
