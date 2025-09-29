@@ -57,6 +57,7 @@ app.delete(
     res.send({ message: "ruta eliminada ${req.params.id}" });
   },
 );
+
 const startServer = async () => {
   try {
     await connectDB();

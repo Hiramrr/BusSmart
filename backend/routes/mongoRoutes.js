@@ -1,16 +1,10 @@
 import express from "express";
-import {
+import { crearRuta,
+  eliminarRuta,
   getRuta,
   autocomplete,
-  getAllRutas,
-  sugerirRuta,
-  agregarRutaFavorita,
-  quitarRutaFavorita,
-  crearUsuario
-} from "../controllers/mongoControllers.js";
-
-import { crearRuta,
-  eliminarRuta
+  sugerirRuta, 
+  getAllRutas
 } from "../controllers/rutasControllers.js";
 
 import { checkJwt, checkPermissions } from "../middleware/auth.js";

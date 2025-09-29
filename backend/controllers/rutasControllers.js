@@ -11,9 +11,12 @@ import Parada from '../models/parada.model.js';
 
 export const getRuta = async (req, res) => {
   try {
+    await connectMongoose(); // Conexión Mongoose
+    const db = mongoose.connection.useDb('xalapa_rutas');
+    const RutaModel = db.model('Ruta', Ruta.schema);
+
     const { id } = req.params;
-    // Usando el modelo de Mongoose, que es más limpio y seguro
-    const ruta = await Ruta.findOne({ "features.properties.id": id });
+    const ruta = await RutaModel.findOne({ "features.properties.id": id });
 
     if (ruta) {
       res.json(ruta);
@@ -27,6 +30,7 @@ export const getRuta = async (req, res) => {
 };
 
 export const getAllRutas = (req, res) => {
+  // ... (Este método usa caché, no necesita cambios)
   try {
     const rutas = getRoutesCache();
     if (rutas.length === 0) {
@@ -56,104 +60,67 @@ export const sugerirRuta = async (req, res) => {
   const radioBusqueda = 800;
 
   try {
+    await connectMongoose(); // <-- ARREGLO: Añadimos la conexión Mongoose
+    const db = mongoose.connection.useDb('xalapa_rutas');
+    const RutaModel = db.model('Ruta', Ruta.schema);
+
     const paradasCache = getStopCache();
     if (!paradasCache || paradasCache.length === 0) {
       return res
         .status(503)
         .json({ message: "El servidor aún no está listo, intente de nuevo." });
     }
-
+    
+    // ... (la lógica de búsqueda de paradas cercanas no cambia)
     const paradasCercanasOrigen = [];
     const paradasCercanasDestino = [];
-
     for (const parada of paradasCache) {
-      if (
-        parada.coordinates &&
-        Array.isArray(parada.coordinates) &&
-        parada.coordinates.length === 2
-      ) {
-        const [lngParada, latParada] = parada.coordinates;
-
-        const distOrigen = getDistanceInMeters(
-          origen.lat,
-          origen.lng,
-          latParada,
-          lngParada
-        );
-        if (distOrigen <= radioBusqueda) {
-          paradasCercanasOrigen.push({ ...parada, distancia: distOrigen });
+        if (parada.coordinates && Array.isArray(parada.coordinates) && parada.coordinates.length === 2) {
+            const [lngParada, latParada] = parada.coordinates;
+            const distOrigen = getDistanceInMeters(origen.lat, origen.lng, latParada, lngParada);
+            if (distOrigen <= radioBusqueda) {
+                paradasCercanasOrigen.push({ ...parada, distancia: distOrigen });
+            }
+            const distDestino = getDistanceInMeters(destino.lat, destino.lng, latParada, lngParada);
+            if (distDestino <= radioBusqueda) {
+                paradasCercanasDestino.push({ ...parada, distancia: distDestino });
+            }
         }
-
-        const distDestino = getDistanceInMeters(
-          destino.lat,
-          destino.lng,
-          latParada,
-          lngParada
-        );
-        if (distDestino <= radioBusqueda) {
-          paradasCercanasDestino.push({ ...parada, distancia: distDestino });
-        }
-      }
     }
-
     const rutasOrigen = new Set(paradasCercanasOrigen.map((p) => p.routeId));
     const rutasDestino = new Set(paradasCercanasDestino.map((p) => p.routeId));
-    const rutasCandidatas = [...rutasOrigen].filter((id) =>
-      rutasDestino.has(id)
-    );
-
+    const rutasCandidatas = [...rutasOrigen].filter((id) => rutasDestino.has(id));
     const opcionesDeViaje = [];
     for (const routeId of rutasCandidatas) {
-      const paradasDeRutaEnOrigen = paradasCercanasOrigen.filter(
-        (p) => p.routeId === routeId
-      );
-      const paradasDeRutaEnDestino = paradasCercanasDestino.filter(
-        (p) => p.routeId === routeId
-      );
-
-      const paradaSubidaOptima = paradasDeRutaEnOrigen.sort(
-        (a, b) => a.distancia - b.distancia
-      )[0];
-      const paradaBajadaOptima = paradasDeRutaEnDestino.sort(
-        (a, b) => a.distancia - b.distancia
-      )[0];
-
-      if (
-        paradaSubidaOptima &&
-        paradaBajadaOptima &&
-        paradaSubidaOptima.sequence < paradaBajadaOptima.sequence
-      ) {
-        opcionesDeViaje.push({
-          routeId,
-          paradaSubida: paradaSubidaOptima,
-          paradaBajada: paradaBajadaOptima,
-          distanciaTotalCaminando:
-            paradaSubidaOptima.distancia + paradaBajadaOptima.distancia,
-        });
-      }
+        const paradasDeRutaEnOrigen = paradasCercanasOrigen.filter((p) => p.routeId === routeId);
+        const paradasDeRutaEnDestino = paradasCercanasDestino.filter((p) => p.routeId === routeId);
+        const paradaSubidaOptima = paradasDeRutaEnOrigen.sort((a, b) => a.distancia - b.distancia)[0];
+        const paradaBajadaOptima = paradasDeRutaEnDestino.sort((a, b) => a.distancia - b.distancia)[0];
+        if (paradaSubidaOptima && paradaBajadaOptima && paradaSubidaOptima.sequence < paradaBajadaOptima.sequence) {
+            opcionesDeViaje.push({
+                routeId,
+                paradaSubida: paradaSubidaOptima,
+                paradaBajada: paradaBajadaOptima,
+                distanciaTotalCaminando: paradaSubidaOptima.distancia + paradaBajadaOptima.distancia,
+            });
+        }
     }
+    opcionesDeViaje.sort((a, b) => a.distanciaTotalCaminando - b.distanciaTotalCaminando);
 
-    opcionesDeViaje.sort(
-      (a, b) => a.distanciaTotalCaminando - b.distanciaTotalCaminando
-    );
-
-    const rutasInfo = await Ruta.find({
+    // <-- ARREGLO: Usamos el modelo de Mongoose conectado
+    const rutasInfo = await RutaModel.find({
       "features.properties.id": {
         $in: opcionesDeViaje.map((o) => o.routeId),
       },
     });
 
     const respuestaFinal = opcionesDeViaje.map((opcion) => {
-      const info = rutasInfo.find(
-        (r) => r.features[0]?.properties.id === opcion.routeId
-      );
-      return {
-        ...opcion,
-        nombreRuta: info
-          ? info.features[0]?.properties.name
-          : "Nombre no encontrado",
-        descripcionRuta: info ? info.features[0]?.properties.desc : "",
-      };
+        const info = rutasInfo.find((r) => r.features[0]?.properties.id === opcion.routeId);
+        return {
+            ...opcion,
+            nombreRuta: info ? info.features[0]?.properties.name : "Nombre no encontrado",
+            descripcionRuta: info ? info.features[0]?.properties.desc : "",
+        };
     });
 
     res.json(respuestaFinal.slice(0, 5));
@@ -165,13 +132,15 @@ export const sugerirRuta = async (req, res) => {
   }
 };
 
+
 export const autocomplete = async (req, res) => {
   try {
     const query = req.query.query || "";
     if (!query) {
       return res.status(400).json({ error: "Se requiere el parámetro query" });
     }
-    const db = await connectDB();
+    // Este método usa el driver nativo, lo mantenemos así por ahora.
+    const db = await connectDB(); 
     const collection = db.collection("geocodificacion");
     const results = await collection
       .find(
@@ -186,7 +155,6 @@ export const autocomplete = async (req, res) => {
     res.status(500).json({ error: "Error en el servidor" });
   }
 };
-
 
 // --- NUEVO CONTROLADOR PARA CREAR RUTAS (ADMIN) ---
 export const crearRuta = async (req, res) => {
