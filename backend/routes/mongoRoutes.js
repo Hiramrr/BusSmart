@@ -9,7 +9,9 @@ import {
   crearUsuario
 } from "../controllers/mongoControllers.js";
 
-import { crearRuta } from "../controllers/rutasControllers.js";
+import { crearRuta,
+  eliminarRuta
+} from "../controllers/rutasControllers.js";
 
 import { checkJwt, checkPermissions } from "../middleware/auth.js";
 
@@ -19,9 +21,8 @@ router.get("/autocomplete", autocomplete);
 router.get("/routes", getAllRutas);
 router.get("/sugerir", sugerirRuta);
 router.post("/crearRuta", crearRuta);
+router.delete("/eliminarRuta/:id", eliminarRuta);
 router.get("/:id", getRuta);
-
-
 
 /*
 router.post("/usuarios/crearUsuario", crearUsuario);

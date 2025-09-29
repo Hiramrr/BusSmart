@@ -257,3 +257,65 @@ export const crearRuta = async (req, res) => {
     res.status(500).json({ message: "No se pudo establecer la conexión con la base de datos." });
   }
 };
+
+
+export const eliminarRuta = async (req, res) => {
+  try {
+    // 1. Conectamos a Mongoose
+    await connectMongoose();
+
+    // 2. Obtenemos el ID de la ruta desde los parámetros de la URL (ej: "PRUEBA-01")
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: "Se requiere el identificador de la ruta en la URL." });
+    }
+
+    // 3. Seleccionamos la base de datos 'xalapa_rutas'
+    const db = mongoose.connection.useDb('xalapa_rutas');
+    const RutaModel = db.model('Ruta', Ruta.schema);
+    const ParadaModel = db.model('Parada', Parada.schema);
+
+    // 4. Iniciamos una transacción para una eliminación segura
+    const session = await db.startSession();
+    session.startTransaction();
+
+    try {
+      // Intentamos eliminar el documento de la ruta
+      const resultadoRuta = await RutaModel.deleteOne({ ruta: id }).session(session);
+
+      // Si no se borró ningún documento, significa que la ruta no existía
+      if (resultadoRuta.deletedCount === 0) {
+        await session.abortTransaction(); // Cancelamos la transacción
+        session.endSession();
+        return res.status(404).json({ message: `La ruta con el identificador '${id}' no fue encontrada.` });
+      }
+
+      // Si la ruta existía y se borró, procedemos a borrar sus paradas
+      await ParadaModel.deleteOne({ ruta: id }).session(session);
+      
+      // Si todo salió bien, confirmamos los cambios en la base de datos
+      await session.commitTransaction();
+
+      // Refrescamos la caché para eliminar la ruta de la memoria
+      console.log(`Ruta '${id}' eliminada. Refrescando la caché...`);
+      await initializeCaches();
+      console.log("Caché refrescada exitosamente.");
+
+      // Enviamos una respuesta de éxito
+      res.status(200).json({ message: `Ruta '${id}' y sus paradas asociadas fueron eliminadas correctamente.` });
+
+    } catch (error) {
+      // Si algo falla, revertimos todos los cambios
+      await session.abortTransaction();
+      console.error("Error en la transacción al eliminar la ruta:", error);
+      res.status(500).json({ message: "Error interno del servidor al eliminar la ruta." });
+    } finally {
+      // Siempre cerramos la sesión
+      session.endSession();
+    }
+  } catch (dbError) {
+    console.error("Error al conectar con Mongoose:", dbError);
+    res.status(500).json({ message: "No se pudo establecer la conexión con la base de datos." });
+  }
+};
