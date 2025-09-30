@@ -17,9 +17,9 @@
             <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
               Iniciar sesion
             </router-link>
-            <router-link v-if="!isAuthenticated" to="/admin" class="admin-btn">
+            <!--<router-link v-if="!isAuthenticated" to="/admin" class="admin-btn">
               Administrador
-            </router-link>
+            </router-link>-->
           </ul>
         </nav>
       </div>
@@ -252,7 +252,6 @@ onUnmounted(() => {
   color: #2963b3;
   border: 2px solid #2963b3;
 }
-
 
 .admin-btn {
   bottom: 1px;
