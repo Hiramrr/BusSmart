@@ -1,6 +1,3 @@
-
-import Swal from 'sweetalert2';
-
 export const mostrarAlertaExito = (title, text, timer = 2000) => {
   Swal.fire({
     icon: 'success',
