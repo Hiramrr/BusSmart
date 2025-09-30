@@ -1,5 +1,3 @@
-// frontend/src/utils/alerts.js
-
 export const mostrarAlertaExito = (title, text, timer = 2000) => {
   Swal.fire({
     icon: 'success',
@@ -13,7 +11,7 @@ export const mostrarAlertaExito = (title, text, timer = 2000) => {
 
 export const mostrarAlertaError = (title, text) => {
   Swal.fire({
-    icon: 'error',
+    icon: 'warning',
     title: title,
     text: text,
     confirmButtonColor: '#d33'

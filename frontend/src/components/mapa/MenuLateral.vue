@@ -17,6 +17,9 @@
             <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
               Iniciar sesion
             </router-link>
+            <router-link v-if="!isAuthenticated" to="/admin" class="admin-btn">
+              Administrador
+            </router-link>
           </ul>
         </nav>
       </div>
@@ -249,6 +252,31 @@ onUnmounted(() => {
   color: #2963b3;
   border: 2px solid #2963b3;
 }
+
+
+.admin-btn {
+  bottom: 1px;
+  padding: 0.5rem 1.2rem;
+  background-color: #2963b3;
+  border: 2px solid #2963b3;
+  color: #fff;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.3s,
+    color 0.3s;
+  box-shadow: 0 2px 8px rgba(41, 99, 179, 0.08);
+  cursor: pointer;
+  margin: 5rem;
+  white-space: nowrap;
+}
+.admin-btn:hover {
+  background: #fff;
+  color: #2963b3;
+  border: 2px solid #2963b3;
+}
+
 
 .close-btn .submenu-active-btn {
   justify-content: center;
