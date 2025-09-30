@@ -88,6 +88,7 @@ import { useAuth } from '../../componibles/useAuth.js'
 import { agregarFavorito, quitarFavorito, obtenerFavoritos } from '../../services/api.js'
 
 const { user, isAuthenticated } = useAuth()
+
 const props = defineProps({
   rutas: {
     type: Array,
@@ -98,10 +99,11 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'mostrar-ruta'])
 
-const { favoritos, agregarFavorito, quitarFavorito, esFavorito } = useFavoritos()
-
+// Estado local
 const soloMujer = ref(false)
+const favoritos = ref([])
 
+// Filtro de rutas por género
 function toggleFiltroMujer() {
   soloMujer.value = !soloMujer.value
 }
@@ -113,14 +115,26 @@ const rutasFiltradas = computed(() => {
   return props.rutas
 })
 
-function toggleFavorito(ruta) {
-  if (esFavorito(ruta.id)) {
-    quitarFavorito(ruta.id)
-  } else {
-    agregarFavorito(ruta)
+// Cargar favoritos del usuario
+const cargarFavoritos = async () => {
+  if (!isAuthenticated.value) return
+
+  try {
+    const respuesta = await obtenerFavoritos()
+    favoritos.value = respuesta.rutasFavoritas || []
+    console.log('✅ Favoritos cargados:', favoritos.value)
+  } catch (error) {
+    console.error('❌ Error al cargar favoritos:', error)
+    favoritos.value = []
   }
 }
 
+// Verificar si una ruta es favorita
+const esFavorito = (rutaId) => {
+  return favoritos.value.includes(rutaId)
+}
+
+// Manejar clic en botón de favorito
 const manejarClicFavorito = async (ruta) => {
   if (!isAuthenticated.value) {
     console.error('❌ Usuario no autenticado')
@@ -134,9 +148,11 @@ const manejarClicFavorito = async (ruta) => {
     if (esFavorito(rutaId)) {
       await quitarFavorito(rutaId)
       favoritos.value = favoritos.value.filter((id) => id !== rutaId)
+      console.log('⭐ Favorito removido:', rutaId)
     } else {
       await agregarFavorito(rutaId)
       favoritos.value.push(rutaId)
+      console.log('⭐ Favorito agregado:', rutaId)
     }
   } catch (error) {
     console.error('❌ Error al manejar favorito:', error)
@@ -144,12 +160,20 @@ const manejarClicFavorito = async (ruta) => {
   }
 }
 
+// Obtener URL de imagen
 function getImageUrl(imagePath) {
   return imagePath ? `http://localhost:3000${imagePath}` : ''
 }
+
+// Cargar favoritos al montar el componente
+onMounted(() => {
+  cargarFavoritos()
+})
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
 .filtro-mujer-circulo {
   display: inline-flex;
   align-items: center;
@@ -160,24 +184,25 @@ function getImageUrl(imagePath) {
   background: none;
   transition: box-shadow 0.2s;
 }
+
 .filtro-mujer-circulo.activo {
   box-shadow: 0 0 0 3px #88888844;
 }
+
 .filtro-mujer-btn.activo {
   background: #fff;
   color: #a259d9;
   border: 2px solid #a259d9;
 }
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-  .menu-rutas {
+
+.menu-rutas {
   position: relative;
-  width: 350px; /* Ancho ajustado para que quepa el contenido */
-  min-width: 300px; /* Asegura un ancho mínimo en dispositivos pequeños */
+  width: 350px;
+  min-width: 300px;
   height: 100%;
   padding: 1rem;
   overflow-y: auto;
   font-family: 'Montserrat', Arial, sans-serif;
-
   background: #fff;
   color: #2c3e50;
 }
@@ -196,7 +221,6 @@ function getImageUrl(imagePath) {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-
   background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
 }
 
@@ -234,15 +258,14 @@ function getImageUrl(imagePath) {
   background: #1e1e1e;
 }
 
-/* Cambios para el texto */
 .ruta-nombre {
-  font-size: 1.15rem; /* Ajuste para que quepa mejor */
+  font-size: 1.15rem;
   font-weight: 600;
   color: #2c3e50;
   margin: 0;
-  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
-  overflow: hidden; /* Oculta el texto que se desborda */
-  text-overflow: ellipsis; /* Añade puntos suspensivos (...) al final */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menu-rutas.theme-dark .ruta-nombre {
@@ -265,7 +288,7 @@ function getImageUrl(imagePath) {
 }
 
 .ruta-desc {
-  font-size: 0.9rem; /* Ajuste de tamaño de fuente */
+  font-size: 0.9rem;
   color: #555;
   margin-top: 0.2rem;
 }
@@ -274,7 +297,6 @@ function getImageUrl(imagePath) {
   color: #a0a0a0;
 }
 
-/* Cambios para las imágenes */
 .ruta-imagen {
   display: flex;
   justify-content: center;
@@ -284,7 +306,7 @@ function getImageUrl(imagePath) {
 
 .ruta-imagen img {
   width: 100%;
-  max-width: 150px; /* Limita el ancho máximo de la imagen */
+  max-width: 150px;
   height: auto;
   object-fit: contain;
   border-radius: 16px;
@@ -345,6 +367,5 @@ function getImageUrl(imagePath) {
   display: inline-block;
   vertical-align: middle;
   margin-left: 8px;
-  /* El color morado se define en el SVG */
 }
 </style>
