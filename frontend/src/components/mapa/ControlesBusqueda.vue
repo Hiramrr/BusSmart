@@ -38,6 +38,7 @@
 import { ref } from 'vue'
 import { fetchAutocomplete } from '@/services/api.js'
 import { debounce } from '@/utils/debounce.js'
+import { mostrarAlertaError } from '@/utils/alertas.js'
 
 const emit = defineEmits(['buscar-ruta'])
 
@@ -78,7 +79,7 @@ function selectDestino(lugar) {
 
 function emitBuscarRuta() {
   if (!origenSeleccionado.value || !destinoSeleccionado.value) {
-    alert('Por favor, selecciona un origen y un destino de la lista.')
+    mostrarAlertaError('Error', 'Debes seleccionar tanto un origen como un destino válido.')
     return
   }
 

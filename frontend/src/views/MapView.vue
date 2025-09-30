@@ -57,6 +57,7 @@ import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue'
 import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
 import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue'
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js'
+import { mostrarAlertaError } from '@/utils/alertas.js'
 
 const { isAuthenticated, isInitialized } = useAuth()
 const { cargarFavoritos } = useFavoritos()
@@ -95,14 +96,16 @@ const handleBuscarRuta = async ({ origen, destino }) => {
   try {
     const sugerencias = await fetchSugerenciasDeRuta(origen, destino)
     if (sugerencias.length === 0) {
-      alert(
+      mostrarAlertaError(
+        'Sin rutas',
         'No se encontraron rutas directas para tu viaje. Intenta con puntos de referencia más cercanos a las avenidas principales.',
       )
+
     }
     sugerenciasDeRuta.value = sugerencias
   } catch (error) {
     console.error('Error al obtener sugerencias:', error)
-    alert('Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.')
+    mostrarAlertaError('Hubo un problema', 'Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.')
   }
 }
 
@@ -121,7 +124,7 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
     sugerenciasDeRuta.value = []
   } catch (error) {
     console.error('Error al obtener el GeoJSON de la ruta:', error)
-    alert('No se pudo cargar el detalle de la ruta seleccionada.')
+    mostrarAlertaError('Error', 'No se pudo cargar el detalle de la ruta seleccionada.')
   }
 }
 
@@ -139,7 +142,7 @@ const handleMostrarRuta = async (rutaId) => {
     isSidebarOpen.value = false
   } catch (error) {
     console.error('Error al cargar la ruta:', error)
-    alert('No se pudo cargar la ruta seleccionada.')
+    mostrarAlertaError('Error', 'No se pudo cargar la ruta seleccionada.')
   }
 }
 
