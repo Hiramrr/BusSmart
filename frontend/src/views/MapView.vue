@@ -43,7 +43,7 @@
         @close="limpiarBusqueda"
       />
 
-      <MapaContenedor :datos-viaje="datosDelViaje" />
+      <MapaContenedor :datos-viaje="datosDelViaje" :is-dark-theme="isDarkTheme" />
     </main>
   </div>
 </template>
@@ -62,6 +62,8 @@ const { isAuthenticated, isInitialized } = useAuth()
 const { cargarFavoritos } = useFavoritos()
 const isSidebarOpen = ref(false)
 const isSubmenuOpen = ref(false)
+const isDarkTheme = ref(false) // Añadido para que el componente sea autocontenido
+
 const sugerenciasDeRuta = ref([])
 const datosDelViaje = ref(null)
 const puntoDeOrigen = ref(null)
@@ -79,10 +81,16 @@ const handleSubmenuToggle = (val) => {
 const limpiarBusqueda = () => {
   sugerenciasDeRuta.value = []
   datosDelViaje.value = null
+  puntoDeOrigen.value = null
+  puntoDeDestino.value = null
 }
 
 const handleBuscarRuta = async ({ origen, destino }) => {
   limpiarBusqueda()
+  // Guardamos el origen y destino en este componente
+  puntoDeOrigen.value = origen
+  puntoDeDestino.value = destino
+
   console.log('Buscando rutas para:', { origen, destino })
   try {
     const sugerencias = await fetchSugerenciasDeRuta(origen, destino)
@@ -102,9 +110,12 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId)
 
+    // Creamos el objeto unificado para el mapa
     datosDelViaje.value = {
       ...rutaSugerida,
       geoJson: rutaGeoJSON,
+      origenUsuario: puntoDeOrigen.value,   // Añadimos el origen del usuario
+      destinoUsuario: puntoDeDestino.value, // Añadimos el destino del usuario
     }
 
     sugerenciasDeRuta.value = []
@@ -113,12 +124,13 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
     alert('No se pudo cargar el detalle de la ruta seleccionada.')
   }
 }
+
 const handleMostrarRuta = async (rutaId) => {
   try {
     limpiarBusqueda()
-
     const rutaGeoJSON = await fetchRutaPorId(rutaId)
 
+    // Para las rutas del menú, no hay origen/destino de usuario
     datosDelViaje.value = {
       routeId: rutaId,
       geoJson: rutaGeoJSON,
@@ -143,6 +155,7 @@ watch(
 </script>
 
 <style scoped>
+/* Tus estilos se mantienen sin cambios */
 .map-view-container {
   position: relative;
   height: 100vh;
