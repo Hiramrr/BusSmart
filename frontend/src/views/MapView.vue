@@ -43,7 +43,7 @@
         @close="limpiarBusqueda"
       />
 
-      <MapaContenedor :datos-viaje="datosDelViaje" />
+      <MapaContenedor :datos-viaje="datosDelViaje" :is-dark-theme="isDarkTheme" />
     </main>
   </div>
 </template>
@@ -57,11 +57,14 @@ import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue'
 import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
 import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue'
 import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js'
+import { mostrarAlertaError } from '@/utils/alertas.js'
 
 const { isAuthenticated, isInitialized } = useAuth()
 const { cargarFavoritos } = useFavoritos()
 const isSidebarOpen = ref(false)
 const isSubmenuOpen = ref(false)
+const isDarkTheme = ref(false) // Añadido para que el componente sea autocontenido
+
 const sugerenciasDeRuta = ref([])
 const datosDelViaje = ref(null)
 const puntoDeOrigen = ref(null)
@@ -79,22 +82,30 @@ const handleSubmenuToggle = (val) => {
 const limpiarBusqueda = () => {
   sugerenciasDeRuta.value = []
   datosDelViaje.value = null
+  puntoDeOrigen.value = null
+  puntoDeDestino.value = null
 }
 
 const handleBuscarRuta = async ({ origen, destino }) => {
   limpiarBusqueda()
+  // Guardamos el origen y destino en este componente
+  puntoDeOrigen.value = origen
+  puntoDeDestino.value = destino
+
   console.log('Buscando rutas para:', { origen, destino })
   try {
     const sugerencias = await fetchSugerenciasDeRuta(origen, destino)
     if (sugerencias.length === 0) {
-      alert(
+      mostrarAlertaError(
+        'Sin rutas',
         'No se encontraron rutas directas para tu viaje. Intenta con puntos de referencia más cercanos a las avenidas principales.',
       )
+
     }
     sugerenciasDeRuta.value = sugerencias
   } catch (error) {
     console.error('Error al obtener sugerencias:', error)
-    alert('Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.')
+    mostrarAlertaError('Hubo un problema', 'Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.')
   }
 }
 
@@ -102,23 +113,27 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId)
 
+    // Creamos el objeto unificado para el mapa
     datosDelViaje.value = {
       ...rutaSugerida,
       geoJson: rutaGeoJSON,
+      origenUsuario: puntoDeOrigen.value,   // Añadimos el origen del usuario
+      destinoUsuario: puntoDeDestino.value, // Añadimos el destino del usuario
     }
 
     sugerenciasDeRuta.value = []
   } catch (error) {
     console.error('Error al obtener el GeoJSON de la ruta:', error)
-    alert('No se pudo cargar el detalle de la ruta seleccionada.')
+    mostrarAlertaError('Error', 'No se pudo cargar el detalle de la ruta seleccionada.')
   }
 }
+
 const handleMostrarRuta = async (rutaId) => {
   try {
     limpiarBusqueda()
-
     const rutaGeoJSON = await fetchRutaPorId(rutaId)
 
+    // Para las rutas del menú, no hay origen/destino de usuario
     datosDelViaje.value = {
       routeId: rutaId,
       geoJson: rutaGeoJSON,
@@ -127,7 +142,7 @@ const handleMostrarRuta = async (rutaId) => {
     isSidebarOpen.value = false
   } catch (error) {
     console.error('Error al cargar la ruta:', error)
-    alert('No se pudo cargar la ruta seleccionada.')
+    mostrarAlertaError('Error', 'No se pudo cargar la ruta seleccionada.')
   }
 }
 
@@ -173,6 +188,7 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 4px;
+  /* La transición 'all' es suficiente para animar el cambio en 'left' */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -182,6 +198,7 @@ watch(
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   background-color: rgba(255, 255, 255, 0.95);
 }
+
 .menu-button img {
   transition: filter 0.2s ease;
 }
@@ -203,20 +220,16 @@ watch(
   left: 230px;
 }
 
-@media (max-width: 768px) {
-  .menu-button.open {
-    left: calc(100vw - 72px);
-  }
-}
-
+/* CORRECCIÓN: 
+  Cuando el submenú se abre, el botón se posiciona a 310px desde la izquierda.
+  Esto lo coloca justo al lado del menú principal (que mide 300px), 
+  creando el efecto deseado.
+*/
 .menu-button.open.submenu-open {
-  left: 300px;
-}
-
-@media (max-width: 768px) {
-  .menu-button.open.submenu-open {
-    left: calc(100vw - 72px);
-  }
+  left: 400px; /* Ajustado para estar a la derecha del menú lateral de 300px */
+  height: 40px;
+  width: 40px;
+  background-color: rgb(222, 143, 143);
 }
 
 @media (max-width: 768px) {
@@ -226,6 +239,14 @@ watch(
     width: 48px;
     height: 48px;
     padding: 10px;
+  }
+
+  .menu-button.open {
+    left: calc(100vw - 64px); /* Se mantiene tu lógica para móvil */
+  }
+
+  .menu-button.open.submenu-open {
+    left: calc(100vw - 64px); /* En móvil, se queda en la misma posición final */
   }
 
   .menu-button svg {
