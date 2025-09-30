@@ -155,7 +155,6 @@ watch(
 </script>
 
 <style scoped>
-/* Tus estilos se mantienen sin cambios */
 .map-view-container {
   position: relative;
   height: 100vh;
@@ -186,6 +185,7 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 4px;
+  /* La transición 'all' es suficiente para animar el cambio en 'left' */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -195,6 +195,7 @@ watch(
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   background-color: rgba(255, 255, 255, 0.95);
 }
+
 .menu-button img {
   transition: filter 0.2s ease;
 }
@@ -216,20 +217,16 @@ watch(
   left: 230px;
 }
 
-@media (max-width: 768px) {
-  .menu-button.open {
-    left: calc(100vw - 72px);
-  }
-}
-
+/* CORRECCIÓN: 
+  Cuando el submenú se abre, el botón se posiciona a 310px desde la izquierda.
+  Esto lo coloca justo al lado del menú principal (que mide 300px), 
+  creando el efecto deseado.
+*/
 .menu-button.open.submenu-open {
-  left: 300px;
-}
-
-@media (max-width: 768px) {
-  .menu-button.open.submenu-open {
-    left: calc(100vw - 72px);
-  }
+  left: 400px; /* Ajustado para estar a la derecha del menú lateral de 300px */
+  height: 40px;
+  width: 40px;
+  background-color: rgb(222, 143, 143);
 }
 
 @media (max-width: 768px) {
@@ -239,6 +236,14 @@ watch(
     width: 48px;
     height: 48px;
     padding: 10px;
+  }
+
+  .menu-button.open {
+    left: calc(100vw - 64px); /* Se mantiene tu lógica para móvil */
+  }
+
+  .menu-button.open.submenu-open {
+    left: calc(100vw - 64px); /* En móvil, se queda en la misma posición final */
   }
 
   .menu-button svg {

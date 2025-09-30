@@ -5,7 +5,6 @@
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
           <button @click="handleClose" class="close-btn" :class="{ 'submenu-active-btn': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"></button>
-
         </div>
         <nav class="sidebar-menu">
           <ul>
@@ -22,28 +21,24 @@
         </nav>
       </div>
       
-      <div v-if="mostrarMenuRutas" class="rutas-menu-container">
-        <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
-          <span class="icon-x-circle">&lt;</span>
-        </button>
-
-        <MenuRutas
-          :rutas="rutas"
-          :is-dark-theme="isDarkTheme"
-          @mostrar-ruta="seleccionarRuta"
-        />
-      </div>
-      <div v-if="mostrarFavoritos" class="rutas-menu-container">
-        <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn">
-          <span class="icon-x-circle">&lt;</span>
+      <div v-if="mostrarMenuRutas || mostrarFavoritos" class="rutas-menu-container">
+        <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn" aria-label="Volver al menú principal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
         </button>
         <MenuRutas
-          :rutas="favoritos"
+          :rutas="mostrarFavoritos ? favoritos : rutas"
           :is-dark-theme="isDarkTheme"
           @mostrar-ruta="seleccionarRuta"
         />
       </div>
       <div v-if="mostrarForo" class="rutas-menu-container">
+         <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn" aria-label="Volver al menú principal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
         <Foro :is-dark-theme="isDarkTheme" @close="cerrarMenuRutas" />
       </div>
     </div>
@@ -51,7 +46,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useFavoritos } from '../../stores/favoritos';
 import { getRutas } from '../../services/api';
 import MenuRutas from './MenuRutas.vue';
@@ -68,7 +63,7 @@ const props = defineProps({
   isDarkTheme: Boolean
 });
 
-const emit = defineEmits(['close', 'mostrar-ruta']);
+const emit = defineEmits(['close', 'mostrar-ruta', 'submenu-toggle']);
 
 const abrirMenuRutas = async () => {
   mostrarFavoritos.value = false;
@@ -82,7 +77,6 @@ const abrirMenuRutas = async () => {
   }
   loadingRutas.value = false;
 }
-
 
 function abrirForo() {
   mostrarMenuRutas.value = false;
@@ -108,33 +102,44 @@ function seleccionarRuta(id) {
 
 const { favoritos } = useFavoritos();
 
-// Watch for menu open to reset submenu states
 watch(() => props.isOpen, (val) => {
   if (!val) {
-    mostrarMenuRutas.value = false;
-    mostrarFavoritos.value = false;
-    mostrarForo.value = false;
+    cerrarMenuRutas();
   }
-  
 });
-// este hace que detecte cuando se abre un submenu
+
 watch([mostrarMenuRutas, mostrarFavoritos, mostrarForo], ([rutas, favs, foro]) => {
   const anyActive = rutas || favs || foro;
   emit("submenu-toggle", anyActive);
 });
 
 function handleClose() {
-  mostrarMenuRutas.value = false;
-  mostrarFavoritos.value = false;
-  mostrarForo.value = false;
+  cerrarMenuRutas();
   emit('close');
 }
+
+const handleKeydown = (event) => {
+  if (event.key === 'Escape') {
+    if (mostrarMenuRutas.value || mostrarFavoritos.value || mostrarForo.value) {
+      cerrarMenuRutas();
+    } else if (props.isOpen) {
+      handleClose();
+    }
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <style scoped>
+/* [Tus estilos existentes desde @import hasta .sidebar.theme-dark .rutas-close-btn:hover] */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
-/* ...existing code... */
-
 
 .sidebar {
   position: fixed;
@@ -221,7 +226,6 @@ function handleClose() {
   color: #64b5f6;
 }
 
-/* Botón de inicio de sesión */
 .login-btn {
   position: absolute;
   bottom: 1px;
@@ -239,8 +243,6 @@ function handleClose() {
   cursor: pointer;
   margin: 5rem;
   white-space: nowrap;
-  
-
 }
 .login-btn:hover {
   background: #fff;
@@ -251,16 +253,14 @@ function handleClose() {
 .close-btn .submenu-active-btn {
   justify-content: center;
   align-items: center;
-  transform: translateX(30vw); /* se mueve a la derecha igual que el submenú */
+  transform: translateX(30vw);
 }
 
-/* botón de cierre del menú lateral */
 .close-btn {
   background: rgba(255,255,255,0.90);
   top: 1rem;
   left: 1rem;
   z-index: 2200;
-  /* quita right: 1rem; */
   border: none;
   font-size: 1rem;
   cursor: pointer;
@@ -270,7 +270,6 @@ function handleClose() {
   color: #2c3e50;
 }
 
-/* botón de cierre del menú lateral modo oscuro */
 .sidebar.theme-dark .close-btn {
   background: #333;
   color: #f0f0f0;
@@ -322,14 +321,13 @@ function handleClose() {
 }
 
 .sidebar.theme-dark .sidebar-menu li a, .sidebar.theme-dark .menu-btn {
-  background: none; /* Asegura que no tenga fondo por defecto */
+  background: none;
   color: #f0f0f0;
 }
 
 .sidebar-menu li a:hover, .menu-btn:hover {
   background: #ffffffbd;
   color: #0b0c0c;
-  
 }
 
 .sidebar.theme-dark .sidebar-menu li a:hover, .sidebar.theme-dark .menu-btn:hover {
@@ -340,17 +338,17 @@ function handleClose() {
 .rutas-menu-container {
   position: fixed;
   top: 0;
-  left: 300px;      /* Justo después del sidebar */
-  width: 30vw;      /* 40% del ancho de la ventana */
+  left: 300px;
+  width: 30vw;
   height: 100vh;
   background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
   z-index: 2100;
   box-shadow: 8px 0 24px rgba(44,62,80,0.12);
-  padding: 4rem 3.5rem 1rem 3rem;
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;
   animation: fadeInMenuRutas 0.4s cubic-bezier(.77,0,.18,1);
   overflow-y: auto;
+  padding: 4rem 1.5rem 1rem 3.5rem; 
 }
 
 .sidebar.theme-dark .rutas-menu-container {
@@ -378,35 +376,79 @@ function handleClose() {
 }
 
 .rutas-close-btn {
- /* <-- Mueve el botón al borde derecho */
-  background: #eee;
+  position: absolute;
+  top: 1.2rem;
+  left: 1rem;
+  background: transparent;
   border: none;
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1.5rem;
-  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
-  transition: background 0.2s;
+  color: #3498db;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .sidebar.theme-dark .rutas-close-btn {
-  background: #444;
-  color: #f0f0f0;
+  color: #64b5f6;
 }
 
 .rutas-close-btn:hover {
-  background: #d7f8d8;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.icon-x-circle {
-  color: #25a72be4;
+.sidebar.theme-dark .rutas-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.sidebar.theme-dark .icon-x-circle {
-  color: #80e573;
+/* --- NUEVO: ESTILOS PARA LA BARRA DE SCROLL --- */
+
+/* Para navegadores WebKit (Chrome, Safari, Edge) */
+.main-menu::-webkit-scrollbar,
+.rutas-menu-container::-webkit-scrollbar {
+  width: 8px; /* Ancho del scroll */
+}
+
+.main-menu::-webkit-scrollbar-track,
+.rutas-menu-container::-webkit-scrollbar-track {
+  background: transparent; /* Oculta el fondo del scroll */
+}
+
+.main-menu::-webkit-scrollbar-thumb,
+.rutas-menu-container::-webkit-scrollbar-thumb {
+  background: transparent; /* Oculta la barra de scroll por defecto */
+  border-radius: 4px;
+}
+
+/* Muestra la barra de scroll al pasar el cursor sobre el contenedor */
+.main-menu:hover::-webkit-scrollbar-thumb,
+.rutas-menu-container:hover::-webkit-scrollbar-thumb {
+  background: #bdc3c7; /* Color para el tema claro */
+}
+
+/* Estilo para el tema oscuro */
+.sidebar.theme-dark .main-menu:hover::-webkit-scrollbar-thumb,
+.sidebar.theme-dark .rutas-menu-container:hover::-webkit-scrollbar-thumb {
+  background: #555; /* Color para el tema oscuro */
+}
+
+/* Para Firefox */
+.main-menu,
+.rutas-menu-container {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.main-menu:hover,
+.rutas-menu-container:hover {
+  scrollbar-color: #bdc3c7 transparent;
+}
+
+.sidebar.theme-dark .main-menu:hover,
+.sidebar.theme-dark .rutas-menu-container:hover {
+  scrollbar-color: #555 transparent;
 }
 </style>

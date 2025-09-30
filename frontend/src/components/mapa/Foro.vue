@@ -1,9 +1,5 @@
 <template>
   <div>
-    <button @click="$emit('close')" class="close-btn rutas-close-btn">
-      <span class="icon-x-circle">&lt;</span>
-    </button>
-
     <div v-if="foroStore.error" class="error-message">
       {{ foroStore.error }}
       <button @click="foroStore.limpiarError()" class="error-close">×</button>
