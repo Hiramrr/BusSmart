@@ -10,7 +10,7 @@
 
       <div class="form-group">
         <label for="tipo">Tipo de reporte:</label>
-        <select id="tipo" v-model="reporte.tipo" required :disabled="enviando">
+  <select id="tipo" v-model="reporte.tipo" :disabled="enviando">
           <option value="alerta">Alerta de tráfico</option>
           <option value="incidencia">Incidencia</option>
         </select>
@@ -22,7 +22,6 @@
           id="descripcion"
           v-model="reporte.descripcion"
           rows="3"
-          required
           :disabled="enviando"
           placeholder="Describe la alerta o incidencia..."
         ></textarea>
@@ -80,6 +79,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useForoStore } from '../../stores/foro'
+import { mostrarAlertaError } from '../../utils/alertas';
 
 const foroStore = useForoStore()
 const mensajeEnviado = ref(false)
@@ -102,6 +102,12 @@ onMounted(async () => {
 
 async function enviarReporte() {
   if (enviando.value) return
+
+  // Validar antes de poner enviando en true
+  if (!reporte.value.tipo || !reporte.value.descripcion) {
+    mostrarAlertaError('Campos incompletos', 'Se deben llenar todos los campos obligatorios antes de enviar el reporte.');
+    return;
+  }
 
   enviando.value = true
   foroStore.limpiarError()
