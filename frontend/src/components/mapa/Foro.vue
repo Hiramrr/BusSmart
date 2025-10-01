@@ -10,7 +10,7 @@
 
       <div class="form-group">
         <label for="tipo">Tipo de reporte:</label>
-  <select id="tipo" v-model="reporte.tipo" :disabled="enviando">
+        <select id="tipo" v-model="reporte.tipo" :disabled="enviando">
           <option value="alerta">Alerta de tráfico</option>
           <option value="incidencia">Incidencia</option>
         </select>
@@ -90,11 +90,7 @@ const reporte = ref({
   ubicacion: '',
 })
 
-const props = defineProps({
-  isDarkTheme: Boolean,
-})
-
-const emit = defineEmits(['close'])
+defineEmits(['close'])
 
 onMounted(async () => {
   await foroStore.cargarReportesRecientes()
@@ -164,19 +160,11 @@ async function enviarReporte() {
   font-style: italic;
 }
 
-.sidebar.theme-dark .loading-indicator {
-  color: #ccc;
-}
-
 .no-reportes {
   text-align: center;
   padding: 1rem;
   color: #888;
   font-style: italic;
-}
-
-.sidebar.theme-dark .no-reportes {
-  color: #bbb;
 }
 
 button:disabled {
@@ -192,19 +180,10 @@ button:disabled {
   box-shadow: 0 1px 4px rgba(44, 62, 80, 0.06);
 }
 
-.sidebar.theme-dark .foro-reportes-lista {
-  background: rgba(42, 42, 42, 0.85);
-  color: #f0f0f0;
-}
-
 .foro-reportes-lista h4 {
   margin: 0 0 0.7rem 0;
   font-size: 1.05rem;
   color: #3498db;
-}
-
-.sidebar.theme-dark .foro-reportes-lista h4 {
-  color: #64b5f6;
 }
 
 .foro-reporte-item {
@@ -212,10 +191,6 @@ button:disabled {
   padding: 0.7rem 0;
   margin-bottom: 0.5rem;
   font-size: 0.98rem;
-}
-
-.sidebar.theme-dark .foro-reporte-item {
-  border-bottom: 1px solid #444;
 }
 
 .foro-reporte-item:last-child {
@@ -244,17 +219,9 @@ button:disabled {
   color: #2980b9;
 }
 
-.sidebar.theme-dark .reporte-ubicacion {
-  color: #80bfff;
-}
-
 .reporte-fecha {
   font-size: 0.85rem;
   color: #888;
-}
-
-.sidebar.theme-dark .reporte-fecha {
-  color: #bbb;
 }
 
 .foro-formulario {
@@ -267,19 +234,10 @@ button:disabled {
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
 }
 
-.sidebar.theme-dark .foro-formulario {
-  background: rgba(42, 42, 42, 0.95);
-  color: #f0f0f0;
-}
-
 .foro-formulario h3 {
   margin-top: 0;
   font-size: 1.2rem;
   color: #3498db;
-}
-
-.sidebar.theme-dark .foro-formulario h3 {
-  color: #64b5f6;
 }
 
 .form-group {
@@ -301,14 +259,6 @@ button:disabled {
   padding: 0.5rem;
   font-size: 1rem;
   font-family: inherit;
-}
-
-.sidebar.theme-dark .foro-formulario input,
-.sidebar.theme-dark .foro-formulario select,
-.sidebar.theme-dark .foro-formulario textarea {
-  background: #222;
-  color: #f0f0f0;
-  border: 1px solid #444;
 }
 
 .foro-formulario .mensaje-enviado {
@@ -341,59 +291,5 @@ button:disabled {
 .menu-btn:hover:not(:disabled) {
   background: #ffffffbd;
   color: #0b0c0c;
-}
-
-.sidebar.theme-dark .menu-btn {
-  background: none;
-  color: #f0f0f0;
-}
-
-.sidebar.theme-dark .menu-btn:hover:not(:disabled) {
-  background: #383838;
-  color: #64b5f6;
-}
-
-.sidebar.theme-dark .rutas-close-btn {
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0a1e2b;
-  border: none;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-  cursor: pointer;
-  font-size: 1.5rem;
-  transition: background 0.2s;
-}
-
-.close-btn {
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: none;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-  cursor: pointer;
-  font-size: 1.5rem;
-  transition: background 0.2s;
-}
-
-.icon-x-circle {
-  color: #3498db;
-}
-
-.sidebar.theme-dark .icon-x-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: #3498db;
-  width: 100%;
-  height: 100%;
 }
 </style>

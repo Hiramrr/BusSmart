@@ -121,6 +121,33 @@ function emitBuscarRuta() {
   background-color: var(--color-surface-dark);
 }
 
+.map-view-container.theme-dark input {
+  background-color: #383838;
+  color: #f0f0f0;
+  border-color: #4a4a4a;
+}
+
+.map-view-container.theme-dark #origen-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.map-view-container.theme-dark #destino-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.map-view-container.theme-dark .suggestions-list {
+  background-color: #2a2a2a;
+  border-color: #4a4a4a;
+}
+
+.map-view-container.theme-dark .suggestions-list li {
+  color: #f0f0f0;
+}
+
+.map-view-container.theme-dark .suggestions-list li:hover {
+  background-color: #383838;
+}
+
 .input-wrapper {
   position: relative;
   flex-grow: 1;

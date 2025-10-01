@@ -9,14 +9,12 @@ import 'leaflet/dist/leaflet.css'
 
 const props = defineProps({
   datosViaje: { type: Object, default: null },
-  isDarkTheme: Boolean,
 })
 
 const map = ref(null)
 const rutaLayer = ref(null)
 const viajeMarkersLayer = ref(null)
 const lightTileLayer = ref(null)
-const darkTileLayer = ref(null)
 
 // --- ÍCONOS ACTUALIZADOS ---
 // Función para crear íconos (sin cambios)
@@ -72,39 +70,13 @@ onMounted(() => {
   lightTileLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   })
-  darkTileLayer.value = L.tileLayer(
-    'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
-    {
-      attribution:
-        '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-    },
-  )
 
   viajeMarkersLayer.value = L.layerGroup().addTo(map.value)
 
-  if (props.isDarkTheme) {
-    darkTileLayer.value.addTo(map.value)
-  } else {
-    lightTileLayer.value.addTo(map.value)
-  }
+  lightTileLayer.value.addTo(map.value)
 
   mostrarUbicacionUsuario()
 })
-
-watch(
-  () => props.isDarkTheme,
-  (isDark) => {
-    if (!map.value) return
-
-    if (isDark) {
-      map.value.removeLayer(lightTileLayer.value)
-      darkTileLayer.value.addTo(map.value)
-    } else {
-      map.value.removeLayer(darkTileLayer.value)
-      lightTileLayer.value.addTo(map.value)
-    }
-  },
-)
 
 watch(
   () => props.datosViaje,

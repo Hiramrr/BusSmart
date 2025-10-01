@@ -1,5 +1,5 @@
 <template>
-  <div class="map-view-container" :class="{ 'theme-dark': isDarkTheme }">
+  <div class="map-view-container">
     <button
       @click="toggleSidebar"
       class="menu-button"
@@ -12,7 +12,6 @@
         width="24"
         height="24"
         alt="Menu"
-        :class="{ 'icon-dark': isDarkTheme }"
       />
       <img
         v-else
@@ -20,14 +19,12 @@
         width="24"
         height="24"
         alt="Close"
-        :class="{ 'icon-dark': isDarkTheme }"
       />
     </button>
     <div class="sidebar-overlay" :class="{ active: isSidebarOpen }" @click="toggleSidebar"></div>
 
     <MenuLateral
       :is-open="isSidebarOpen"
-      :is-dark-theme="isDarkTheme"
       @close="toggleSidebar"
       @mostrar-ruta="handleMostrarRuta"
       @submenu-toggle="handleSubmenuToggle"
@@ -43,7 +40,7 @@
         @close="limpiarBusqueda"
       />
 
-      <MapaContenedor :datos-viaje="datosDelViaje" :is-dark-theme="isDarkTheme" />
+      <MapaContenedor :datos-viaje="datosDelViaje" />
     </main>
   </div>
 </template>
@@ -63,7 +60,6 @@ const { isAuthenticated, isInitialized } = useAuth()
 const { cargarFavoritos } = useFavoritos()
 const isSidebarOpen = ref(false)
 const isSubmenuOpen = ref(false)
-const isDarkTheme = ref(false) // Añadido para que el componente sea autocontenido
 
 const sugerenciasDeRuta = ref([])
 const datosDelViaje = ref(null)
@@ -201,19 +197,6 @@ watch(
 
 .menu-button img {
   transition: filter 0.2s ease;
-}
-
-.menu-button img.icon-dark {
-  filter: invert(1);
-}
-
-.map-view-container.theme-dark .menu-button {
-  background-color: rgba(45, 45, 45, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.map-view-container.theme-dark .menu-button:hover {
-  background-color: rgba(55, 55, 55, 0.95);
 }
 
 .menu-button.open {

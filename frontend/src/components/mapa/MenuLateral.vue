@@ -1,5 +1,5 @@
 <template>
-  <aside class="sidebar" :class="{ active: isOpen, 'theme-dark': isDarkTheme }">
+  <aside class="sidebar" :class="{ active: isOpen }">
     <div class="sidebar-content-wrapper" :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo }">
       <div class="main-menu">
         <div class="sidebar-header">
@@ -32,7 +32,6 @@
         </button>
         <MenuRutas
           :rutas="mostrarFavoritos ? favoritos : rutas"
-          :is-dark-theme="isDarkTheme"
           @mostrar-ruta="seleccionarRuta"
         />
       </div>
@@ -42,7 +41,7 @@
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <Foro :is-dark-theme="isDarkTheme" @close="cerrarMenuRutas" />
+        <Foro @close="cerrarMenuRutas" />
       </div>
     </div>
   </aside>
@@ -63,7 +62,6 @@ const loadingRutas = ref(false);
 
 const props = defineProps({
   isOpen: Boolean,
-  isDarkTheme: Boolean
 });
 
 const emit = defineEmits(['close', 'mostrar-ruta', 'submenu-toggle']);
@@ -174,13 +172,6 @@ onUnmounted(() => {
   box-shadow: 8px 0 24px rgba(44,62,80,0.25);
 }
 
-.sidebar.active.theme-dark {
-  background: rgba(0,0,0,0.2);
-  backdrop-filter: blur(10px);
-  color: #f0f0f0;
-  box-shadow: 8px 0 24px rgba(0,0,0,0.5);
-}
-
 .sidebar-content-wrapper {
   position: relative;
   width: 200%; 
@@ -211,22 +202,12 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(44,62,80,0.04);
 }
 
-.sidebar.theme-dark .sidebar-header {
-  border-bottom: 1px solid #333;
-  background: rgba(42,42,42,0.85);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
 .sidebar-header h2 {
   font-size: 1.5rem;
   font-weight: 600;
   color: #3498db;
   letter-spacing: 1px;
   margin: 0;
-}
-
-.sidebar.theme-dark .sidebar-header h2 {
-  color: #64b5f6;
 }
 
 .login-btn {
@@ -297,11 +278,6 @@ onUnmounted(() => {
   color: #2c3e50;
 }
 
-.sidebar.theme-dark .close-btn {
-  background: #333;
-  color: #f0f0f0;
-}
-
 .close-btn:hover {
   background: rgba(255,255,255,0.85);
 }
@@ -347,19 +323,9 @@ onUnmounted(() => {
   transition: background 0.2s, color 0.2s;
 }
 
-.sidebar.theme-dark .sidebar-menu li a, .sidebar.theme-dark .menu-btn {
-  background: none;
-  color: #f0f0f0;
-}
-
 .sidebar-menu li a:hover, .menu-btn:hover {
   background: #ffffffbd;
   color: #0b0c0c;
-}
-
-.sidebar.theme-dark .sidebar-menu li a:hover, .sidebar.theme-dark .menu-btn:hover {
-  background: #383838;
-  color: #64b5f6;
 }
 
 .rutas-menu-container {
@@ -378,10 +344,6 @@ onUnmounted(() => {
   padding: 4rem 1.5rem 1rem 3.5rem; 
 }
 
-.sidebar.theme-dark .rutas-menu-container {
-  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
-}
-
 @keyframes fadeInMenuRutas {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -395,11 +357,6 @@ onUnmounted(() => {
   border-bottom: 1px solid #e0e7ef;
   background: rgba(255,255,255,0.85);
   border-top-right-radius: 24px;
-}
-
-.sidebar.theme-dark .rutas-header {
-  border-bottom: 1px solid #333;
-  background: rgba(42,42,42,0.85);
 }
 
 .rutas-close-btn {
@@ -419,18 +376,9 @@ onUnmounted(() => {
   transition: background-color 0.2s, color 0.2s;
 }
 
-.sidebar.theme-dark .rutas-close-btn {
-  color: #64b5f6;
-}
-
 .rutas-close-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
-
-.sidebar.theme-dark .rutas-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
 /* --- NUEVO: ESTILOS PARA LA BARRA DE SCROLL --- */
 
 /* Para navegadores WebKit (Chrome, Safari, Edge) */
@@ -456,12 +404,6 @@ onUnmounted(() => {
   background: #bdc3c7; /* Color para el tema claro */
 }
 
-/* Estilo para el tema oscuro */
-.sidebar.theme-dark .main-menu:hover::-webkit-scrollbar-thumb,
-.sidebar.theme-dark .rutas-menu-container:hover::-webkit-scrollbar-thumb {
-  background: #555; /* Color para el tema oscuro */
-}
-
 /* Para Firefox */
 .main-menu,
 .rutas-menu-container {
@@ -472,10 +414,5 @@ onUnmounted(() => {
 .main-menu:hover,
 .rutas-menu-container:hover {
   scrollbar-color: #bdc3c7 transparent;
-}
-
-.sidebar.theme-dark .main-menu:hover,
-.sidebar.theme-dark .rutas-menu-container:hover {
-  scrollbar-color: #555 transparent;
 }
 </style>
