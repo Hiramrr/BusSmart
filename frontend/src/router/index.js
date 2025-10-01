@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
-// Vistas del panel de administración
+// Vistas del panel de administración (RUTAS CORREGIDAS)
 import AdminView from '../views/AdminView.vue'
 import GestionRutasView from '../views/GestionRutasView.vue'
-// import RutaEditorView from '../views/admin/RutaEditorView.vue';
+import RutaEditorView from '../views/RutaEditorView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,11 +37,9 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminView,
-      // NOTA: En el futuro, puedes añadir aquí "meta fields" para proteger estas rutas, por ejemplo:
-      // meta: { requiresAuth: true, requiresAdmin: true },
       children: [
         {
-          path: '', // Si alguien va a /admin, lo redirigimos a la gestión de rutas
+          path: '',
           redirect: '/admin/rutas'
         },
         {
@@ -49,19 +47,16 @@ const router = createRouter({
           name: 'gestion-rutas',
           component: GestionRutasView
         },
-        // --- Rutas para crear y editar (descomentar cuando crees RutaEditorView.vue) ---
-        /*
         {
           path: 'rutas/crear',
           name: 'crear-ruta',
           component: RutaEditorView
         },
         {
-          path: 'rutas/editar/:id', // Usamos un parámetro dinámico para el ID de la ruta
+          path: 'rutas/editar/:id',
           name: 'editar-ruta',
-          component: RutaEditorView // Reutilizamos el mismo componente para editar
+          component: RutaEditorView
         }
-        */
       ]
     }
   ],

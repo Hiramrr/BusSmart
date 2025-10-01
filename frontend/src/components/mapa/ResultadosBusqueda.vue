@@ -50,9 +50,7 @@ function seleccionarRuta(ruta) {
   background-color: #fff;
 }
 
-.map-view-container.theme-dark .resultados-panel {
-  background-color: #2a2a2a;
-}
+
 
 .panel-header {
   display: flex;

@@ -94,7 +94,7 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  isDarkTheme: Boolean,
+
 })
 
 const emit = defineEmits(['close', 'mostrar-ruta'])
