@@ -263,9 +263,8 @@ onMounted(() => {
   font-weight: 600;
   color: #2c3e50;
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .menu-rutas.theme-dark .ruta-nombre {
