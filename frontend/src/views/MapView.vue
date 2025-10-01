@@ -40,7 +40,7 @@
         @close="limpiarBusqueda"
       />
 
-      <MapaContenedor :datos-viaje="datosDelViaje" />
+      <MapaContenedor :datosViaje="datosDelViaje" @ruta-limpiada="limpiarBusqueda" />
     </main>
   </div>
 </template>
@@ -96,12 +96,14 @@ const handleBuscarRuta = async ({ origen, destino }) => {
         'Sin rutas',
         'No se encontraron rutas directas para tu viaje. Intenta con puntos de referencia más cercanos a las avenidas principales.',
       )
-
     }
     sugerenciasDeRuta.value = sugerencias
   } catch (error) {
     console.error('Error al obtener sugerencias:', error)
-    mostrarAlertaError('Hubo un problema', 'Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.')
+    mostrarAlertaError(
+      'Hubo un problema',
+      'Hubo un problema al buscar las rutas. Por favor, inténtalo de nuevo.',
+    )
   }
 }
 
@@ -113,7 +115,7 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
     datosDelViaje.value = {
       ...rutaSugerida,
       geoJson: rutaGeoJSON,
-      origenUsuario: puntoDeOrigen.value,   // Añadimos el origen del usuario
+      origenUsuario: puntoDeOrigen.value, // Añadimos el origen del usuario
       destinoUsuario: puntoDeDestino.value, // Añadimos el destino del usuario
     }
 
@@ -203,9 +205,9 @@ watch(
   left: 230px;
 }
 
-/* CORRECCIÓN: 
+/* CORRECCIÓN:
   Cuando el submenú se abre, el botón se posiciona a 310px desde la izquierda.
-  Esto lo coloca justo al lado del menú principal (que mide 300px), 
+  Esto lo coloca justo al lado del menú principal (que mide 300px),
   creando el efecto deseado.
 */
 .menu-button.open.submenu-open {

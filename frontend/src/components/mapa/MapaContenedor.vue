@@ -1,5 +1,14 @@
 <template>
   <div id="mapa-leaflet" class="mapa-contenedor"></div>
+
+  <button
+    v-if="rutaLayer"
+    @click="limpiarRuta"
+    class="btn-limpiar-ruta"
+    title="Borrar ruta del mapa"
+  >
+    🗑️ Limpiar Ruta
+  </button>
 </template>
 
 <script setup>
@@ -11,23 +20,22 @@ const props = defineProps({
   datosViaje: { type: Object, default: null },
 })
 
+const emit = defineEmits(['ruta-limpiada'])
+
 const map = ref(null)
 const rutaLayer = ref(null)
 const viajeMarkersLayer = ref(null)
 const lightTileLayer = ref(null)
 
-// --- ÍCONOS ACTUALIZADOS ---
-// Función para crear íconos (sin cambios)
 const createIcon = (iconUrl, size = [38, 38]) => {
   return L.icon({
     iconUrl: iconUrl,
     iconSize: size,
-    iconAnchor: [size[0] / 2, size[1] / 2], // Centramos el ícono
+    iconAnchor: [size[0] / 2, size[1] / 2],
     popupAnchor: [0, -size[1] / 2],
   })
 }
 
-// Nuevos íconos más estilizados y funcionales de Material Design Icons (MDI)
 const originIcon = createIcon(
   'https://api.iconify.design/mdi:map-marker-radius.svg?color=%231a73e8',
 )
@@ -35,14 +43,25 @@ const destinationIcon = createIcon(
   'https://api.iconify.design/mdi:flag-checkered.svg?color=%23e44234',
 )
 const busStopIcon = createIcon(
-  // URL Corregida y con un mejor ícono
   'https://api.iconify.design/mdi:bus-stop.svg?color=%23fbbc05',
-  [32, 32], // Un poco más pequeño para las paradas
+  [32, 32],
 )
 const userLocationIcon = createIcon(
   'https://api.iconify.design/mdi:account-circle.svg?color=%2300c853',
 )
-// --- FIN DE ÍCONOS ACTUALIZADOS ---
+
+const limpiarRuta = () => {
+  if (rutaLayer.value && map.value) {
+    map.value.removeLayer(rutaLayer.value)
+    rutaLayer.value = null
+  }
+
+  if (viajeMarkersLayer.value) {
+    viajeMarkersLayer.value.clearLayers()
+  }
+
+  emit('ruta-limpiada')
+}
 
 function mostrarUbicacionUsuario() {
   if (!navigator.geolocation || !map.value) return
@@ -61,30 +80,37 @@ function mostrarUbicacionUsuario() {
 }
 
 onMounted(() => {
-  const xalapaBounds = L.latLngBounds(L.latLng(19.45, -97.05), L.latLng(19.6, -96.85))
+  console.log('🗺️ Intentando inicializar mapa...')
 
-  map.value = L.map('mapa-leaflet', {
-    center: [19.5333, -96.9167],
-    zoom: 13,
-    zoomControl: false,
+  try {
+    const xalapaBounds = L.latLngBounds(L.latLng(19.45, -97.05), L.latLng(19.6, -96.85))
 
-    minZoom: 12,
-    maxZoom: 18,
+    map.value = L.map('mapa-leaflet', {
+      center: [19.5333, -96.9167],
+      zoom: 13,
+      zoomControl: false,
+      minZoom: 12,
+      maxZoom: 18,
+      maxBounds: xalapaBounds,
+      maxBoundsViscosity: 1.0,
+    })
 
-    maxBounds: xalapaBounds,
-    maxBoundsViscosity: 1.0,
-  })
+    console.log('✅ Mapa inicializado')
 
-  lightTileLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    bounds: xalapaBounds,
-  })
+    lightTileLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      bounds: xalapaBounds,
+    })
 
-  viajeMarkersLayer.value = L.layerGroup().addTo(map.value)
+    viajeMarkersLayer.value = L.layerGroup().addTo(map.value)
+    lightTileLayer.value.addTo(map.value)
 
-  lightTileLayer.value.addTo(map.value)
+    console.log('✅ Capas agregadas')
 
-  mostrarUbicacionUsuario()
+    mostrarUbicacionUsuario()
+  } catch (error) {
+    console.error('❌ Error al inicializar mapa:', error)
+  }
 })
 
 watch(
@@ -150,8 +176,44 @@ watch(
 
 <style scoped>
 .mapa-contenedor {
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
+  height: 100%;
   z-index: 0;
+}
+
+.btn-limpiar-ruta {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: #cf2900;
+  border: 2px solid #cf2900;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-limpiar-ruta:hover {
+  background: #a82400;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(228, 66, 52, 0.3);
+}
+
+.btn-limpiar-ruta:active {
+  transform: translateY(0);
 }
 </style>
