@@ -61,14 +61,23 @@ function mostrarUbicacionUsuario() {
 }
 
 onMounted(() => {
+  const xalapaBounds = L.latLngBounds(L.latLng(19.45, -97.05), L.latLng(19.6, -96.85))
+
   map.value = L.map('mapa-leaflet', {
     center: [19.5333, -96.9167],
     zoom: 13,
     zoomControl: false,
+
+    minZoom: 12,
+    maxZoom: 18,
+
+    maxBounds: xalapaBounds,
+    maxBoundsViscosity: 1.0,
   })
 
   lightTileLayer.value = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    bounds: xalapaBounds,
   })
 
   viajeMarkersLayer.value = L.layerGroup().addTo(map.value)
@@ -97,7 +106,12 @@ watch(
       style: { color: '#e44234', weight: 6, opacity: 0.85 },
     }).addTo(map.value)
 
-    if (newViaje.origenUsuario && newViaje.destinoUsuario && newViaje.paradaSubida && newViaje.paradaBajada) {
+    if (
+      newViaje.origenUsuario &&
+      newViaje.destinoUsuario &&
+      newViaje.paradaSubida &&
+      newViaje.paradaBajada
+    ) {
       const origenCoords = [newViaje.origenUsuario.lat, newViaje.origenUsuario.lng]
       const destinoCoords = [newViaje.destinoUsuario.lat, newViaje.destinoUsuario.lng]
       const paradaSubidaCoords = [
