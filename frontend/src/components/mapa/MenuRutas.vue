@@ -52,6 +52,20 @@
         <div class="ruta-card-body">
           <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div>
           <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div>
+          <div class="ruta-tiempo"><strong>Tiempo estimado:</strong> {{ ruta.tiempo || '' }}</div>
+          <!-- Información ficticia de horarios con iconos -->
+          <div class="ruta-horario">
+            <span style="margin-right:6px;">⏰</span>
+            <strong>Primer Autobús:</strong> 5:30 am
+          </div>
+          <div class="ruta-horario">
+            <span style="margin-right:6px;">🌙</span>
+            <strong>Último Autobús:</strong> 10:00 pm
+          </div>
+          <div class="ruta-horario">
+            <span style="margin-right:6px;">🕑</span>
+            <strong>Horario aproximado entre cada autobús:</strong> 10 - 20 min.
+          </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; margin-top: 0.5rem">
           <button
