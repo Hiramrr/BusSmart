@@ -15,12 +15,11 @@
 
 <style scoped>
 .admin-container {
-  box-sizing: border-box; /* AÑADIDO: Asegura que el padding no afecte la altura total */
+  box-sizing: border-box; 
   padding: 2rem;
   font-family: 'Montserrat', sans-serif;
   background-color: #f4f7f9;
-  min-height: 100vh;
-  width: 100%; /* AÑADIDO: Asegura que ocupe todo el ancho disponible */
+  width: 100%; 
 }
 .admin-header {
   margin-bottom: 2rem;

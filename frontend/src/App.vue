@@ -13,6 +13,7 @@ main {
   height: 100vh;
   width: 100vw;
   overflow: hidden;
+  overflow-y: auto;
 }
 
 .theme-toggle-container {
