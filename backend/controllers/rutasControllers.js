@@ -156,64 +156,66 @@ export const autocomplete = async (req, res) => {
   }
 };
 
-// --- NUEVO CONTROLADOR PARA CREAR RUTAS (ADMIN) ---
 export const crearRuta = async (req, res) => {
-  try {
-    // --- CONEXIÓN ---
+  try { // <-- El try principal
+    // --- LÍNEA AÑADIDA ---
+    // Aseguramos la conexión con Mongoose antes de hacer cualquier otra cosa.
     await connectMongoose(); 
+    
+    const { rutaGeoJSON, paradasGeoJSON } = req.body;
 
-    // --- LÓGICA EXISTENTE (CON AJUSTES) ---
-    const { rutaData, paradasData } = req.body;
-
-    // 1. Validación de entrada (sin cambios)
-    if (!rutaData || !paradasData) {
-      return res.status(400).json({
-        message: "Se requiere tanto la información de la ruta (rutaData) como de las paradas (paradasData).",
-      });
+    // --- 1. Validación Inicial Robusta ---
+    if (!rutaGeoJSON || !paradasGeoJSON) {
+      return res.status(400).json({ message: "Se requieren los datos geojson de la ruta y las paradas." });
     }
 
-    // (2/3) CORRECCIÓN: Seleccionamos la base de datos correcta.
-    const db = mongoose.connection.useDb('xalapa_rutas');
+    if (rutaGeoJSON.type !== 'FeatureCollection' || paradasGeoJSON.type !== 'FeatureCollection') {
+      return res.status(400).json({ message: "Los datos proporcionados no tienen el formato GeoJSON FeatureCollection válido." });
+    }
 
-    // (3/3) CORRECCIÓN: Ahora que los modelos están registrados por los imports,
-    // los "re-compilamos" para que apunten a la base de datos 'xalapa_rutas'.
+    const db = mongoose.connection.useDb('xalapa_rutas');
     const RutaModel = db.model('Ruta', Ruta.schema); 
     const ParadaModel = db.model('Parada', Parada.schema);
-
-    const session = await db.startSession(); 
-    session.startTransaction();
-
+    
+    const rutaIdentifier = rutaGeoJSON.ruta;
+    if (!rutaIdentifier) {
+      return res.status(400).json({ message: "El campo 'ruta' (identificador) es obligatorio en el GeoJSON de la ruta." });
+    }
+    
+    // --- 2. Transacción Atómica ---
+    const session = await db.startSession();
     try {
-      // Usamos los modelos que apuntan a la base de datos correcta
-      const nuevaRuta = new RutaModel(rutaData);
+      session.startTransaction();
+
+      const nuevaRuta = new RutaModel(rutaGeoJSON);
       const rutaGuardada = await nuevaRuta.save({ session });
 
-      paradasData.ruta = rutaGuardada.ruta;
-      const nuevasParadas = new ParadaModel(paradasData);
+      paradasGeoJSON.ruta = rutaIdentifier;
+      const nuevasParadas = new ParadaModel(paradasGeoJSON);
       await nuevasParadas.save({ session });
 
       await session.commitTransaction();
 
-      console.log("Ruta creada. Refrescando la caché...");
+      console.log(`Ruta '${rutaIdentifier}' creada. Refrescando la caché...`);
       await initializeCaches();
       console.log("Caché refrescada exitosamente.");
 
       res.status(201).json({
-        message: "Ruta y paradas creadas exitosamente en 'xalapa_rutas'.",
+        message: "Ruta y paradas creadas exitosamente.",
         ruta: rutaGuardada,
       });
+
     } catch (error) {
       await session.abortTransaction();
       console.error("Error en la transacción al crear la ruta:", error);
 
       if (error.code === 11000) { 
         return res.status(409).json({
-          message: `El identificador de ruta '${rutaData.ruta}' ya existe.`,
+          message: `El identificador de ruta '${rutaIdentifier}' ya existe. Por favor, elige otro.`,
         });
       }
-
       if (error.name === 'ValidationError') {
-        return res.status(400).json({ message: "Datos inválidos.", error: error.message });
+        return res.status(400).json({ message: "Los datos proporcionados son inválidos.", error: error.message });
       }
 
       res.status(500).json({ message: "Error interno del servidor al crear la ruta." });
@@ -221,7 +223,8 @@ export const crearRuta = async (req, res) => {
       session.endSession();
     }
   } catch (dbError) {
-    console.error("Error al intentar conectar con Mongoose o al compilar modelos:", dbError);
+    // Este catch ahora atrapará el error si connectMongoose falla.
+    console.error("Error de conexión con la base de datos:", dbError);
     res.status(500).json({ message: "No se pudo establecer la conexión con la base de datos." });
   }
 };
@@ -229,61 +232,63 @@ export const crearRuta = async (req, res) => {
 
 export const eliminarRuta = async (req, res) => {
   try {
-    // 1. Conectamos a Mongoose
     await connectMongoose();
 
-    // 2. Obtenemos el ID de la ruta desde los parámetros de la URL (ej: "PRUEBA-01")
-    const { id } = req.params;
+    // 1. Obtenemos el _id de MongoDB desde los parámetros de la URL.
+    const { id: routeMongoId } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ message: "Se requiere el identificador de la ruta en la URL." });
+    if (!mongoose.Types.ObjectId.isValid(routeMongoId)) {
+      return res.status(400).json({ message: "El ID proporcionado no es válido." });
     }
 
-    // 3. Seleccionamos la base de datos 'xalapa_rutas'
     const db = mongoose.connection.useDb('xalapa_rutas');
     const RutaModel = db.model('Ruta', Ruta.schema);
     const ParadaModel = db.model('Parada', Parada.schema);
 
-    // 4. Iniciamos una transacción para una eliminación segura
+    // 2. Buscamos la ruta primero para obtener su identificador textual (campo 'ruta').
+    const rutaParaEliminar = await RutaModel.findById(routeMongoId);
+
+    if (!rutaParaEliminar) {
+      return res.status(404).json({ message: `La ruta con ID '${routeMongoId}' no fue encontrada.` });
+    }
+    
+    // Este es el identificador que relaciona Ruta y Parada, ej: "vuelta" o "PRUEBA-01".
+    const rutaIdentifier = rutaParaEliminar.ruta;
+
+    // 3. Iniciamos una transacción para una eliminación atómica.
     const session = await db.startSession();
     session.startTransaction();
 
     try {
-      // Intentamos eliminar el documento de la ruta
-      const resultadoRuta = await RutaModel.deleteOne({ ruta: id }).session(session);
+      // 4. Eliminamos la ruta por su _id.
+      await RutaModel.findByIdAndDelete(routeMongoId, { session });
 
-      // Si no se borró ningún documento, significa que la ruta no existía
-      if (resultadoRuta.deletedCount === 0) {
-        await session.abortTransaction(); // Cancelamos la transacción
-        session.endSession();
-        return res.status(404).json({ message: `La ruta con el identificador '${id}' no fue encontrada.` });
-      }
-
-      // Si la ruta existía y se borró, procedemos a borrar sus paradas
-      await ParadaModel.deleteOne({ ruta: id }).session(session);
+      // 5. Eliminamos el documento de paradas usando el identificador textual.
+      await ParadaModel.deleteOne({ ruta: rutaIdentifier }).session(session);
       
-      // Si todo salió bien, confirmamos los cambios en la base de datos
+      // Si todo fue exitoso, confirmamos la transacción.
       await session.commitTransaction();
 
-      // Refrescamos la caché para eliminar la ruta de la memoria
-      console.log(`Ruta '${id}' eliminada. Refrescando la caché...`);
+      // Refrescamos la caché para reflejar la eliminación.
+      console.log(`Ruta '${rutaIdentifier}' (ID: ${routeMongoId}) eliminada. Refrescando la caché...`);
       await initializeCaches();
       console.log("Caché refrescada exitosamente.");
 
-      // Enviamos una respuesta de éxito
-      res.status(200).json({ message: `Ruta '${id}' y sus paradas asociadas fueron eliminadas correctamente.` });
+      res.status(200).json({ 
+        message: `Ruta '${rutaIdentifier}' y sus paradas asociadas fueron eliminadas correctamente.` 
+      });
 
     } catch (error) {
-      // Si algo falla, revertimos todos los cambios
+      // Si algo falla durante la transacción, la revertimos.
       await session.abortTransaction();
       console.error("Error en la transacción al eliminar la ruta:", error);
-      res.status(500).json({ message: "Error interno del servidor al eliminar la ruta." });
+      res.status(500).json({ message: "Error interno del servidor al procesar la eliminación." });
     } finally {
-      // Siempre cerramos la sesión
+      // Es crucial cerrar la sesión al finalizar.
       session.endSession();
     }
   } catch (dbError) {
-    console.error("Error al conectar con Mongoose:", dbError);
+    console.error("Error de conexión con la base de datos:", dbError);
     res.status(500).json({ message: "No se pudo establecer la conexión con la base de datos." });
   }
 };

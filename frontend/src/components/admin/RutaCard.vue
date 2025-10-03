@@ -1,124 +1,158 @@
 <template>
-  <div class="ruta-card">
-    <div class="card-content">
-      <h3 class="ruta-nombre">{{ ruta.nombre }}</h3>
-      <p class="ruta-descripcion">{{ ruta.descripcion || 'Sin descripción.' }}</p>
-      
-      <div class="ruta-detalles">
-        <span class="detalle-item">
-          <strong>Número:</strong> {{ ruta.numero_ruta || 'N/A' }}
-        </span>
-        <span class="detalle-item">
-          <strong>Puntos en Trazado:</strong> {{ ruta.puntos_recorrido }}
-        </span>
+  <div class="ruta-card-admin">
+    <div class="card-header">
+      <div class="ruta-avatar">
+        <img v-if="ruta.image" :src="getImageUrl(ruta.image)" :alt="'Imagen de ' + ruta.nombre" class="ruta-image">
+        <span v-else class="ruta-numero">#{{ ruta.numero_ruta }}</span>
       </div>
+      <h3 class="ruta-nombre">{{ ruta.nombre }}</h3>
     </div>
     
-    <div class="card-actions">
-      <button @click="$emit('editar', ruta.id)" class="action-btn edit-btn">Editar</button>
-      <button @click="$emit('eliminar', ruta.id)" class="action-btn delete-btn">Eliminar</button>
+    <div class="card-body">
+      <p v-if="ruta.descripcion" class="ruta-descripcion">
+        {{ ruta.descripcion }}
+      </p>
+      <div v-else class="ruta-horarios-fallback">
+        <div class="ruta-horario"><span>⏰</span><strong>Primer Autobús:</strong> 5:30 am</div>
+        <div class="ruta-horario"><span>🌙</span><strong>Último Autobús:</strong> 10:00 pm</div>
+        <div class="ruta-horario"><span>🕑</span><strong>Frecuencia:</strong> 10 - 20 min.</div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="ruta-info">
+        📍 {{ ruta.puntos_recorrido || 0 }} puntos en el recorrido
+      </div>
+      <div class="card-actions">
+        <button @click="$emit('editar', ruta.id)" class="btn-editar">Editar</button>
+        <button @click="$emit('eliminar', ruta.id)" class="btn-eliminar">Eliminar</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { API_BASE_URL } from '@/config.js'; // Importamos la URL base
+
 defineProps({
   ruta: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
 });
 
 defineEmits(['editar', 'eliminar']);
+
+function getImageUrl(imagePath) {
+  return imagePath ? `${API_BASE_URL}${imagePath}` : '';
+}
 </script>
 
 <style scoped>
-.ruta-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 1.5rem;
+.ruta-card-admin {
+  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 1rem;
-  flex-wrap: wrap; /* Para mejor responsividad */
-}
-
-.ruta-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12);
-}
-
-.card-content {
-  flex-grow: 1;
-}
-
-.ruta-nombre {
-  font-weight: 600;
-  font-size: 1.2rem;
-  color: #2c3e50;
-  margin: 0 0 0.5rem 0; /* Aumentado el margen inferior */
-}
-
-.ruta-descripcion {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-  margin: 0 0 1rem 0; /* Aumentado el margen inferior */
-  max-width: 90%; /* Evita que el texto largo se pegue a los botones */
-}
-
-/* --- NUEVOS ESTILOS PARA LA SECCIÓN DE DETALLES --- */
-.ruta-detalles {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.85rem;
-  color: #34495e;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.detalle-item {
-  display: inline-flex;
+.ruta-card-admin:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ruta-avatar {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+.ruta-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ruta-numero {
+  background-color: #3498db;
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ruta-nombre {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+.card-body {
+  flex-grow: 1;
+  padding: 1rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+.ruta-horarios-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ruta-horario {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-
-.detalle-item strong {
-  font-weight: 600;
+.card-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-/* ----------------------------------------------- */
-
+.ruta-info {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
 .card-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-left: 1rem; /* Asegura un espacio con el contenido */
+  gap: 0.5rem;
 }
-
-.action-btn {
+.btn-editar, .btn-eliminar {
   border: none;
-  padding: 0.6rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  white-space: nowrap; /* Evita que el texto del botón se rompa */
 }
-
-.edit-btn {
-  background-color: #ecf0f1;
-  color: #34495e;
+.btn-editar {
+  background-color: #2ecc71;
+  color: white;
 }
-
-.edit-btn:hover {
-  background-color: #dfe6e9;
+.btn-editar:hover {
+  background-color: #27ae60;
 }
-
-.delete-btn {
+.btn-eliminar {
   background-color: #e74c3c;
   color: white;
 }
-
-.delete-btn:hover {
+.btn-eliminar:hover {
   background-color: #c0392b;
 }
 </style>

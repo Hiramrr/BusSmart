@@ -102,6 +102,31 @@ export async function fetchSugerenciasDeRuta(origen, destino) {
   return await apiFetch(url)
 }
 
+export async function crearNuevaRuta(rutaGeoJSON, paradasGeoJSON) {
+  const url = `${API_BASE}/rutas/crearRuta`;
+  const body = {
+    rutaGeoJSON,
+    paradasGeoJSON,
+  };
+
+  return await apiFetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function eliminarRuta(id) {
+  const url = `${API_BASE}/rutas/eliminarRuta/${id}`;  
+  return await apiFetch(url, {
+    method: 'DELETE',
+  });
+}
+
+
+
 export async function crearUsuario(perfil) {
   const url = `${API_BASE}/user/crearUsuario`
   return await apiFetch(url, {

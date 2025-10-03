@@ -139,7 +139,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* [Tus estilos existentes desde @import hasta .sidebar.theme-dark .rutas-close-btn:hover] */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
 
 .sidebar {

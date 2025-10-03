@@ -114,19 +114,22 @@
 </template>
 
 <script setup>
-// ... (LA SECCIÓN SCRIPT NO TIENE CAMBIOS) ...
 import { ref, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router'; // 1. Importar useRouter
 import FileUpload from '@/components/admin/FileUpload.vue';
 import MapDrawer from '@/components/admin/MapDrawer.vue';
 import { mostrarAlertaExito, mostrarAlertaError } from '@/utils/alertas.js';
+// 2. Importar la función para crear rutas desde la API
+import { crearNuevaRuta } from '@/services/api.js';
 
 const route = useRoute();
+const router = useRouter(); // Inicializar el router
 const isEditing = computed(() => !!route.params.id);
 const activeTab = ref('draw');
 
 const currentStep = ref(1);
 const mapDrawer = ref(null);
+const subiendo = ref(false); // 3. Añadir estado de carga
 
 const nuevaRuta = ref({
   type: "FeatureCollection",
@@ -144,6 +147,7 @@ const nuevasParadas = ref({
   ruta: ""
 });
 
+// ... (Todas tus funciones desde watch hasta getFinalParadasJson se mantienen exactamente igual) ...
 watch(() => nuevaRuta.value.ruta, (newVal) => {
   nuevasParadas.value.ruta = newVal;
 });
@@ -179,7 +183,6 @@ function addRouteCoordinate(coords) {
 function addStopFeature(coords) {
   const routeId = nuevaRuta.value.features[0].properties.id || (nuevaRuta.value.features[0].properties.id = Date.now().toString());
   const sequence = nuevasParadas.value.features.length;
-
   nuevasParadas.value.features.push({
     type: "Feature",
     properties: {
@@ -206,7 +209,7 @@ function undoLastPoint() {
 }
 
 function removeStop(index) {
-    nuevasParadas.value.features.splice(index, 1);
+  nuevasParadas.value.features.splice(index, 1);
 }
 
 function clearCurrentMap() {
@@ -238,18 +241,30 @@ function getFinalParadasJson() {
     return finalParadas;
 }
 
-function handleSave() {
+// --- FUNCIÓN DE GUARDAR ACTUALIZADA ---
+async function handleSave() {
   const rutaFinal = getFinalRutaJson();
   const paradasFinales = getFinalParadasJson();
 
-  console.log("----- GEOJSON DE RUTA PARA ENVIAR -----", JSON.stringify(rutaFinal, null, 2));
-  console.log("----- GEOJSON DE PARADAS PARA ENVIAR -----", JSON.stringify(paradasFinales, null, 2));
+  subiendo.value = true; // Activar estado de carga
 
-  mostrarAlertaExito('¡GeoJSON Generado!', 'Revisa la consola para ver los objetos que se enviarían al servidor.');
+  try {
+    // Llamar a la función de la API con los dos objetos GeoJSON
+    await crearNuevaRuta(rutaFinal, paradasFinales);
+
+    mostrarAlertaExito('¡Ruta Guardada!', 'La nueva ruta se ha creado exitosamente.');
+    router.push('/admin/rutas'); // Redirigir al listado de rutas
+  
+  } catch (error) {
+    console.error("Error al guardar la ruta:", error);
+    mostrarAlertaError('Error al Guardar', `No se pudo crear la ruta: ${error.message}`);
+  } finally {
+    subiendo.value = false; // Desactivar estado de carga
+  }
 }
 
 function handleGeoJSONLoaded(geojson) {
-    // Implementación futura
+  // Implementación futura para la pestaña de subida de archivos
 }
 </script>
 
