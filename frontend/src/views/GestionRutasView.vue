@@ -2,7 +2,7 @@
   <div class="gestion-rutas-view">
     <div class="view-header">
       <div class="header-content">
-        <h2>Gestión de Rutas</h2>
+        <h2>Añadir ruta al sistema</h2>
         <p class="header-subtitle"></p>
       </div>
       <button @click="crearNuevaRuta" class="btn-primario">

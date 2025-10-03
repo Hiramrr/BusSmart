@@ -263,25 +263,25 @@ function getImageUrl(imagePath) {
 }
 
 .btn-editar {
-  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  background: #2ecc71;
   color: white;
   box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
 }
 
 .btn-editar:hover {
-  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  background: #27ae60;
   box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
   transform: translateY(-2px);
 }
 
 .btn-eliminar {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  background: #e74c3c;
   color: white;
   box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
 .btn-eliminar:hover {
-  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  background: #c0392b;
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
   transform: translateY(-2px);
 }
