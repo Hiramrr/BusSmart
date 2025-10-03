@@ -47,23 +47,26 @@
           </h4>
         </div>
         <div v-if="ruta.image" class="ruta-imagen">
-          <img :src="getImageUrl(ruta.image)" :alt="'Imagen de ' + (ruta.name || ruta.id)" />
+          <img
+            :src="getImageUrl(ruta.image)"
+            :alt="'Imagen de ' + (ruta.name || ruta.id)"
+            loading="lazy"
+          />
         </div>
         <div class="ruta-card-body">
           <div class="ruta-id"><strong>ID:</strong> {{ ruta.id || 'N/A' }}</div>
           <div class="ruta-desc">{{ ruta.desc || 'Sin descripción' }}</div>
           <div class="ruta-tiempo"><strong>Tiempo estimado:</strong> {{ ruta.tiempo || '' }}</div>
-          <!-- Información ficticia de horarios con iconos -->
           <div class="ruta-horario">
-            <span style="margin-right:6px;">⏰</span>
+            <span style="margin-right: 6px">⏰</span>
             <strong>Primer Autobús:</strong> 5:30 am
           </div>
           <div class="ruta-horario">
-            <span style="margin-right:6px;">🌙</span>
+            <span style="margin-right: 6px">🌙</span>
             <strong>Último Autobús:</strong> 10:00 pm
           </div>
           <div class="ruta-horario">
-            <span style="margin-right:6px;">🕑</span>
+            <span style="margin-right: 6px">🕑</span>
             <strong>Horario aproximado entre cada autobús:</strong> 10 - 20 min.
           </div>
         </div>
@@ -100,7 +103,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useAuth } from '../../componibles/useAuth.js'
 import { agregarFavorito, quitarFavorito, obtenerFavoritos } from '../../services/api.js'
-
+import { getImageUrl } from '../../config.js'
 const { user, isAuthenticated } = useAuth()
 
 const props = defineProps({
@@ -108,7 +111,6 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-
 })
 
 const emit = defineEmits(['close', 'mostrar-ruta'])
@@ -123,10 +125,16 @@ function toggleFiltroMujer() {
 }
 
 const rutasFiltradas = computed(() => {
-  if (soloMujer.value) {
-    return props.rutas.filter((r) => r.mujer === 'true')
+  const filtered = soloMujer.value ? props.rutas.filter((r) => r.mujer === 'true') : props.rutas
+
+  // 🔍 DEBUG TEMPORAL
+  if (filtered.length > 0) {
+    console.log('🔍 Primera ruta:', filtered[0])
+    console.log('🔍 Campo image:', filtered[0].image)
+    console.log('🔍 Tipo de image:', typeof filtered[0].image)
   }
-  return props.rutas
+
+  return filtered
 })
 
 // Cargar favoritos del usuario
@@ -174,12 +182,11 @@ const manejarClicFavorito = async (ruta) => {
   }
 }
 
-// Obtener URL de imagen
-function getImageUrl(imagePath) {
-  return imagePath ? `http://localhost:3000${imagePath}` : ''
+function handleImageError(event) {
+  event.target.style.display = 'none'
+  console.warn('⚠️ Imagen no encontrada:', event.target.src)
 }
 
-// Cargar favoritos al montar el componente
 onMounted(() => {
   cargarFavoritos()
 })

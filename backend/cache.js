@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 import fs from "fs";
 
 let paradasCache = [];
-let rutasCache = []; // Agregamos la caché para las rutas
+let rutasCache = []; // Caché para las rutas
 
 /**
  * Inicializa TODAS las cachés de la aplicación.
@@ -21,7 +21,7 @@ export const initializeCaches = async () => {
     const db = await connectDB();
     console.log("Iniciando la carga de cachés...");
 
-    // --- 1. Cargar y procesar la caché de PARADAS (la versión que funciona) ---
+    // --- 1. Cargar y procesar la caché de PARADAS ---
     const paradasCollection = db.collection("paradas");
     const todasLasRutasConParadas = await paradasCollection.find({}).toArray();
 
@@ -35,56 +35,39 @@ export const initializeCaches = async () => {
         };
       });
     });
-    console.log(`✅ ${paradasCache.length} paradas cargadas y aplanadas en caché.`);
+    console.log(
+      `✅ ${paradasCache.length} paradas cargadas y aplanadas en caché.`,
+    );
 
-    // --- 2. Cargar y procesar la caché de RUTAS (la nueva funcionalidad) ---
+    // --- 2. Cargar y procesar la caché de RUTAS ---
     const rutasCollection = db.collection("rutas");
-  const projection = {
-    projection: {
-      "features.properties.id": 1,
-      "features.properties.name": 1,
-      "features.properties.desc": 1,
-      "features.properties.mujer": 1,
-    }
-  };
-    const todasLasRutas = await rutasCollection.find({}, projection).toArray();
-    
-    // Transformamos las rutas a un formato simple y útil para el listado.
-  rutasCache = todasLasRutas.map(ruta => {
-    const props = ruta.features[0]?.properties || {};
-    const id = props.id;
-    const name = props.name;
-    // Extraer el número de la ruta del nombre (asume formato 'Ruta XX ...')
-    let numeroRuta = null;
-    if (name) {
-      const match = name.match(/Ruta\s*(\d+)/i);
-      if (match) {
-        numeroRuta = match[1].padStart(3, '0');
-      }
-    }
-
-    // Buscar la primera imagen disponible en la carpeta por número de ruta
-    let image = null;
-    if (numeroRuta) {
-      const imageDir = path.join(__dirname, 'Datos de las rutas', 'codeandoxalapa mapmap master data', numeroRuta, 'imagen');
-      if (fs.existsSync(imageDir)) {
-        const files = fs.readdirSync(imageDir);
-        const imageFile = files.find(f => f.match(/\.(jpg|jpeg|png|webp)$/i));
-        if (imageFile) {
-          image = `/images/${numeroRuta}/imagen/${imageFile}`;
-        }
-      }
-    }
-    return {
-      id,
-      name,
-      desc: props.desc,
-      image,
-      mujer: typeof props.mujer !== 'undefined' ? String(props.mujer) : undefined
+    const projection = {
+      projection: {
+        "features.properties.id": 1,
+        "features.properties.name": 1,
+        "features.properties.desc": 1,
+        "features.properties.mujer": 1,
+        image: 1, // ⭐ Campo image del nivel raíz
+        ruta: 1, // ⭐ Campo ruta del nivel raíz
+      },
     };
-  });
-    console.log(`✅ ${rutasCache.length} rutas cargadas en caché.`);
+    const todasLasRutas = await rutasCollection.find({}, projection).toArray();
 
+    // Transformamos las rutas a un formato simple y útil para el listado.
+    rutasCache = todasLasRutas.map((ruta) => {
+      const props = ruta.features[0]?.properties || {};
+
+      return {
+        id: props.id,
+        name: props.name,
+        desc: props.desc,
+        image: ruta.image || null, // ⭐ Usar el campo image del documento raíz
+        mujer:
+          typeof props.mujer !== "undefined" ? String(props.mujer) : undefined,
+      };
+    });
+
+    console.log(`✅ ${rutasCache.length} rutas cargadas en caché.`);
   } catch (error) {
     console.error("❌ Error fatal al inicializar las cachés:", error);
     process.exit(1);

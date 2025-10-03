@@ -1,8 +1,6 @@
 import userManager from '../auth/authService.js'
 
-const API_BASE = import.meta.env.DEV
-  ? 'http://localhost:3000/api'
-  : 'https://bussmart.onrender.com/api'
+import { API_BASE_URL, API_BASE } from '../config.js'
 
 console.log('API_BASE configurado para:', API_BASE)
 
@@ -103,11 +101,11 @@ export async function fetchSugerenciasDeRuta(origen, destino) {
 }
 
 export async function crearNuevaRuta(rutaGeoJSON, paradasGeoJSON) {
-  const url = `${API_BASE}/rutas/crearRuta`;
+  const url = `${API_BASE}/rutas/crearRuta`
   const body = {
     rutaGeoJSON,
     paradasGeoJSON,
-  };
+  }
 
   return await apiFetch(url, {
     method: 'POST',
@@ -115,17 +113,15 @@ export async function crearNuevaRuta(rutaGeoJSON, paradasGeoJSON) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  });
+  })
 }
 
 export async function eliminarRuta(id) {
-  const url = `${API_BASE}/rutas/eliminarRuta/${id}`;  
+  const url = `${API_BASE}/rutas/eliminarRuta/${id}`
   return await apiFetch(url, {
     method: 'DELETE',
-  });
+  })
 }
-
-
 
 export async function crearUsuario(perfil) {
   const url = `${API_BASE}/user/crearUsuario`

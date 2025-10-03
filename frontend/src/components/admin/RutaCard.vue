@@ -3,10 +3,11 @@
     <div class="card-header">
       <div class="ruta-avatar">
         <img
-          v-if="ruta.image"
-          :src="getImageUrl(ruta.image)"
+          v-if="ruta.image || ruta.ruta"
+          :src="getImageUrl(ruta)"
           :alt="'Imagen de ' + ruta.nombre"
           class="ruta-image"
+          @error="handleImageError"
         />
         <span v-else class="ruta-numero">🚌</span>
       </div>
@@ -89,7 +90,7 @@
 </template>
 
 <script setup>
-import { API_BASE_URL } from '@/config.js'
+import { getImageUrl } from '@/config.js'
 
 defineProps({
   ruta: {
@@ -100,8 +101,9 @@ defineProps({
 
 defineEmits(['editar', 'eliminar'])
 
-function getImageUrl(imagePath) {
-  return imagePath ? `${API_BASE_URL}${imagePath}` : ''
+function handleImageError(event) {
+  event.target.style.display = 'none'
+  event.target.parentElement.innerHTML = '<span class="ruta-numero">🚌</span>'
 }
 </script>
 
