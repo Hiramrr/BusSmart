@@ -3,7 +3,6 @@
     <nav class="nav-container">
       <router-link to="/" class="logo">BusSmart</router-link>
 
-      <!-- Botón menú para móvil -->
       <button class="menu-toggle" @click="toggleMobileMenu" aria-label="Menú">
         <svg
           v-if="!mobileMenuOpen"
@@ -34,7 +33,6 @@
         </svg>
       </button>
 
-      <!-- Menú principal -->
       <div class="nav-right" :class="{ 'mobile-open': mobileMenuOpen }">
         <ul class="nav-links">
           <li><a href="#features" @click="closeMobileMenu">Características</a></li>
@@ -42,12 +40,19 @@
             <router-link to="/map" class="nav-link" @click="closeMobileMenu">Mapa</router-link>
           </li>
           <li><a href="#descargar" @click="closeMobileMenu">Descargar</a></li>
-          <li><ContactDropdown /></li>
+          <li>
+            <a
+              href="https://github.com/Hiramrr/BusSmart"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click="closeMobileMenu"
+              >Contacto</a
+            >
+          </li>
         </ul>
 
         <template v-if="isInitialized">
-          <!-- Botón de login si no está autenticado -->
-          <router-link
+        <router-link
             v-if="!isAuthenticated"
             to="/login"
             class="login-btn"
@@ -56,7 +61,6 @@
             Iniciar sesión
           </router-link>
 
-          <!-- Perfil de usuario si está autenticado -->
           <div v-else class="user-profile-wrapper">
             <div class="user-profile" @click="toggleMenu">
               <img
@@ -152,7 +156,6 @@
         </template>
       </div>
 
-      <!-- Overlay para cerrar el menú móvil -->
       <div
         class="mobile-overlay"
         :class="{ active: mobileMenuOpen }"
@@ -166,8 +169,6 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useAuth } from '@/componibles/useAuth.js'
 import { useRouter } from 'vue-router'
-import ContactDropdown from './ContactDropdown.vue'
-
 
 const { user, isAuthenticated, isAdmin, logout, isInitialized } = useAuth()
 const router = useRouter()
@@ -225,6 +226,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ... (estilos sin cambios) ... */
 header {
   position: fixed;
   top: 0;
