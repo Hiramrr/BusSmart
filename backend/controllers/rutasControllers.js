@@ -282,70 +282,72 @@ export const eliminarRuta = async (req, res) => {
   try {
     await connectMongoose();
 
-    // 1. Obtenemos el _id de MongoDB desde los parámetros de la URL.
-    const { id: routeMongoId } = req.params;
+    const { id: routePropertiesId } = req.params; // ID de features.properties.id
 
-    if (!mongoose.Types.ObjectId.isValid(routeMongoId)) {
-      return res
-        .status(400)
-        .json({ message: "El ID proporcionado no es válido." });
+    if (!routePropertiesId) {
+        return res.status(400).json({ message: "No se proporcionó un ID de ruta." });
     }
 
     const db = mongoose.connection.useDb("xalapa_rutas");
     const RutaModel = db.model("Ruta", Ruta.schema);
     const ParadaModel = db.model("Parada", Parada.schema);
-
-    // 2. Buscamos la ruta primero para obtener su identificador textual (campo 'ruta').
-    const rutaParaEliminar = await RutaModel.findById(routeMongoId);
-
-    if (!rutaParaEliminar) {
-      return res.status(404).json({
-        message: `La ruta con ID '${routeMongoId}' no fue encontrada.`,
-      });
-    }
-
-    // Este es el identificador que relaciona Ruta y Parada, ej: "vuelta" o "PRUEBA-01".
-    const rutaIdentifier = rutaParaEliminar.ruta;
-
-    // 3. Iniciamos una transacción para una eliminación atómica.
+    
     const session = await db.startSession();
-    session.startTransaction();
-
+    
     try {
-      // 4. Eliminamos la ruta por su _id.
-      await RutaModel.findByIdAndDelete(routeMongoId, { session });
+      session.startTransaction();
 
-      // 5. Eliminamos el documento de paradas usando el identificador textual.
-      await ParadaModel.deleteOne({ ruta: rutaIdentifier }).session(session);
+      // 1. Encuentra y elimina la ruta en un solo paso atómico.
+      // Buscamos por el ID personalizado dentro del array 'features'.
+      const rutaEliminada = await RutaModel.findOneAndDelete(
+        { "features.properties.id": routePropertiesId },
+        { session }
+      );
 
-      // Si todo fue exitoso, confirmamos la transacción.
+      // Si no se encontró la ruta, `rutaEliminada` será null.
+      if (!rutaEliminada) {
+        await session.abortTransaction();
+        return res.status(404).json({
+          message: `La ruta con el ID '${routePropertiesId}' no fue encontrada.`,
+        });
+      }
+
+      // 2. Elimina el documento de paradas asociado, usando el mismo ID para consistencia.
+      // Esta lógica es ahora idéntica a la de 'actualizarRuta'.
+      await ParadaModel.deleteOne(
+        { "features.properties.routeId": routePropertiesId },
+        { session }
+      );
+
+      // 3. Si todo fue exitoso, confirmamos la transacción.
       await session.commitTransaction();
 
-      // Refrescamos la caché para reflejar la eliminación.
-      console.log(
-        `Ruta '${rutaIdentifier}' (ID: ${routeMongoId}) eliminada. Refrescando la caché...`,
-      );
+      // 4. Refrescamos la caché para reflejar la eliminación.
+      console.log(`✅ Ruta '${rutaEliminada.ruta}' (ID: ${routePropertiesId}) eliminada.`);
       await initializeCaches();
-      console.log("Caché refrescada exitosamente.");
+      console.log("🔄 Caché refrescada exitosamente.");
 
       res.status(200).json({
-        message: `Ruta '${rutaIdentifier}' y sus paradas asociadas fueron eliminadas correctamente.`,
+        message: `Ruta '${rutaEliminada.ruta}' y sus paradas asociadas fueron eliminadas correctamente.`,
       });
+
     } catch (error) {
-      // Si algo falla durante la transacción, la revertimos.
+      // Si algo falla, revertimos la transacción.
       await session.abortTransaction();
-      console.error("Error en la transacción al eliminar la ruta:", error);
+      console.error("❌ Error en la transacción al eliminar la ruta:", error);
       res.status(500).json({
         message: "Error interno del servidor al procesar la eliminación.",
+        error: error.message,
       });
     } finally {
-      // Es crucial cerrar la sesión al finalizar.
+      // 5. Cerramos la sesión al finalizar.
       session.endSession();
     }
   } catch (dbError) {
-    console.error("Error de conexión con la base de datos:", dbError);
+    console.error("❌ Error de conexión con la base de datos:", dbError);
     res.status(500).json({
       message: "No se pudo establecer la conexión con la base de datos.",
+      error: dbError.message,
     });
   }
 };
