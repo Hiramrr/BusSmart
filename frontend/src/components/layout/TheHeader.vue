@@ -1,27 +1,113 @@
 <template>
   <header>
     <nav class="nav-container">
-      <div class="logo">BusSmart</div>
+      <router-link to="/" class="logo">BusSmart</router-link>
       <div class="nav-right">
         <ul class="nav-links">
           <li><a href="#features">Características</a></li>
           <li><router-link to="/map" class="nav-link">Mapa</router-link></li>
           <li><a href="#descargar">Descargar</a></li>
           <li><a href="#contacto">Contacto</a></li>
-
-          <li v-if="isAuthenticated"><a href="#usuario"> Usuario</a></li>
         </ul>
 
         <template v-if="isInitialized">
+          <!-- Botón de login si no está autenticado -->
           <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
-            Iniciar sesion
+            Iniciar sesión
           </router-link>
 
-          <div v-else class="user-profile">
-            <span class="usuario" @click="Pagina_Usuario"
-              >Bienvenido, {{ user?.name || user?.profile?.name || 'Usuario' }}</span
-            >
-            <button @click="logout" class="logout-btn">Cerrar Sesion</button>
+          <!-- Perfil de usuario si está autenticado -->
+          <div v-else class="user-profile-wrapper">
+            <div class="user-profile" @click="toggleMenu">
+              <img
+                :src="user?.profile?.picture || 'https://via.placeholder.com/40'"
+                :alt="user?.profile?.name || 'Usuario'"
+                class="user-avatar"
+              />
+              <span class="user-name">{{ user?.profile?.name || 'Usuario' }}</span>
+              <svg
+                class="chevron-icon"
+                :class="{ rotated: showMenu }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+
+            <transition name="dropdown-fade">
+              <div v-if="showMenu" class="user-dropdown">
+                <div class="dropdown-header">
+                  <img
+                    :src="user?.profile?.picture || 'https://via.placeholder.com/48'"
+                    :alt="user?.profile?.name || 'Usuario'"
+                    class="dropdown-avatar"
+                  />
+                  <div class="dropdown-info">
+                    <span class="dropdown-name">{{ user?.profile?.name || 'Usuario' }}</span>
+                    <span class="dropdown-email">{{ user?.profile?.email || '' }}</span>
+                  </div>
+                </div>
+
+                <div class="dropdown-divider"></div>
+
+                <router-link to="/perfil" class="dropdown-item" @click="closeMenu">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Mi Perfil
+                </router-link>
+
+                <router-link v-if="isAdmin" to="/admin" class="dropdown-item" @click="closeMenu">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6m9-9h-6m-6 0H3"></path>
+                  </svg>
+                  Panel Admin
+                </router-link>
+
+                <div class="dropdown-divider"></div>
+
+                <button @click="handleLogout" class="dropdown-item logout-item">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  Cerrar Sesión
+                </button>
+              </div>
+            </transition>
           </div>
         </template>
       </div>
@@ -30,16 +116,43 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/componibles/useAuth.js'
 import { useRouter } from 'vue-router'
 
-const { user, isAuthenticated, logout, isInitialized } = useAuth()
-
+const { user, isAuthenticated, isAdmin, logout, isInitialized } = useAuth()
 const router = useRouter()
 
-function Pagina_Usuario() {
-  router.push('perfil')
+const showMenu = ref(false)
+
+function toggleMenu() {
+  showMenu.value = !showMenu.value
 }
+
+function closeMenu() {
+  showMenu.value = false
+}
+
+function handleLogout() {
+  closeMenu()
+  logout()
+}
+
+// Cerrar menú al hacer clic fuera
+const handleClickOutside = (event) => {
+  const dropdown = document.querySelector('.user-profile-wrapper')
+  if (dropdown && !dropdown.contains(event.target)) {
+    closeMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style scoped>
@@ -68,6 +181,12 @@ header {
   font-weight: 700;
   font-size: 1.5rem;
   color: #2963b3;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.logo:hover {
+  color: #3498db;
 }
 
 .nav-right {
@@ -82,6 +201,7 @@ header {
   gap: 1.5rem;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
 
 .nav-links a {
@@ -103,34 +223,196 @@ header {
   border-radius: 0.5rem;
   font-weight: 600;
   text-decoration: none;
-  transition:
-    background 0.3s,
-    color 0.3s;
+  transition: all 0.3s;
   box-shadow: 0 2px 8px rgba(41, 99, 179, 0.08);
   cursor: pointer;
-  margin-left: 1.5rem;
   white-space: nowrap;
 }
+
 .login-btn:hover {
   background: #fff;
   color: #2963b3;
-  border: 2px solid #2963b3;
-}
-.logout-btn {
-  padding: 0.5rem 1.2rem;
-  background-color: #d9534f;
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.logout-btn:hover {
-  background-color: #c9302c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(41, 99, 179, 0.2);
 }
 
-.usuario {
+/* Perfil de usuario */
+.user-profile-wrapper {
+  position: relative;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.user-profile:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(41, 99, 179, 0.3);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.user-name {
   color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron-icon {
+  color: white;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Menú desplegable */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.dropdown-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+  flex-shrink: 0;
+}
+
+.dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.dropdown-name {
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-email {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #e8ecef;
+  margin: 0.5rem 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background: none;
+  border: none;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: rgba(52, 152, 219, 0.08);
+}
+
+.logout-item {
+  color: #e74c3c;
+}
+
+.logout-item:hover {
+  background: rgba(231, 76, 60, 0.08);
+}
+
+/* Animación del menú desplegable */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.dropdown-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-links li a {
+    font-size: 0.9rem;
+  }
+
+  .user-name {
+    display: none;
+  }
+
+  .user-profile {
+    padding: 0.5rem;
+  }
+
+  .user-dropdown {
+    min-width: 240px;
+    right: -1rem;
+  }
 }
 </style>

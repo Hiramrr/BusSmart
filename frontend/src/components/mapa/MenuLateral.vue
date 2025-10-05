@@ -1,43 +1,152 @@
 <template>
   <aside class="sidebar" :class="{ active: isOpen }">
-    <div class="sidebar-content-wrapper" :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo }">
+    <div
+      class="sidebar-content-wrapper"
+      :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"
+    >
       <div class="main-menu">
         <div class="sidebar-header">
           <h2>BusSmart 🚌</h2>
-          <button @click="handleClose" class="close-btn" :class="{ 'submenu-active-btn': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"></button>
+          <button
+            @click="handleClose"
+            class="close-btn"
+            :class="{ 'submenu-active-btn': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"
+          ></button>
         </div>
+
         <nav class="sidebar-menu">
           <ul>
             <li>
-              <button @click="abrirMenuRutas" class="menu-btn" href="#">🗺️ Todas las rutas</button>
+              <button @click="abrirMenuRutas" class="menu-btn">🗺️ Todas las rutas</button>
             </li>
-            <li><button @click="abrirFavoritos" class="menu-btn" href="#">⭐ Favoritos</button></li>
-            <li><button @click="abrirForo" class="menu-btn" href="#">💬 Foro</button></li>
-            <li><button class="menu-btn" href="#">❓ Ayuda</button></li>
-            <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
-              Iniciar sesion
-            </router-link>
-            <!--<router-link v-if="!isAuthenticated" to="/admin" class="admin-btn">
-              Administrador
-            </router-link>-->
+            <li><button @click="abrirFavoritos" class="menu-btn">⭐ Favoritos</button></li>
+            <li><button @click="abrirForo" class="menu-btn">💬 Foro</button></li>
+            <li><button class="menu-btn">❓ Ayuda</button></li>
+
+            <!-- Botón Admin solo para administradores -->
+            <li v-if="isAdmin">
+              <router-link to="/admin" class="menu-btn admin-menu-btn">
+                🛠️ Panel Admin
+              </router-link>
+            </li>
           </ul>
         </nav>
+
+        <!-- Perfil de usuario o botón de login -->
+        <div class="user-section">
+          <!-- Si no está autenticado: botón de login -->
+          <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
+            Iniciar sesión
+          </router-link>
+
+          <!-- Si está autenticado: perfil de usuario -->
+          <div v-else class="user-profile-card">
+            <div class="user-profile-header" @click="toggleUserMenu">
+              <img
+                :src="user?.profile?.picture || 'https://via.placeholder.com/48'"
+                :alt="user?.profile?.name || 'Usuario'"
+                class="user-avatar"
+              />
+              <div class="user-info">
+                <span class="user-name">{{ user?.profile?.name || 'Usuario' }}</span>
+                <span class="user-role" v-if="isAdmin">👑 Administrador</span>
+                <span class="user-role" v-else>👤 Usuario</span>
+              </div>
+              <svg
+                class="chevron-icon"
+                :class="{ rotated: showUserMenu }"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+
+            <!-- Menú desplegable -->
+            <transition name="slide-fade">
+              <div v-if="showUserMenu" class="user-dropdown">
+                <router-link to="/perfil" class="dropdown-item" @click="handleClose">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  Mi Perfil
+                </router-link>
+                <button @click="handleLogout" class="dropdown-item logout-item">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  Cerrar Sesión
+                </button>
+              </div>
+            </transition>
+          </div>
+        </div>
       </div>
-      
+
       <div v-if="mostrarMenuRutas || mostrarFavoritos" class="rutas-menu-container">
-        <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn" aria-label="Volver al menú principal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          @click="cerrarMenuRutas"
+          class="close-btn rutas-close-btn"
+          aria-label="Volver al menú principal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <MenuRutas
-          :rutas="mostrarFavoritos ? favoritos : rutas"
-          @mostrar-ruta="seleccionarRuta"
-        />
+        <MenuRutas :rutas="mostrarFavoritos ? favoritos : rutas" @mostrar-ruta="seleccionarRuta" />
       </div>
+
       <div v-if="mostrarForo" class="rutas-menu-container">
-         <button @click="cerrarMenuRutas" class="close-btn rutas-close-btn" aria-label="Volver al menú principal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          @click="cerrarMenuRutas"
+          class="close-btn rutas-close-btn"
+          aria-label="Volver al menú principal"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
@@ -48,94 +157,112 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useFavoritos } from '../../stores/favoritos';
-import { getRutas } from '../../services/api';
-import MenuRutas from './MenuRutas.vue';
-import Foro from './Foro.vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useAuth } from '@/componibles/useAuth.js'
+import { useFavoritos } from '@/stores/favoritos'
+import { getRutas } from '@/services/api'
+import MenuRutas from './MenuRutas.vue'
+import Foro from './Foro.vue'
 
-const rutas = ref([]);
-const mostrarMenuRutas = ref(false);
-const mostrarFavoritos = ref(false);
-const mostrarForo = ref(false);
-const loadingRutas = ref(false);
+const { user, isAuthenticated, isAdmin, logout } = useAuth()
+
+const rutas = ref([])
+const mostrarMenuRutas = ref(false)
+const mostrarFavoritos = ref(false)
+const mostrarForo = ref(false)
+const loadingRutas = ref(false)
+const showUserMenu = ref(false)
 
 const props = defineProps({
   isOpen: Boolean,
-});
+})
 
-const emit = defineEmits(['close', 'mostrar-ruta', 'submenu-toggle']);
+const emit = defineEmits(['close', 'mostrar-ruta', 'submenu-toggle'])
 
 const abrirMenuRutas = async () => {
-  mostrarFavoritos.value = false;
-  mostrarMenuRutas.value = true;
-  mostrarForo.value = false;
-  loadingRutas.value = true;
+  mostrarFavoritos.value = false
+  mostrarMenuRutas.value = true
+  mostrarForo.value = false
+  loadingRutas.value = true
   try {
-    rutas.value = await getRutas();
+    rutas.value = await getRutas()
   } catch (e) {
-    rutas.value = [];
+    rutas.value = []
   }
-  loadingRutas.value = false;
+  loadingRutas.value = false
 }
 
 function abrirForo() {
-  mostrarMenuRutas.value = false;
-  mostrarFavoritos.value = false;
-  mostrarForo.value = true;
+  mostrarMenuRutas.value = false
+  mostrarFavoritos.value = false
+  mostrarForo.value = true
 }
 
 function abrirFavoritos() {
-  mostrarMenuRutas.value = false;
-  mostrarFavoritos.value = true;
-  mostrarForo.value = false;
+  mostrarMenuRutas.value = false
+  mostrarFavoritos.value = true
+  mostrarForo.value = false
 }
 
 function cerrarMenuRutas() {
-  mostrarMenuRutas.value = false;
-  mostrarFavoritos.value = false;
-  mostrarForo.value = false;
+  mostrarMenuRutas.value = false
+  mostrarFavoritos.value = false
+  mostrarForo.value = false
 }
 
 function seleccionarRuta(id) {
-  emit('mostrar-ruta', id);
+  emit('mostrar-ruta', id)
 }
 
-const { favoritos } = useFavoritos();
+function toggleUserMenu() {
+  showUserMenu.value = !showUserMenu.value
+}
 
-watch(() => props.isOpen, (val) => {
-  if (!val) {
-    cerrarMenuRutas();
-  }
-});
+function handleLogout() {
+  showUserMenu.value = false
+  logout()
+}
+
+const { favoritos } = useFavoritos()
+
+watch(
+  () => props.isOpen,
+  (val) => {
+    if (!val) {
+      cerrarMenuRutas()
+      showUserMenu.value = false
+    }
+  },
+)
 
 watch([mostrarMenuRutas, mostrarFavoritos, mostrarForo], ([rutas, favs, foro]) => {
-  const anyActive = rutas || favs || foro;
-  emit("submenu-toggle", anyActive);
-});
+  const anyActive = rutas || favs || foro
+  emit('submenu-toggle', anyActive)
+})
 
 function handleClose() {
-  cerrarMenuRutas();
-  emit('close');
+  cerrarMenuRutas()
+  showUserMenu.value = false
+  emit('close')
 }
 
 const handleKeydown = (event) => {
   if (event.key === 'Escape') {
     if (mostrarMenuRutas.value || mostrarFavoritos.value || mostrarForo.value) {
-      cerrarMenuRutas();
+      cerrarMenuRutas()
     } else if (props.isOpen) {
-      handleClose();
+      handleClose()
     }
   }
-};
+}
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
+  window.addEventListener('keydown', handleKeydown)
+})
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-});
+  window.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style scoped>
@@ -149,41 +276,42 @@ onUnmounted(() => {
   height: 100%;
   z-index: 2000;
   border-radius: 20px;
-  transition: left 0.4s cubic-bezier(.77,0,.18,1);
-  box-shadow: 8px 0 24px rgba(44,62,80,0.12);
+  transition: left 0.4s cubic-bezier(0.77, 0, 0.18, 1);
+  box-shadow: 8px 0 24px rgba(44, 62, 80, 0.12);
   font-family: 'Montserrat', Arial, sans-serif;
   color: #2c3e50;
 }
 
-.sidebar.close-btn {
-  justify-content: center;
-  align-items: center;
-  display: none;
-  left : -300px;
-}
-
-
 .sidebar.active {
   left: 0;
-  color: #2c3e50; 
+  color: #2c3e50;
   backdrop-filter: blur(10px);
-  background: rgba(255,255,255,0.2);
-  box-shadow: 8px 0 24px rgba(44,62,80,0.25);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 8px 0 24px rgba(44, 62, 80, 0.25);
 }
 
 .sidebar-content-wrapper {
   position: relative;
-  width: 200%; 
+  width: 200%;
   height: 100%;
   display: flex;
-  transition: transform 0.4s cubic-bezier(.77,0,.18,1);
+  transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
 }
 
 .sidebar-content-wrapper.sub-menu-active {
-  transform: translateX(-50%); 
+  transform: translateX(-50%);
 }
 
-.main-menu, .rutas-menu-container {
+.main-menu {
+  width: 50%;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.rutas-menu-container {
   width: 50%;
   flex-shrink: 0;
   height: 100%;
@@ -195,10 +323,10 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   border-radius: 20px;
-  padding: 1.2rem 1rem 1rem 1rem;
+  padding: 1.2rem 1rem;
   border-bottom: 1px solid #e0e7ef;
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
 }
 
 .sidebar-header h2 {
@@ -209,82 +337,32 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.login-btn {
-  position: absolute;
-  bottom: 1px;
-  padding: 0.5rem 1.2rem;
-  background-color: #2963b3;
-  border: 2px solid #2963b3;
-  color: #fff;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition:
-    background 0.3s,
-    color 0.3s;
-  box-shadow: 0 2px 8px rgba(41, 99, 179, 0.08);
-  cursor: pointer;
-  margin: 5rem;
-  white-space: nowrap;
-}
-.login-btn:hover {
-  background: #fff;
-  color: #2963b3;
-  border: 2px solid #2963b3;
-}
-
-.admin-btn {
-  bottom: 1px;
-  padding: 0.5rem 1.2rem;
-  background-color: #2963b3;
-  border: 2px solid #2963b3;
-  color: #fff;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition:
-    background 0.3s,
-    color 0.3s;
-  box-shadow: 0 2px 8px rgba(41, 99, 179, 0.08);
-  cursor: pointer;
-  margin: 5rem;
-  white-space: nowrap;
-}
-.admin-btn:hover {
-  background: #fff;
-  color: #2963b3;
-  border: 2px solid #2963b3;
-}
-
-
-.close-btn .submenu-active-btn {
-  justify-content: center;
-  align-items: center;
-  transform: translateX(30vw);
-}
-
 .close-btn {
-  background: rgba(255,255,255,0.90);
-  top: 1rem;
-  left: 1rem;
-  z-index: 2200;
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   font-size: 1rem;
   cursor: pointer;
   border-radius: 50%;
   box-shadow: none;
-  transition: left 0.4s cubic-bezier(.77,0,.18,1);
+  transition: background 0.2s;
   color: #2c3e50;
+  width: 32px;
+  height: 32px;
 }
 
 .close-btn:hover {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255, 255, 255, 1);
+}
+
+.sidebar-menu {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .sidebar-menu ul {
   list-style: none;
   padding: 1rem 0;
-  margin: 0;   
+  margin: 0;
 }
 
 .sidebar-menu li {
@@ -295,10 +373,10 @@ onUnmounted(() => {
   background: none;
   border: none;
   box-shadow: none !important;
-  padding: 10px;
-  margin: 0px;
-  border-radius: 0;
-  color: inherit;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  border-radius: 12px;
+  color: #06090c;
   font: inherit;
   text-align: left;
   width: 100%;
@@ -306,25 +384,160 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.7rem;
   cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-}
-
-.sidebar-menu li a, .menu-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 1rem 1.5rem;
-  color: #06090c;
-  text-decoration: none;
+  transition:
+    background 0.2s,
+    color 0.2s;
   font-size: 1.1rem;
-  font-family: inherit;
-  border-radius: 12px;
-  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
 }
 
-.sidebar-menu li a:hover, .menu-btn:hover {
+.menu-btn:hover {
   background: #ffffffbd;
   color: #0b0c0c;
+}
+
+/* Sección de usuario */
+.user-section {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid #e0e7ef;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.login-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1.2rem;
+  background-color: #2963b3;
+  border: 2px solid #2963b3;
+  color: #fff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s;
+  box-shadow: 0 2px 8px rgba(41, 99, 179, 0.2);
+}
+
+.login-btn:hover {
+  background: #fff;
+  color: #2963b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(41, 99, 179, 0.3);
+}
+
+.user-profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.08);
+}
+
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-profile-header:hover {
+  background: rgba(52, 152, 219, 0.05);
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.chevron-icon {
+  color: #7f8c8d;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.user-dropdown {
+  border-top: 1px solid #e0e7ef;
+  padding: 0.5rem;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.dropdown-item:hover {
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.logout-item {
+  color: #e74c3c;
+}
+
+.logout-item:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+/* Animación del menú desplegable */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 
 .rutas-menu-container {
@@ -335,27 +548,21 @@ onUnmounted(() => {
   height: 100vh;
   background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
   z-index: 2100;
-  box-shadow: 8px 0 24px rgba(44,62,80,0.12);
+  box-shadow: 8px 0 24px rgba(44, 62, 80, 0.12);
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;
-  animation: fadeInMenuRutas 0.4s cubic-bezier(.77,0,.18,1);
+  animation: fadeInMenuRutas 0.4s cubic-bezier(0.77, 0, 0.18, 1);
   overflow-y: auto;
-  padding: 4rem 1.5rem 1rem 3.5rem; 
+  padding: 4rem 1.5rem 1rem 3.5rem;
 }
 
 @keyframes fadeInMenuRutas {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.rutas-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #e0e7ef;
-  background: rgba(255,255,255,0.85);
-  border-top-right-radius: 24px;
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .rutas-close-btn {
@@ -372,38 +579,37 @@ onUnmounted(() => {
   justify-content: center;
   cursor: pointer;
   color: #3498db;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .rutas-close-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
-/* --- NUEVO: ESTILOS PARA LA BARRA DE SCROLL --- */
 
-/* Para navegadores WebKit (Chrome, Safari, Edge) */
+/* Scrollbar styles */
 .main-menu::-webkit-scrollbar,
 .rutas-menu-container::-webkit-scrollbar {
-  width: 8px; /* Ancho del scroll */
+  width: 8px;
 }
 
 .main-menu::-webkit-scrollbar-track,
 .rutas-menu-container::-webkit-scrollbar-track {
-  background: transparent; /* Oculta el fondo del scroll */
+  background: transparent;
 }
 
 .main-menu::-webkit-scrollbar-thumb,
 .rutas-menu-container::-webkit-scrollbar-thumb {
-  background: transparent; /* Oculta la barra de scroll por defecto */
+  background: transparent;
   border-radius: 4px;
 }
 
-/* Muestra la barra de scroll al pasar el cursor sobre el contenedor */
 .main-menu:hover::-webkit-scrollbar-thumb,
 .rutas-menu-container:hover::-webkit-scrollbar-thumb {
-  background: #bdc3c7; /* Color para el tema claro */
+  background: #bdc3c7;
 }
 
-/* Para Firefox */
 .main-menu,
 .rutas-menu-container {
   scrollbar-width: thin;

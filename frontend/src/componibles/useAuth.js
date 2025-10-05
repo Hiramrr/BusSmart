@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
-import userManager from '@/auth/authService'
 import { useRouter } from 'vue-router'
+import userManager from '@/auth/authService.js'
 import { crearUsuario } from '@/services/api.js'
 
 const user = ref(null)
@@ -29,6 +29,18 @@ const initializeAuth = async () => {
 }
 
 initializeAuth()
+
+const getUserRoles = (user) => {
+  if (!user || !user.profile) return []
+
+  const roles =
+    user.profile['https://bussmart.com/roles'] ||
+    user.profile.roles ||
+    user.profile['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+    []
+
+  return Array.isArray(roles) ? roles : [roles]
+}
 
 export function useAuth() {
   const router = useRouter()
@@ -67,15 +79,26 @@ export function useAuth() {
     }
   }
 
+  const isAdmin = computed(() => {
+    if (!user.value) return false
+    const roles = getUserRoles(user.value)
+    return roles.includes('Administrador') || roles.includes('Administrator')
+  })
+
+  const userRoles = computed(() => {
+    if (!user.value) return []
+    return getUserRoles(user.value)
+  })
+
   return {
     user,
     isLoading,
     isInitialized,
     isAuthenticated: computed(() => !!user.value && !user.value.expired),
-    // Funciones para que tus componentes las usen
+    isAdmin,
+    userRoles,
     login: () => userManager.signinRedirect(),
     logout: () => {
-      // Limpia el localStorage al cerrar sesión
       localStorage.removeItem('usuarioId')
       userManager.signoutRedirect()
     },
@@ -83,25 +106,20 @@ export function useAuth() {
   }
 }
 
-// En useAuth.js, actualiza la función debugAuth
 if (typeof window !== 'undefined') {
   window.debugAuth = async () => {
     try {
       const user = await userManager.getUser()
       if (user && user.access_token) {
-        console.log('🎫 Token completo para curl:')
-        console.log(user.access_token)
-        console.log('\n📋 Comando curl listo para usar:')
-        console.log(`curl -X PUT http://localhost:3000/api/user/favoritos \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer ${user.access_token}" \\
-  -d '{"rutaId": "2744"}' \\
-  -v`)
+        console.log('🎫 Usuario:', user.profile)
+        console.log('🔑 Roles:', getUserRoles(user))
+        console.log('🎫 Token completo:', user.access_token)
 
         const tokenParts = user.access_token.split('.')
         const payload = JSON.parse(atob(tokenParts[1]))
-        console.log('Audience en token:', payload.aud)
-        return { user, payload }
+        console.log('📋 Payload del token:', payload)
+
+        return { user, payload, roles: getUserRoles(user) }
       } else {
         console.log('No hay usuario autenticado')
       }
