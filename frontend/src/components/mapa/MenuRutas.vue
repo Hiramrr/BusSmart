@@ -388,4 +388,112 @@ onMounted(() => {
   vertical-align: middle;
   margin-left: 8px;
 }
+
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
+  .menu-rutas {
+    width: 100vw;
+    min-width: 100vw;
+    padding: 0.75rem;
+  }
+
+  .menu-rutas h2 {
+    font-size: 1.25rem;
+  }
+
+  .filtro-mujer-circulo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .filtro-mujer-circulo svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .ruta-card {
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    gap: 0.4rem;
+  }
+
+  .ruta-card-header {
+    gap: 0.5rem;
+  }
+
+  .ruta-icon {
+    font-size: 1.5rem;
+    padding: 0.15rem 0.3rem;
+  }
+
+  .ruta-nombre {
+    font-size: 1rem;
+  }
+
+  .ruta-card-body {
+    gap: 0.15rem;
+  }
+
+  .ruta-id,
+  .ruta-desc,
+  .ruta-tiempo,
+  .ruta-horario {
+    font-size: 0.85rem;
+  }
+
+  .ruta-imagen img {
+    max-width: 120px;
+  }
+
+  .favorito-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.2rem;
+  }
+
+  .estrella-icon {
+    font-size: 1.4rem;
+  }
+
+  .mujer-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .sin-rutas {
+    padding: 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-rutas {
+    padding: 0.5rem;
+  }
+
+  .menu-rutas h2 {
+    font-size: 1.1rem;
+  }
+
+  .ruta-card {
+    padding: 0.85rem;
+    border-radius: 10px;
+  }
+
+  .ruta-nombre {
+    font-size: 0.95rem;
+  }
+
+  .ruta-id,
+  .ruta-desc,
+  .ruta-tiempo,
+  .ruta-horario {
+    font-size: 0.8rem;
+  }
+
+  .ruta-imagen img {
+    max-width: 100px;
+  }
+}
 </style>

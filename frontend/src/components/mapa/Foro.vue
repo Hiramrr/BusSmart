@@ -79,7 +79,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useForoStore } from '../../stores/foro'
-import { mostrarAlertaError } from '../../utils/alertas';
+import { mostrarAlertaError } from '../../utils/alertas'
 
 const foroStore = useForoStore()
 const mensajeEnviado = ref(false)
@@ -101,8 +101,11 @@ async function enviarReporte() {
 
   // Validar antes de poner enviando en true
   if (!reporte.value.tipo || !reporte.value.descripcion) {
-    mostrarAlertaError('Campos incompletos', 'Se deben llenar todos los campos obligatorios antes de enviar el reporte.');
-    return;
+    mostrarAlertaError(
+      'Campos incompletos',
+      'Se deben llenar todos los campos obligatorios antes de enviar el reporte.',
+    )
+    return
   }
 
   enviando.value = true
@@ -291,5 +294,91 @@ button:disabled {
 .menu-btn:hover:not(:disabled) {
   background: #ffffffbd;
   color: #0b0c0c;
+}
+
+/* Agregar al final del <style scoped> en Foro.vue */
+
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
+  .foro-formulario {
+    padding: 1.5rem 1rem 0.75rem 1rem;
+    gap: 1rem;
+    border-radius: 14px;
+  }
+
+  .foro-formulario h3 {
+    font-size: 1.1rem;
+  }
+
+  .foro-formulario label {
+    font-size: 0.95rem;
+  }
+
+  .foro-formulario input,
+  .foro-formulario select,
+  .foro-formulario textarea {
+    padding: 0.45rem;
+    font-size: 0.95rem;
+  }
+
+  .menu-btn {
+    padding: 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .foro-reportes-lista {
+    padding: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .foro-reportes-lista h4 {
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .foro-reporte-item {
+    padding: 0.6rem 0;
+    font-size: 0.9rem;
+  }
+
+  .reporte-ubicacion,
+  .reporte-fecha {
+    font-size: 0.8rem;
+  }
+
+  .error-message {
+    padding: 0.85rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .foro-formulario {
+    padding: 1.25rem 0.75rem 0.65rem 0.75rem;
+    gap: 0.85rem;
+  }
+
+  .foro-formulario h3 {
+    font-size: 1rem;
+  }
+
+  .foro-formulario label {
+    font-size: 0.9rem;
+  }
+
+  .foro-formulario input,
+  .foro-formulario select,
+  .foro-formulario textarea {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .foro-reportes-lista h4 {
+    font-size: 0.95rem;
+  }
+
+  .foro-reporte-item {
+    font-size: 0.85rem;
+  }
 }
 </style>

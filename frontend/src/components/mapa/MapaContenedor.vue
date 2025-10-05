@@ -7,7 +7,7 @@
     class="btn-limpiar-ruta"
     title="Borrar ruta del mapa"
   >
-    🗑️ Limpiar Ruta
+    🗑️ <span class="btn-text">Limpiar Ruta</span>
   </button>
 </template>
 
@@ -195,10 +195,10 @@ watch(
 }
 
 .btn-limpiar-ruta {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2500;
   background: #cf2900;
   border: 2px solid #cf2900;
   border-radius: 8px;
@@ -212,6 +212,8 @@ watch(
   align-items: center;
   gap: 8px;
   transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn-limpiar-ruta:hover {
@@ -223,5 +225,60 @@ watch(
 
 .btn-limpiar-ruta:active {
   transform: translateY(0);
+  background: #8a1e00;
+}
+
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
+  .btn-limpiar-ruta {
+    position: fixed;
+    bottom: 80px;
+    top: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    padding: 14px 24px;
+    font-size: 15px;
+    border-radius: 30px;
+    min-width: 170px;
+    min-height: 48px;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    z-index: 2500;
+  }
+
+  .btn-limpiar-ruta:hover {
+    transform: translateX(-50%) translateY(-2px);
+  }
+
+  .btn-limpiar-ruta:active {
+    transform: translateX(-50%) scale(0.95);
+    background: #8a1e00;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-limpiar-ruta {
+    bottom: 70px;
+    padding: 13px 22px;
+    font-size: 14px;
+    min-width: 155px;
+    min-height: 46px;
+  }
+
+  .btn-text {
+    font-size: 13px;
+  }
+}
+
+/* Mejora para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .btn-limpiar-ruta {
+    padding: 12px 20px;
+    min-width: 140px;
+    min-height: 44px;
+    font-size: 13px;
+    bottom: 65px;
+  }
 }
 </style>

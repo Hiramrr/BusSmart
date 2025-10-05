@@ -643,4 +643,83 @@ onUnmounted(() => {
 .rutas-menu-container:hover {
   scrollbar-color: #bdc3c7 transparent;
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100vw;
+    left: -100vw;
+    border-radius: 0;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .menu-btn {
+    padding: 0.85rem 1.2rem;
+    font-size: 1rem;
+  }
+
+  .user-profile-header {
+    padding: 0.65rem;
+  }
+
+  .user-avatar {
+    width: 42px;
+    height: 42px;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+
+  .user-role {
+    font-size: 0.7rem;
+  }
+
+  .rutas-menu-container {
+    left: 100vw;
+    width: 100vw;
+    border-radius: 0;
+    padding: 3.5rem 1rem 1rem 1rem;
+  }
+
+  .sidebar-content-wrapper.sub-menu-active .main-menu {
+    transform: translateX(-100vw);
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar-header {
+    padding: 1rem 0.75rem;
+  }
+
+  .sidebar-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .menu-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    gap: 0.5rem;
+  }
+
+  .user-section {
+    padding: 0.75rem;
+  }
+
+  .login-btn {
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .dropdown-item {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+  }
+}
 </style>
