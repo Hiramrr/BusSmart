@@ -4,7 +4,7 @@
       <div class="ruta-avatar">
         <img
           v-if="ruta.image || ruta.ruta"
-          :src="getImageUrl(ruta)"
+          :src="getImageUrl(ruta.image)"
           :alt="'Imagen de ' + ruta.nombre"
           class="ruta-image"
           @error="handleImageError"

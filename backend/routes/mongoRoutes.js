@@ -1,10 +1,13 @@
 import express from "express";
-import { crearRuta,
+import {
+  crearRuta,
   eliminarRuta,
   getRuta,
   autocomplete,
-  sugerirRuta, 
-  getAllRutas
+  sugerirRuta,
+  getAllRutas,
+  obtenerParadasDeRuta,
+  actualizarRuta,
 } from "../controllers/rutasControllers.js";
 
 import { checkJwt, checkPermissions } from "../middleware/auth.js";
@@ -18,20 +21,7 @@ router.post("/crearRuta", crearRuta);
 router.delete("/eliminarRuta/:id", eliminarRuta);
 router.get("/:id", getRuta);
 
-/*
-router.post("/usuarios/crearUsuario", crearUsuario);
-
-router.delete("/usuarios/:userId/favoritos/:rutaId", quitarRutaFavorita);
-
-const middlewaresProtegidos = [checkJwt, asegurarUsuario];
-
-router.put("/favoritos", middlewaresProtegidos, agregarRutaFavorita);
-
-router.delete("/favoritos/:rutaId", middlewaresProtegidos, quitarRutaFavorita);
-
-router.get("/usuarios/perfil", middlewaresProtegidos, (req, res) => {
-  res.status(200).json(req.usuario);
-});
-*/
+router.get("/:id/paradas", obtenerParadasDeRuta);
+router.put("/actualizarRuta/:id", actualizarRuta);
 
 export default router;

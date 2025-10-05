@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-
-// Vistas del panel de administración (RUTAS CORREGIDAS)
 import AdminView from '../views/AdminView.vue'
 import GestionRutasView from '../views/GestionRutasView.vue'
 import RutaEditorView from '../views/RutaEditorView.vue'
@@ -40,25 +38,25 @@ const router = createRouter({
       children: [
         {
           path: '',
-          redirect: '/admin/rutas'
+          redirect: '/admin/rutas',
         },
         {
           path: 'rutas',
           name: 'gestion-rutas',
-          component: GestionRutasView
+          component: GestionRutasView,
         },
         {
           path: 'rutas/crear',
           name: 'crear-ruta',
-          component: RutaEditorView
+          component: RutaEditorView,
         },
         {
           path: 'rutas/editar/:id',
           name: 'editar-ruta',
-          component: RutaEditorView
-        }
-      ]
-    }
+          component: RutaEditorView,
+        },
+      ],
+    },
   ],
 })
 

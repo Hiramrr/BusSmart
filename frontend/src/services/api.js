@@ -165,3 +165,29 @@ export async function obtenerFavoritos() {
     method: 'GET',
   })
 }
+
+export async function obtenerRutaPorId(id) {
+  const url = `${API_BASE}/rutas/${id}`
+  return await apiFetch(url)
+}
+
+export async function obtenerParadasDeRuta(rutaId) {
+  const url = `${API_BASE}/rutas/${rutaId}/paradas`
+  return await apiFetch(url)
+}
+
+export async function actualizarRuta(id, rutaGeoJSON, paradasGeoJSON) {
+  const url = `${API_BASE}/rutas/actualizarRuta/${id}`
+  const body = {
+    rutaGeoJSON,
+    paradasGeoJSON,
+  }
+
+  return await apiFetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+}
