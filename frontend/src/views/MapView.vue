@@ -66,7 +66,6 @@ const datosDelViaje = ref(null)
 const puntoDeOrigen = ref(null)
 const puntoDeDestino = ref(null)
 
-// --- Métodos ---
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value
 }
@@ -84,7 +83,6 @@ const limpiarBusqueda = () => {
 
 const handleBuscarRuta = async ({ origen, destino }) => {
   limpiarBusqueda()
-  // Guardamos el origen y destino en este componente
   puntoDeOrigen.value = origen
   puntoDeDestino.value = destino
 
@@ -111,12 +109,11 @@ const handleRutaSeleccionada = async (rutaSugerida) => {
   try {
     const rutaGeoJSON = await fetchRutaPorId(rutaSugerida.routeId)
 
-    // Creamos el objeto unificado para el mapa
     datosDelViaje.value = {
       ...rutaSugerida,
       geoJson: rutaGeoJSON,
-      origenUsuario: puntoDeOrigen.value, // Añadimos el origen del usuario
-      destinoUsuario: puntoDeDestino.value, // Añadimos el destino del usuario
+      origenUsuario: puntoDeOrigen.value,
+      destinoUsuario: puntoDeDestino.value,
     }
 
     sugerenciasDeRuta.value = []
@@ -177,10 +174,10 @@ watch(
 }
 
 .menu-button {
-  position: absolute;
+  position: fixed; /* Cambiado de absolute a fixed */
   top: 15px;
   left: 20px;
-  z-index: 2001;
+  z-index: 2100; /* Aumentado para estar por encima de todo */
   background-color: white;
   border: none;
   border-radius: 12px;
@@ -194,7 +191,6 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 4px;
-  /* La transición 'all' es suficiente para animar el cambio en 'left' */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -207,19 +203,15 @@ watch(
 
 .menu-button img {
   transition: filter 0.2s ease;
+  pointer-events: none;
 }
 
 .menu-button.open {
   left: 230px;
 }
 
-/* CORRECCIÓN:
-  Cuando el submenú se abre, el botón se posiciona a 310px desde la izquierda.
-  Esto lo coloca justo al lado del menú principal (que mide 300px),
-  creando el efecto deseado.
-*/
 .menu-button.open.submenu-open {
-  left: 400px; /* Ajustado para estar a la derecha del menú lateral de 300px */
+  left: 400px;
   height: 40px;
   width: 40px;
   background-color: rgb(222, 143, 143);
@@ -227,24 +219,25 @@ watch(
 
 @media (max-width: 768px) {
   .menu-button {
-    top: 16px;
-    left: 16px;
-    width: 48px;
-    height: 48px;
-    padding: 10px;
+    top: 12px;
+    left: 12px;
+    width: 50px;
+    height: 50px;
+    padding: 11px;
+    z-index: 2100;
   }
 
   .menu-button.open {
-    left: calc(100vw - 64px); /* Se mantiene tu lógica para móvil */
+    left: calc(100vw - 62px);
   }
 
   .menu-button.open.submenu-open {
-    left: calc(100vw - 64px); /* En móvil, se queda en la misma posición final */
+    left: calc(100vw - 62px);
   }
 
-  .menu-button svg {
-    width: 20px;
-    height: 20px;
+  .menu-button img {
+    width: 22px;
+    height: 22px;
   }
 }
 

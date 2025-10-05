@@ -1,11 +1,12 @@
 <template>
   <div class="controles-container">
     <div class="input-wrapper">
+      <span class="input-icon input-icon-origen">📍</span>
       <input
         type="text"
         id="origen-input"
         v-model="origenQuery"
-        placeholder="📍 Ingresa tu origen..."
+        placeholder="Ingresa tu origen..."
         @input="onOrigenInput"
         autocomplete="off"
       />
@@ -16,11 +17,12 @@
       </ul>
     </div>
     <div class="input-wrapper">
+      <span class="input-icon input-icon-destino">🏁</span>
       <input
         type="text"
         id="destino-input"
         v-model="destinoQuery"
-        placeholder="🏁 Ingresa tu destino..."
+        placeholder="Ingresa tu destino..."
         @input="onDestinoInput"
         autocomplete="off"
       />
@@ -102,7 +104,7 @@ function emitBuscarRuta() {
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: 1500;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
   width: 90%;
@@ -112,7 +114,6 @@ function emitBuscarRuta() {
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-
   transition: background-color 0.3s ease;
   background-color: var(--color-bg-light);
 }
@@ -121,37 +122,23 @@ function emitBuscarRuta() {
   background-color: var(--color-surface-dark);
 }
 
-.map-view-container.theme-dark input {
-  background-color: #383838;
-  color: #f0f0f0;
-  border-color: #4a4a4a;
-}
-
-.map-view-container.theme-dark #origen-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
-}
-
-.map-view-container.theme-dark #destino-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
-}
-
-.map-view-container.theme-dark .suggestions-list {
-  background-color: #2a2a2a;
-  border-color: #4a4a4a;
-}
-
-.map-view-container.theme-dark .suggestions-list li {
-  color: #f0f0f0;
-}
-
-.map-view-container.theme-dark .suggestions-list li:hover {
-  background-color: #383838;
-}
-
 .input-wrapper {
   position: relative;
   flex-grow: 1;
   width: 100%;
+  min-width: 0;
+}
+
+/* SOLUCIÓN: Ícono como elemento separado con pointer-events: none */
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  pointer-events: none; /* CRÍTICO: El ícono no debe bloquear clicks */
+  z-index: 1;
+  user-select: none;
 }
 
 input {
@@ -163,9 +150,10 @@ input {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-
   background-color: #fff;
   color: #2c3e50;
+  position: relative;
+  z-index: 0;
 }
 
 .map-view-container.theme-dark input {
@@ -184,26 +172,6 @@ input::placeholder {
   color: #999;
 }
 
-#origen-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 12px center;
-}
-
-#destino-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 12px center;
-}
-
-.map-view-container.theme-dark #origen-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='4'%3E%3C/circle%3E%3C/svg%3E");
-}
-
-.map-view-container.theme-dark #destino-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z'%3E%3C/path%3E%3Ccircle cx='12' cy='10' r='3'%3E%3C/circle%3E%3C/svg%3E");
-}
-
 .buscar-btn {
   padding: 14px 20px;
   border: none;
@@ -217,6 +185,7 @@ input::placeholder {
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
+  flex-shrink: 0;
 }
 
 .buscar-btn:hover {
@@ -238,9 +207,8 @@ input::placeholder {
   margin-top: 0.5rem;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 10;
+  z-index: 100;
   transition: background-color 0.3s ease;
-
   background-color: #fff;
 }
 
@@ -266,5 +234,70 @@ input::placeholder {
 
 .map-view-container.theme-dark .suggestions-list li:hover {
   background-color: #383838;
+}
+
+/* Estilos móvil */
+@media (max-width: 768px) {
+  .controles-container {
+    top: 75px;
+    width: calc(100% - 32px);
+    left: 16px;
+    transform: none;
+    padding: 0.6rem;
+    gap: 0.6rem;
+    flex-direction: column;
+  }
+
+  .input-wrapper {
+    width: 100%;
+  }
+
+  input {
+    font-size: 16px; /* Evita zoom en iOS */
+    padding: 13px 13px 13px 38px;
+    min-height: 48px;
+  }
+
+  .input-icon {
+    font-size: 1.1rem;
+  }
+
+  .buscar-btn {
+    width: 100%;
+    padding: 13px 18px;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+
+  .suggestions-list {
+    max-height: 180px;
+  }
+
+  .suggestions-list li {
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .controles-container {
+    top: 70px;
+    width: calc(100% - 24px);
+    left: 12px;
+    padding: 0.5rem;
+  }
+
+  input {
+    padding: 12px 12px 12px 36px;
+    min-height: 46px;
+  }
+
+  .buscar-btn {
+    padding: 12px 16px;
+    min-height: 46px;
+  }
 }
 </style>

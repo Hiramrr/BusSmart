@@ -303,6 +303,7 @@ onUnmounted(() => {
   box-shadow: 8px 0 24px rgba(44, 62, 80, 0.12);
   font-family: 'Montserrat', Arial, sans-serif;
   color: #2c3e50;
+  pointer-events: none; /* ← No recibe clicks cuando está cerrado */
 }
 
 .sidebar.active {
@@ -311,6 +312,7 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 8px 0 24px rgba(44, 62, 80, 0.25);
+  pointer-events: auto; /* ← Recibe clicks cuando está abierto */
 }
 
 .sidebar-content-wrapper {
@@ -319,6 +321,7 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
+  overflow: hidden; /* ← CRÍTICO: Evita que el contenido se desborde */
 }
 
 .sidebar-content-wrapper.sub-menu-active {
@@ -392,7 +395,8 @@ onUnmounted(() => {
   margin-bottom: 0.5rem;
 }
 
-.menu-btn {
+.menu-btn,
+.admin-menu-btn {
   background: none;
   border: none;
   box-shadow: none !important;
@@ -414,7 +418,8 @@ onUnmounted(() => {
   text-decoration: none;
 }
 
-.menu-btn:hover {
+.menu-btn:hover,
+.admin-menu-btn:hover {
   background: #ffffffbd;
   color: #0b0c0c;
 }
@@ -644,15 +649,43 @@ onUnmounted(() => {
   scrollbar-color: #bdc3c7 transparent;
 }
 
+/* ========== ESTILOS MÓVIL ========== */
 @media (max-width: 768px) {
   .sidebar {
     width: 100vw;
-    left: -100vw;
+    left: -100vw; /* Completamente fuera de pantalla */
     border-radius: 0;
   }
 
   .sidebar.active {
     left: 0;
+  }
+
+  /* CRÍTICO: En móvil, el sidebar-content-wrapper debe ser 100% cuando está cerrado */
+  .sidebar-content-wrapper {
+    width: 100%; /* ← Cambiado de 200% a 100% en móvil */
+  }
+
+  /* Solo cuando hay submenú activo, se duplica el ancho */
+  .sidebar-content-wrapper.sub-menu-active {
+    width: 200%;
+    transform: translateX(-50%);
+  }
+
+  .main-menu {
+    width: 100%; /* ← Cambiado de 50% a 100% */
+  }
+
+  .sidebar-content-wrapper.sub-menu-active .main-menu {
+    width: 50%; /* ← Solo cuando hay submenú vuelve a 50% */
+  }
+
+  .rutas-menu-container {
+    width: 50%; /* ← Mantiene 50% cuando está activo */
+    left: 100vw;
+    width: 100vw;
+    border-radius: 0;
+    padding: 3.5rem 1rem 1rem 1rem;
   }
 
   .sidebar-header h2 {
@@ -679,17 +712,6 @@ onUnmounted(() => {
 
   .user-role {
     font-size: 0.7rem;
-  }
-
-  .rutas-menu-container {
-    left: 100vw;
-    width: 100vw;
-    border-radius: 0;
-    padding: 3.5rem 1rem 1rem 1rem;
-  }
-
-  .sidebar-content-wrapper.sub-menu-active .main-menu {
-    transform: translateX(-100vw);
   }
 }
 
