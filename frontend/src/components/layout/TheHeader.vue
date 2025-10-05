@@ -2,7 +2,7 @@
   <header>
     <nav class="nav-container">
       <router-link to="/"  class="logo">
-        <img src="@/assets/imagenes/LogoBusSmart.png" alt="">
+        <img src="@/assets/Imagenes/LogoBusSmart.png" alt="">
       </router-link>
 
       <button class="menu-toggle" @click="toggleMobileMenu" aria-label="Menú">

@@ -6,7 +6,7 @@
     >
       <div class="main-menu">
         <div class="sidebar-header">
-          <img src="@/assets/imagenes/LogoBusSmart.png" alt="Logo de BusSmart" class="sidebar-logo" />
+          <img src="@/assets/Imagenes/LogoBusSmart.png" alt="Logo de BusSmart" class="sidebar-logo" />
           <button
             @click="handleClose"
             class="close-btn"
