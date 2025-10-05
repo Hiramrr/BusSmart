@@ -1,6 +1,8 @@
 <template>
   <section id="hero">
     <div class="hero-content">
+      <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\home\LogoTransparente.png" alt="Logo de BusSmart" class="hero-logo" />
+
       <h1 class="autoBlur">Encuentra tu ruta de camión fácilmente con <span>BusSmart</span></h1>
       <p class="autoBlur">
         La forma más rápida y sencilla de moverte por Xalapa en transporte público.
@@ -28,7 +30,13 @@
 
 /* Ajuste del texto para que no se oculte bajo la navbar */
 #hero h1 {
-  margin-top: 4rem; /* separa el título de la navbar */
+  margin-top: 0rem; /* separa el título de la navbar */
+}
+
+.hero-logo {
+  height: 400px; /* Ajusta la altura del logo como prefieras */
+  width: auto; /* Mantiene la proporción original de la imagen */
+  margin-bottom: 0rem; /* Crea un espacio entre el logo y el texto de abajo */
 }
 
 /* Botón principal */

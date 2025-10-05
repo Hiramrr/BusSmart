@@ -1,7 +1,9 @@
 <template>
   <header>
     <nav class="nav-container">
-      <router-link to="/" class="logo">BusSmart</router-link>
+      <router-link to="/"  class="logo">
+        <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\home\LogoTransparente.png" alt="">
+      </router-link>
 
       <button class="menu-toggle" @click="toggleMobileMenu" aria-label="Menú">
         <svg
@@ -256,6 +258,20 @@ header {
   text-decoration: none;
   transition: color 0.3s;
   z-index: 102;
+  /* Definimos un contenedor para la imagen */
+  width: 150px; /* Ancho del contenedor */
+  height: 45px; /* Alto del contenedor */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Ocultamos lo que se salga del contenedor */
+}
+
+.logo img {
+  /* Hacemos la imagen ancha como el contenedor y la escalamos verticalmente para recortar arriba y abajo */
+  width: 100%;
+  height: auto;
+  transform: scaleY(1.2); /* Ajusta este valor para 'recortar' más o menos verticalmente */
 }
 
 .logo:hover {
