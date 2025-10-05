@@ -103,10 +103,9 @@ function loadInitialData() {
   }
 }
 
-let editableMarkers = [] // Agregar esta variable al inicio
+let editableMarkers = []
 
 function addEditableMarkers() {
-  // 🔧 Limpiar marcadores anteriores antes de crear nuevos
   clearEditableMarkers()
 
   routeCoordinates.forEach((coord, index) => {
@@ -133,11 +132,9 @@ function addEditableMarkers() {
 
     marker.on('dragend', () => {
       emit('coordinates-updated', [...routeCoordinates])
-      // 🔧 Recrear marcadores después de terminar el arrastre
       addEditableMarkers()
     })
 
-    // Clic derecho para eliminar
     marker.on('contextmenu', (e) => {
       L.DomEvent.preventDefault(e)
       if (routeCoordinates.length > 2) {
@@ -145,7 +142,6 @@ function addEditableMarkers() {
       }
     })
 
-    // Tooltip con información
     marker.bindTooltip(
       `Punto ${index + 1}<br><small>Clic derecho para eliminar<br>Arrastra para mover</small>`,
       {
@@ -154,35 +150,30 @@ function addEditableMarkers() {
       },
     )
 
-    // 🔧 Guardar referencia del marcador
     editableMarkers.push(marker)
   })
 }
 
-// 🔧 Nueva función para limpiar marcadores
 function clearEditableMarkers() {
   editableMarkers.forEach((marker) => {
-    marker.off() // Remover event listeners
-    map.removeLayer(marker) // Quitar del mapa
+    marker.off()
+    map.removeLayer(marker)
   })
-  editableMarkers = [] // Resetear array
+  editableMarkers = []
 }
 
-// Actualizar la polilínea
 function updatePolyline() {
   const latlngs = routeCoordinates.map((c) => [c[1], c[0]])
   editablePolyline.setLatLngs(latlngs)
 }
 
-// 🔧 También actualizar la función removePoint si existe
 function removePoint(index, marker) {
   routeCoordinates.splice(index, 1)
   map.removeLayer(marker)
   updatePolyline()
   emit('coordinates-updated', [...routeCoordinates])
-  addEditableMarkers() // Recrear marcadores con índices actualizados
+  addEditableMarkers()
 }
-// Limpiar y redibujar todos los marcadores
 function clearAndRedrawMarkers() {
   map.eachLayer((layer) => {
     if (layer instanceof L.CircleMarker) {
@@ -366,7 +357,6 @@ onUnmounted(() => {
   }
 })
 
-// Watch para cambios en coordenadas iniciales
 watch(
   () => props.initialCoordinates,
   (newCoords) => {
@@ -387,10 +377,27 @@ watch(
   border-radius: 12px;
   z-index: 1;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 768px) {
+  .map-editor-container {
+    height: 400px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-editor-container {
+    height: 350px;
+    border-radius: 8px;
+  }
 }
 
 :deep(.custom-stop-marker) {
   background: transparent;
+  touch-action: none;
 }
 
 :deep(.stop-marker-custom) {
@@ -398,11 +405,19 @@ watch(
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 10px;
 }
 
 :deep(.stop-icon) {
   font-size: 2rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  :deep(.stop-icon) {
+    font-size: 2.5rem;
+  }
 }
 
 :deep(.stop-number) {
@@ -420,10 +435,22 @@ watch(
   font-weight: bold;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (max-width: 768px) {
+  :deep(.stop-number) {
+    width: 24px;
+    height: 24px;
+    font-size: 0.85rem;
+    top: 10px;
+  }
 }
 
 :deep(.custom-route-point) {
   background: transparent;
+  touch-action: none;
 }
 
 :deep(.route-point-marker) {
@@ -435,11 +462,164 @@ watch(
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   cursor: move;
   transition: all 0.2s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-:deep(.route-point-marker:hover) {
+@media (max-width: 768px) {
+  :deep(.route-point-marker) {
+    width: 24px;
+    height: 24px;
+    border: 4px solid white;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.route-point-marker) {
+    width: 28px;
+    height: 28px;
+    border: 4px solid white;
+  }
+}
+
+:deep(.route-point-marker:hover),
+:deep(.route-point-marker:active) {
   background-color: #2980b9;
   transform: scale(1.2);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+:deep(.leaflet-tooltip) {
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  :deep(.leaflet-tooltip) {
+    padding: 10px 14px;
+    font-size: 15px;
+    max-width: 200px;
+    white-space: normal;
+  }
+}
+
+:deep(.leaflet-control-zoom) {
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+  :deep(.leaflet-control-zoom) {
+    margin-top: 60px;
+    margin-right: 10px;
+  }
+
+  :deep(.leaflet-control-zoom a) {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 24px;
+  }
+}
+
+:deep(.leaflet-control-attribution) {
+  font-size: 10px;
+  padding: 2px 5px;
+}
+
+@media (max-width: 480px) {
+  :deep(.leaflet-control-attribution) {
+    font-size: 8px;
+    padding: 1px 3px;
+  }
+}
+
+:deep(.leaflet-marker-draggable) {
+  cursor: move;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+:deep(.leaflet-marker-draggable:active) {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
+
+@media (max-width: 768px) {
+  :deep(.leaflet-zoom-animated) {
+    will-change: transform;
+  }
+
+  :deep(.leaflet-tile) {
+    will-change: transform;
+  }
+}
+
+:deep(.leaflet-dragging) {
+  :deep(.route-point-marker),
+  :deep(.stop-marker-custom) {
+    opacity: 0.7;
+    transform: scale(1.3);
+  }
+}
+
+:deep(.leaflet-popup) {
+  margin-bottom: 30px;
+}
+
+:deep(.leaflet-popup-content-wrapper) {
+  border-radius: 8px;
+  padding: 4px;
+}
+
+:deep(.leaflet-popup-content) {
+  margin: 12px;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  :deep(.leaflet-popup-content) {
+    font-size: 15px;
+    margin: 14px;
+  }
+}
+
+:deep(.leaflet-container) {
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+:deep(.leaflet-interactive) {
+  pointer-events: auto;
+  touch-action: none;
+}
+
+@media (max-width: 768px) {
+  :deep(.custom-route-point)::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    background: transparent;
+  }
+
+  :deep(.custom-stop-marker)::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: transparent;
+  }
 }
 </style>

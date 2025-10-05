@@ -552,7 +552,6 @@ async function handleSave() {
 }
 
 function handleGeoJSONLoaded(geojson) {
-  // Implementación futura para la pestaña de subida de archivos
   console.log('GeoJSON cargado:', geojson)
 }
 </script>
@@ -562,7 +561,10 @@ function handleGeoJSONLoaded(geojson) {
   max-width: 1200px;
   margin: 0 auto;
   padding-bottom: 4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
+
 .view-header {
   display: flex;
   justify-content: space-between;
@@ -570,9 +572,33 @@ function handleGeoJSONLoaded(geojson) {
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e0e7ef;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-/* --- NUEVOS ESTILOS DE BOTONES --- */
+.view-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-header h2 {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .view-header h2 {
+    font-size: 1.1rem;
+  }
+}
+
 .btn-primario,
 .btn-secundario,
 .btn-success,
@@ -586,12 +612,34 @@ function handleGeoJSONLoaded(geojson) {
   text-decoration: none;
   transition: all 0.2s ease;
   font-size: 0.9rem;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
+
+@media (max-width: 768px) {
+  .btn-primario,
+  .btn-secundario,
+  .btn-success,
+  .btn-danger,
+  .btn-cancel {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
 .btn-primario {
   background-color: #3498db;
   color: white;
 }
-.btn-primario:hover {
+.btn-primario:hover,
+.btn-primario:active {
   background-color: #2980b9;
 }
 .btn-primario:disabled {
@@ -603,7 +651,8 @@ function handleGeoJSONLoaded(geojson) {
   background-color: #2ecc71;
   color: white;
 }
-.btn-success:hover {
+.btn-success:hover,
+.btn-success:active {
   background-color: #27ae60;
 }
 .btn-success:disabled {
@@ -615,34 +664,37 @@ function handleGeoJSONLoaded(geojson) {
   background-color: #ecf0f1;
   color: #34495e;
 }
-.btn-secundario:hover {
+.btn-secundario:hover,
+.btn-secundario:active {
   background-color: #dfe6e9;
 }
 
-/* Botón rojo para Cancelar y Salir */
 .btn-cancel {
   background-color: #e74c3c;
   color: white;
 }
-.btn-cancel:hover {
+.btn-cancel:hover,
+.btn-cancel:active {
   background-color: #c0392b;
 }
 
-/* Botón de advertencia/peligro para Limpiar */
 .btn-danger {
   background-color: #f1c40f;
   color: #34495e;
 }
-.btn-danger:hover {
+.btn-danger:hover,
+.btn-danger:active {
   background-color: #f39c12;
 }
 
-/* --- ESTILOS GENERALES (Sin cambios) --- */
 .tabs {
   display: flex;
   border-bottom: 2px solid #e0e7ef;
   margin-bottom: 2rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+
 .tab-btn {
   display: flex;
   align-items: center;
@@ -657,24 +709,69 @@ function handleGeoJSONLoaded(geojson) {
   position: relative;
   bottom: -2px;
   border-bottom: 3px solid transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  min-height: 44px;
 }
-.tab-btn .icon {
-  font-size: 1.2rem;
+
+@media (max-width: 768px) {
+  .tab-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+    min-height: 48px;
+  }
+
+  .tab-btn .icon {
+    font-size: 1.1rem;
+  }
 }
+
+@media (max-width: 480px) {
+  .tab-btn {
+    font-size: 0.85rem;
+    padding: 0.7rem 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .tab-btn .icon {
+    font-size: 1rem;
+  }
+}
+
 .tab-btn.active {
   color: #3498db;
   border-bottom-color: #3498db;
 }
+
 .wizard-container {
   padding: 1rem 0;
 }
+
 .stepper {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 80%;
+  width: 90%;
   margin: 0 auto 3rem auto;
 }
+
+@media (max-width: 640px) {
+  .stepper {
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .step-connector {
+    width: 3px;
+    height: 40px;
+    flex-grow: 0;
+  }
+}
+
 .step {
   display: flex;
   flex-direction: column;
@@ -683,10 +780,12 @@ function handleGeoJSONLoaded(geojson) {
   color: #95a5a6;
   text-align: center;
 }
+
 .step.active .step-label {
   color: #3498db;
   font-weight: 600;
 }
+
 .step-number {
   width: 36px;
   height: 36px;
@@ -699,35 +798,87 @@ function handleGeoJSONLoaded(geojson) {
   font-weight: 600;
   transition: all 0.3s ease;
 }
+
+@media (max-width: 768px) {
+  .step-number {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+}
+
 .step.active .step-number {
   background-color: #3498db;
   border-color: #3498db;
   color: white;
 }
+
 .step.completed .step-number {
   background-color: #2ecc71;
   border-color: #2ecc71;
   color: white;
 }
+
 .step-connector {
   flex-grow: 1;
   height: 3px;
   background-color: #e0e7ef;
 }
+
 .step.completed ~ .step-connector,
 .step.completed ~ .step.active .step-connector {
   background-color: #2ecc71;
 }
+
+.step-label {
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .step-label {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-label {
+    font-size: 0.75rem;
+  }
+}
+
 .editor-layout {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 2rem;
 }
+
+@media (max-width: 1024px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .editor-layout {
+    gap: 1rem;
+  }
+}
+
 .map-area {
   min-width: 0;
   background-color: #f4f7f9;
   border-radius: 12px;
+  min-height: 350px;
 }
+
+@media (max-width: 768px) {
+  .map-area {
+    min-height: 400px;
+    border-radius: 8px;
+  }
+}
+
 .controls-area {
   background: #fdfdfd;
   padding: 1.5rem;
@@ -737,23 +888,49 @@ function handleGeoJSONLoaded(geojson) {
   flex-direction: column;
   gap: 1.5rem;
 }
+
+@media (max-width: 768px) {
+  .controls-area {
+    padding: 1rem;
+    gap: 1rem;
+    border-radius: 8px;
+  }
+}
+
 .controls-area h3,
 .controls-area h4 {
   margin: 0;
   color: #2c3e50;
   border-bottom: 1px solid #e0e7ef;
   padding-bottom: 0.75rem;
+  font-size: 1.1rem;
 }
+
+@media (max-width: 768px) {
+  .controls-area h3,
+  .controls-area h4 {
+    font-size: 1rem;
+  }
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
 }
+
 label {
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #34495e;
   font-size: 0.9rem;
 }
+
+@media (max-width: 768px) {
+  label {
+    font-size: 0.95rem;
+  }
+}
+
 input,
 textarea {
   padding: 0.75rem;
@@ -764,22 +941,54 @@ textarea {
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
+  min-height: 44px;
 }
+
+@media (max-width: 768px) {
+  input,
+  textarea {
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+}
+
 input:focus,
 textarea:focus {
   outline: none;
   border-color: #3498db;
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
+
 textarea {
   min-height: 80px;
   resize: vertical;
 }
+
+@media (max-width: 768px) {
+  textarea {
+    min-height: 100px;
+  }
+}
+
 .drawing-controls {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+@media (max-width: 768px) {
+  .drawing-controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .drawing-controls button {
+    width: 100%;
+  }
+}
+
+/* --- WIZARD NAVIGATION RESPONSIVE --- */
 .wizard-navigation {
   display: flex;
   justify-content: flex-end;
@@ -787,31 +996,77 @@ textarea {
   margin-top: 2rem;
   border-top: 1px solid #e0e7ef;
   padding-top: 1.5rem;
+  flex-wrap: wrap;
 }
+
+@media (max-width: 768px) {
+  .wizard-navigation {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+}
+
 .wizard-navigation .espaciador {
   flex-grow: 1;
 }
+
+@media (max-width: 768px) {
+  .wizard-navigation .espaciador {
+    display: none;
+  }
+}
+
 .review-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
+
+@media (max-width: 1024px) {
+  .review-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .json-preview {
   background-color: #2c3e50;
   color: #ecf0f1;
   border-radius: 8px;
   padding: 1.5rem;
 }
+
+@media (max-width: 768px) {
+  .json-preview {
+    padding: 1rem;
+  }
+
+  .json-preview h4 {
+    font-size: 0.95rem;
+  }
+}
+
 pre {
   white-space: pre-wrap;
   word-wrap: break-word;
   font-size: 0.85rem;
   max-height: 450px;
   overflow-y: auto;
+  overflow-x: auto;
   background-color: #34495e;
   padding: 1rem;
   border-radius: 6px;
+  -webkit-overflow-scrolling: touch;
 }
+
+@media (max-width: 768px) {
+  pre {
+    font-size: 0.75rem;
+    max-height: 300px;
+    padding: 0.75rem;
+  }
+}
+
 .instruccion-paradas,
 .no-stops {
   font-size: 0.9rem;
@@ -821,6 +1076,15 @@ pre {
   background-color: #f8f9f9;
   border-radius: 8px;
 }
+
+@media (max-width: 768px) {
+  .instruccion-paradas,
+  .no-stops {
+    font-size: 0.85rem;
+    padding: 0.85rem;
+  }
+}
+
 .stops-list {
   display: flex;
   flex-direction: column;
@@ -828,7 +1092,16 @@ pre {
   max-height: 250px;
   overflow-y: auto;
   padding-right: 0.5rem;
+  -webkit-overflow-scrolling: touch;
 }
+
+@media (max-width: 768px) {
+  .stops-list {
+    max-height: 200px;
+    gap: 0.5rem;
+  }
+}
+
 .stop-item {
   display: flex;
   justify-content: space-between;
@@ -838,7 +1111,25 @@ pre {
   border: 1px solid #e0e7ef;
   border-radius: 8px;
   font-weight: 500;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
+
+@media (max-width: 768px) {
+  .stop-item {
+    padding: 0.85rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stop-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+}
+
 .delete-stop-btn {
   background: none;
   border: none;
@@ -846,6 +1137,11 @@ pre {
   cursor: pointer;
   font-size: 1.4rem;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .loading-overlay {
@@ -857,6 +1153,13 @@ pre {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   margin: 2rem 0;
+}
+
+@media (max-width: 768px) {
+  .loading-overlay {
+    padding: 2rem;
+    margin: 1rem 0;
+  }
 }
 
 .spinner {
@@ -883,6 +1186,13 @@ pre {
   margin: 1rem 0;
 }
 
+@media (max-width: 768px) {
+  .info-box {
+    padding: 0.85rem;
+    font-size: 0.9rem;
+  }
+}
+
 .info-box p {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
@@ -892,6 +1202,12 @@ pre {
   margin: 0;
   padding-left: 1.5rem;
   color: #555;
+}
+
+@media (max-width: 768px) {
+  .info-box ul {
+    padding-left: 1.2rem;
+  }
 }
 
 .info-box li {
@@ -905,6 +1221,13 @@ pre {
   margin: 1rem 0;
 }
 
+@media (max-width: 480px) {
+  .frequency-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
 .frequency-item {
   display: flex;
   flex-direction: column;
@@ -915,9 +1238,22 @@ pre {
   margin-bottom: 0.3rem;
 }
 
+@media (max-width: 768px) {
+  .frequency-item label {
+    font-size: 0.9rem;
+  }
+}
+
 .frequency-item input {
   padding: 0.5rem;
   font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .frequency-item input {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
 }
 
 .stats-box {
@@ -928,10 +1264,22 @@ pre {
   text-align: center;
 }
 
+@media (max-width: 768px) {
+  .stats-box {
+    padding: 1rem;
+  }
+}
+
 .stat-item {
   font-weight: 600;
   color: #2c3e50;
   font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .stat-item {
+    font-size: 1rem;
+  }
 }
 
 .summary-cards {
@@ -941,11 +1289,26 @@ pre {
   margin-bottom: 2rem;
 }
 
+@media (max-width: 768px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
 .summary-card {
   background: #f8f9fa;
   border-radius: 12px;
   padding: 1.5rem;
   border: 2px solid #e0e7ef;
+}
+
+@media (max-width: 768px) {
+  .summary-card {
+    padding: 1rem;
+    border-radius: 8px;
+  }
 }
 
 .summary-card h4 {
@@ -956,10 +1319,31 @@ pre {
   padding-bottom: 0.5rem;
 }
 
+@media (max-width: 768px) {
+  .summary-card h4 {
+    font-size: 1rem;
+  }
+}
+
 .summary-item {
   padding: 0.5rem 0;
   color: #555;
   font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .summary-item {
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
 }
 
 .summary-item strong {
@@ -968,10 +1352,22 @@ pre {
   min-width: 140px;
 }
 
+@media (max-width: 480px) {
+  .summary-item strong {
+    min-width: auto;
+  }
+}
+
 .stop-coords {
   font-size: 0.75rem;
   color: #7f8c8d;
   font-family: monospace;
+}
+
+@media (max-width: 768px) {
+  .stop-coords {
+    font-size: 0.7rem;
+  }
 }
 
 .stop-emoji {
@@ -979,9 +1375,62 @@ pre {
   margin-right: 0.5rem;
 }
 
+@media (max-width: 768px) {
+  .stop-emoji {
+    font-size: 1.4rem;
+  }
+}
+
 .stop-name {
   font-weight: 600;
   color: #2c3e50;
   flex: 1;
+}
+
+@media (max-width: 768px) {
+  .stop-name {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  button + button {
+    margin-top: 0.5rem;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #bdc3c7;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #95a5a6;
+  }
+}
+
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  button {
+    touch-action: manipulation;
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
 }
 </style>
