@@ -2,17 +2,57 @@
   <header>
     <nav class="nav-container">
       <router-link to="/" class="logo">BusSmart</router-link>
-      <div class="nav-right">
+
+      <!-- Botón menú para móvil -->
+      <button class="menu-toggle" @click="toggleMobileMenu" aria-label="Menú">
+        <svg
+          v-if="!mobileMenuOpen"
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+
+      <!-- Menú principal -->
+      <div class="nav-right" :class="{ 'mobile-open': mobileMenuOpen }">
         <ul class="nav-links">
-          <li><a href="#features">Características</a></li>
-          <li><router-link to="/map" class="nav-link">Mapa</router-link></li>
-          <li><a href="#descargar">Descargar</a></li>
-          <li><a href="#contacto">Contacto</a></li>
+          <li><a href="#features" @click="closeMobileMenu">Características</a></li>
+          <li>
+            <router-link to="/map" class="nav-link" @click="closeMobileMenu">Mapa</router-link>
+          </li>
+          <li><a href="#descargar" @click="closeMobileMenu">Descargar</a></li>
+          <li><a href="#contacto" @click="closeMobileMenu">Contacto</a></li>
         </ul>
 
         <template v-if="isInitialized">
           <!-- Botón de login si no está autenticado -->
-          <router-link v-if="!isAuthenticated" to="/login" class="login-btn">
+          <router-link
+            v-if="!isAuthenticated"
+            to="/login"
+            class="login-btn"
+            @click="closeMobileMenu"
+          >
             Iniciar sesión
           </router-link>
 
@@ -111,12 +151,19 @@
           </div>
         </template>
       </div>
+
+      <!-- Overlay para cerrar el menú móvil -->
+      <div
+        class="mobile-overlay"
+        :class="{ active: mobileMenuOpen }"
+        @click="closeMobileMenu"
+      ></div>
     </nav>
   </header>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useAuth } from '@/componibles/useAuth.js'
 import { useRouter } from 'vue-router'
 
@@ -124,6 +171,7 @@ const { user, isAuthenticated, isAdmin, logout, isInitialized } = useAuth()
 const router = useRouter()
 
 const showMenu = ref(false)
+const mobileMenuOpen = ref(false)
 
 function toggleMenu() {
   showMenu.value = !showMenu.value
@@ -131,6 +179,15 @@ function toggleMenu() {
 
 function closeMenu() {
   showMenu.value = false
+  closeMobileMenu()
+}
+
+function toggleMobileMenu() {
+  mobileMenuOpen.value = !mobileMenuOpen.value
+}
+
+function closeMobileMenu() {
+  mobileMenuOpen.value = false
 }
 
 function handleLogout() {
@@ -141,10 +198,20 @@ function handleLogout() {
 // Cerrar menú al hacer clic fuera
 const handleClickOutside = (event) => {
   const dropdown = document.querySelector('.user-profile-wrapper')
-  if (dropdown && !dropdown.contains(event.target)) {
-    closeMenu()
+  const menuToggle = document.querySelector('.menu-toggle')
+
+  if (dropdown && !dropdown.contains(event.target) && !menuToggle?.contains(event.target)) {
+    showMenu.value = false
   }
 }
+
+// Cerrar menú móvil al cambiar de ruta
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    closeMobileMenu()
+  },
+)
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -175,6 +242,7 @@ header {
   padding: 1rem 2rem;
   width: 100%;
   box-sizing: border-box;
+  position: relative;
 }
 
 .logo {
@@ -183,9 +251,26 @@ header {
   color: #2963b3;
   text-decoration: none;
   transition: color 0.3s;
+  z-index: 102;
 }
 
 .logo:hover {
+  color: #3498db;
+}
+
+/* Botón menú móvil */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 102;
+  color: #2963b3;
+  transition: color 0.3s;
+}
+
+.menu-toggle:hover {
   color: #3498db;
 }
 
@@ -393,26 +478,150 @@ header {
   transform: translateY(-5px);
 }
 
-@media (max-width: 768px) {
+.mobile-overlay {
+  display: none;
+}
+
+/* Responsive Design - Mobile */
+@media (max-width: 968px) {
+  .nav-container {
+    padding: 1rem 1.5rem;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    z-index: 99;
+  }
+
+  .mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-right {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 300px;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 5rem 0 2rem 0;
+    transition: right 0.3s ease;
+    z-index: 101;
+    overflow-y: auto;
+  }
+
+  .nav-right.mobile-open {
+    right: 0;
+  }
+
   .nav-links {
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    padding: 1rem 0;
   }
 
-  .nav-links li a {
-    font-size: 0.9rem;
+  .nav-links li {
+    width: 100%;
   }
 
-  .user-name {
-    display: none;
+  .nav-links a {
+    display: block;
+    padding: 1rem 2rem;
+    color: white;
+    font-size: 1.05rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nav-links a:hover {
+    background: rgba(41, 99, 179, 0.2);
+    color: white;
+  }
+
+  .login-btn {
+    margin: 1.5rem 2rem;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  .user-profile-wrapper {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .user-profile {
-    padding: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1rem;
+  }
+
+  .user-name {
+    display: block;
+    max-width: none;
   }
 
   .user-dropdown {
-    min-width: 240px;
-    right: -1rem;
+    position: static;
+    margin-top: 1rem;
+    width: 100%;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dropdown-header {
+    padding: 1rem;
+  }
+
+  .dropdown-item {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 1rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .nav-right {
+    width: 100%;
+    right: -100%;
+  }
+
+  .nav-links a {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+
+  .login-btn {
+    margin: 1.5rem 1.5rem;
+  }
+
+  .user-profile-wrapper {
+    padding: 1.5rem 1.5rem;
   }
 }
 </style>
