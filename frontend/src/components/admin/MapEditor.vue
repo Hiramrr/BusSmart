@@ -103,12 +103,15 @@ function loadInitialData() {
   }
 }
 
-// Agregar marcadores editables para cada punto de la ruta
+let editableMarkers = [] // Agregar esta variable al inicio
+
 function addEditableMarkers() {
+  // 🔧 Limpiar marcadores anteriores antes de crear nuevos
+  clearEditableMarkers()
+
   routeCoordinates.forEach((coord, index) => {
     const latlng = L.latLng(coord[1], coord[0])
 
-    // 🔧 CAMBIO: Usar divIcon personalizado en lugar de circleMarker
     const pointIcon = L.divIcon({
       html: `<div class="route-point-marker"></div>`,
       className: 'custom-route-point',
@@ -116,10 +119,9 @@ function addEditableMarkers() {
       iconAnchor: [8, 8],
     })
 
-    // 🔧 CAMBIO: Usar L.marker en lugar de L.circleMarker
     const marker = L.marker(latlng, {
       icon: pointIcon,
-      draggable: true, // ← Ahora SÍ funciona
+      draggable: true,
     }).addTo(map)
 
     // Permitir arrastrar el punto
@@ -131,6 +133,8 @@ function addEditableMarkers() {
 
     marker.on('dragend', () => {
       emit('coordinates-updated', [...routeCoordinates])
+      // 🔧 Recrear marcadores después de terminar el arrastre
+      addEditableMarkers()
     })
 
     // Clic derecho para eliminar
@@ -149,7 +153,19 @@ function addEditableMarkers() {
         direction: 'top',
       },
     )
+
+    // 🔧 Guardar referencia del marcador
+    editableMarkers.push(marker)
   })
+}
+
+// 🔧 Nueva función para limpiar marcadores
+function clearEditableMarkers() {
+  editableMarkers.forEach((marker) => {
+    marker.off() // Remover event listeners
+    map.removeLayer(marker) // Quitar del mapa
+  })
+  editableMarkers = [] // Resetear array
 }
 
 // Actualizar la polilínea
@@ -158,16 +174,14 @@ function updatePolyline() {
   editablePolyline.setLatLngs(latlngs)
 }
 
-// Eliminar un punto
+// 🔧 También actualizar la función removePoint si existe
 function removePoint(index, marker) {
   routeCoordinates.splice(index, 1)
-  marker.remove()
+  map.removeLayer(marker)
   updatePolyline()
-  clearAndRedrawMarkers()
   emit('coordinates-updated', [...routeCoordinates])
-  emit('point-removed', index)
+  addEditableMarkers() // Recrear marcadores con índices actualizados
 }
-
 // Limpiar y redibujar todos los marcadores
 function clearAndRedrawMarkers() {
   map.eachLayer((layer) => {
