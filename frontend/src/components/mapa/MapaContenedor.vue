@@ -43,7 +43,7 @@ const destinationIcon = createIcon(
   'https://api.iconify.design/mdi:flag-checkered.svg?color=%23e44234',
 )
 const busStopIcon = createIcon(
-  'https://api.iconify.design/mdi:bus-stop.svg?color=%23fbbc05',
+  'https://api.iconify.design/si:pin-fill.svg?color=%23ff0909',
   [32, 32],
 )
 const userLocationIcon = createIcon(
@@ -83,10 +83,9 @@ onMounted(() => {
   console.log('🗺️ Intentando inicializar mapa...')
 
   try {
-    const xalapaBounds = L.latLngBounds(L.latLng(19.45, -97.05), L.latLng(19.6, -96.85))
-
+    const xalapaBounds = L.latLngBounds(L.latLng(19.42, -97.1), L.latLng(19.65, -96.8))
     map.value = L.map('mapa-leaflet', {
-      center: [19.5333, -96.9167],
+      center: [19.545705, -96.910282],
       zoom: 13,
       zoomControl: false,
       minZoom: 12,
@@ -129,8 +128,17 @@ watch(
     }
 
     rutaLayer.value = L.geoJSON(newViaje.geoJson, {
-      style: { color: '#e44234', weight: 6, opacity: 0.85 },
+      style: { color: '#0949df', weight: 6, opacity: 0.85 },
     }).addTo(map.value)
+
+    if (newViaje.paradas && newViaje.paradas.features) {
+      newViaje.paradas.features.forEach((parada, index) => {
+        const coords = [parada.geometry.coordinates[1], parada.geometry.coordinates[0]]
+        L.marker(coords, { icon: busStopIcon })
+          .addTo(viajeMarkersLayer.value)
+          .bindPopup(`🚏 Parada ${index + 1}`)
+      })
+    }
 
     if (
       newViaje.origenUsuario &&
@@ -162,13 +170,13 @@ watch(
         .addTo(viajeMarkersLayer.value)
         .bindPopup(`🚶‍♂️ Baja en: <b>${newViaje.paradaBajada.name}</b>`)
 
-      const estiloCaminata = { color: '#1a73e8', weight: 4, dashArray: '5, 10' }
+      const estiloCaminata = { color: '#7db0e3', weight: 4, dashArray: '5, 10' }
       L.polyline([origenCoords, paradaSubidaCoords], estiloCaminata).addTo(viajeMarkersLayer.value)
       L.polyline([paradaBajadaCoords, destinoCoords], estiloCaminata).addTo(viajeMarkersLayer.value)
     }
 
     const bounds = rutaLayer.value.getBounds()
-    map.value.fitBounds(bounds, { padding: [50, 50] })
+    map.value.fitBounds(bounds, { padding: [80, 80] })
   },
   { deep: true },
 )

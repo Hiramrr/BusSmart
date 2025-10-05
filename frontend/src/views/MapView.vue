@@ -53,7 +53,7 @@ import MenuLateral from '@/components/mapa/MenuLateral.vue'
 import ControlesBusqueda from '@/components/mapa/ControlesBusqueda.vue'
 import MapaContenedor from '@/components/mapa/MapaContenedor.vue'
 import ResultadosBusqueda from '@/components/mapa/ResultadosBusqueda.vue'
-import { fetchSugerenciasDeRuta, fetchRutaPorId } from '@/services/api.js'
+import { fetchSugerenciasDeRuta, fetchRutaPorId, obtenerParadasDeRuta } from '@/services/api.js'
 import { mostrarAlertaError } from '@/utils/alertas.js'
 
 const { isAuthenticated, isInitialized } = useAuth()
@@ -131,10 +131,18 @@ const handleMostrarRuta = async (rutaId) => {
     limpiarBusqueda()
     const rutaGeoJSON = await fetchRutaPorId(rutaId)
 
-    // Para las rutas del menú, no hay origen/destino de usuario
+    let paradasData = null
+    try {
+      paradasData = await obtenerParadasDeRuta(rutaId)
+      console.log('✅ Paradas cargadas:', paradasData)
+    } catch (error) {
+      console.log('ℹ️ Esta ruta no tiene paradas configuradas' + error)
+    }
+
     datosDelViaje.value = {
       routeId: rutaId,
       geoJson: rutaGeoJSON,
+      paradas: paradasData,
     }
 
     isSidebarOpen.value = false
