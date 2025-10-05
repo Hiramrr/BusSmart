@@ -161,7 +161,7 @@ import {
   mostrarAlertaExito,
   mostrarAlertaError,
 } from '@/utils/alertas.js'
-import { getRutas } from '@/services/api.js'
+import { getRutas, eliminarRuta} from '@/services/api.js'
 
 const router = useRouter()
 const rutas = ref([])
@@ -211,13 +211,23 @@ function handleEditar(id) {
 async function handleEliminar(id) {
   const resultado = await mostrarDialogoConfirmacion(
     '¿Eliminar esta ruta?',
-    'Esta acción no se puede deshacer y eliminará todos los datos asociados.',
+    'Esta acción no se puede deshacer. Se eliminarán la ruta y todas sus paradas.',
   )
 
   if (resultado.isConfirmed) {
-    console.log(`Simulando la eliminación de la ruta con ID: ${id}`)
-    rutas.value = rutas.value.filter((r) => r.id !== id)
-    mostrarAlertaExito('¡Eliminada!', 'La ruta ha sido eliminada correctamente.')
+    try {
+      // Llama a la API para eliminar en el backend
+      await eliminarRuta(id)
+
+      // Si tiene éxito, actualiza la UI eliminando la tarjeta
+      rutas.value = rutas.value.filter((r) => r.id !== id)
+
+      mostrarAlertaExito('¡Eliminada!', 'La ruta ha sido eliminada correctamente.')
+    } catch (error) {
+      // Si falla, informa al usuario
+      console.error('Error al eliminar la ruta:', error)
+      mostrarAlertaError('Error de Eliminación', `No se pudo eliminar la ruta: ${error.message}`)
+    }
   }
 }
 </script>
