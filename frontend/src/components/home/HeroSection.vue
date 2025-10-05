@@ -1,7 +1,7 @@
 <template>
   <section id="hero">
     <div class="hero-content">
-      <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\home\LogoTransparente.png" alt="Logo de BusSmart" class="hero-logo" />
+      <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\Imagenes\LogoBusSmart.png" alt="Logo de BusSmart" class="hero-logo" />
 
       <h1 class="autoBlur">Encuentra tu ruta de camión fácilmente con <span>BusSmart</span></h1>
       <p class="autoBlur">
@@ -34,7 +34,7 @@
 }
 
 .hero-logo {
-  height: 400px; /* Ajusta la altura del logo como prefieras */
+  height: 130px; /* Ajusta la altura del logo como prefieras */
   width: auto; /* Mantiene la proporción original de la imagen */
   margin-bottom: 0rem; /* Crea un espacio entre el logo y el texto de abajo */
 }

@@ -6,7 +6,7 @@
     >
       <div class="main-menu">
         <div class="sidebar-header">
-          <h2>BusSmart 🚌</h2>
+          <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\Imagenes\LogoBusSmart.png" alt="Logo de BusSmart" class="sidebar-logo" />
           <button
             @click="handleClose"
             class="close-btn"
@@ -355,13 +355,12 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
 }
 
-.sidebar-header h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #3498db;
-  letter-spacing: 1px;
-  margin: 0;
+.sidebar-logo {
+  height: 50px;
+  width: auto;
+  margin-left: 1rem;
 }
+
 
 .close-btn {
   background: rgba(255, 255, 255, 0.9);
