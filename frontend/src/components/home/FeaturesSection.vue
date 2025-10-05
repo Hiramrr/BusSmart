@@ -1,8 +1,8 @@
 <template>
   <section id="features" class="features-grid-section">
     <div class="features-header">
-      <h2>Características Principales</h2>
-      <p>Todo lo que necesitas para navegar por la ciudad</p>
+      <h2 class="autoBlur">Características Principales</h2>
+      <p class="autoBlur">Todo lo que necesitas para navegar por la ciudad</p>
     </div>
     <div class="features-grid">
       <FeatureCard

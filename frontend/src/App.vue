@@ -14,6 +14,15 @@ main {
   width: 100vw;
   overflow: hidden;
   overflow-y: auto;
+  /* Ocultar la barra de scroll en Firefox */
+  scrollbar-width: none;
+  /* Ocultar la barra de scroll en IE y Edge */
+  -ms-overflow-style: none;
+}
+
+/* Ocultar la barra de scroll en Chrome, Safari y Opera */
+main::-webkit-scrollbar {
+  display: none;
 }
 
 .theme-toggle-container {

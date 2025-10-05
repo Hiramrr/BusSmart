@@ -1,7 +1,7 @@
 <template>
   <section id="hero">
     <div class="hero-content">
-      <img src="C:\Users\belli\OneDrive\Escritorio\BusSmrt\BusSmart\frontend\src\components\Imagenes\LogoBusSmart.png" alt="Logo de BusSmart" class="hero-logo" />
+      <img src="@/assets/imagenes/LogoBusSmart.png" alt="Logo de BusSmart" class="hero-logo" />
 
       <h1 class="autoBlur">Encuentra tu ruta de camión fácilmente con <span>BusSmart</span></h1>
       <p class="autoBlur">
