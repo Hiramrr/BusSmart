@@ -42,7 +42,7 @@
             <router-link to="/map" class="nav-link" @click="closeMobileMenu">Mapa</router-link>
           </li>
           <li><a href="#descargar" @click="closeMobileMenu">Descargar</a></li>
-          <li><a href="#contacto" @click="closeMobileMenu">Contacto</a></li>
+          <li><ContactDropdown /></li>
         </ul>
 
         <template v-if="isInitialized">
@@ -166,6 +166,8 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useAuth } from '@/componibles/useAuth.js'
 import { useRouter } from 'vue-router'
+import ContactDropdown from './ContactDropdown.vue'
+
 
 const { user, isAuthenticated, isAdmin, logout, isInitialized } = useAuth()
 const router = useRouter()

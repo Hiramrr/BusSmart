@@ -1,5 +1,5 @@
 <template>
-  <footer id="contacto">
+  <footer id="Contacto">
     <p>&copy; 2025 BusSmart - Hecho en Xalapa</p>
     <nav>
       <a href="#">Aviso de privacidad</a> |
