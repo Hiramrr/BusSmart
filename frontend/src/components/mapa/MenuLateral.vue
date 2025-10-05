@@ -127,7 +127,10 @@
             <polyline points="15 18 9 12 15 6"></polyline>
           </svg>
         </button>
-        <MenuRutas :rutas="mostrarFavoritos ? favoritos : rutas" @mostrar-ruta="seleccionarRuta" />
+        <MenuRutas
+          :rutas="mostrarFavoritos ? rutasFavoritasCargadas : rutas"
+          @mostrar-ruta="seleccionarRuta"
+        />
       </div>
 
       <div v-if="mostrarForo" class="rutas-menu-container">
@@ -159,8 +162,7 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useAuth } from '@/componibles/useAuth.js'
-import { useFavoritos } from '@/stores/favoritos'
-import { getRutas } from '@/services/api'
+import { getRutas, obtenerFavoritos } from '@/services/api'
 import MenuRutas from './MenuRutas.vue'
 import Foro from './Foro.vue'
 
@@ -172,6 +174,7 @@ const mostrarFavoritos = ref(false)
 const mostrarForo = ref(false)
 const loadingRutas = ref(false)
 const showUserMenu = ref(false)
+const rutasFavoritasCargadas = ref([])
 
 const props = defineProps({
   isOpen: Boolean,
@@ -198,10 +201,32 @@ function abrirForo() {
   mostrarForo.value = true
 }
 
-function abrirFavoritos() {
+const cargarFavoritosCompletos = async () => {
+  if (!isAuthenticated.value) {
+    rutasFavoritasCargadas.value = []
+    return
+  }
+
+  try {
+    const respuesta = await obtenerFavoritos()
+    const favoritosIds = respuesta.rutasFavoritas || []
+
+    const todasLasRutas = await getRutas()
+
+    rutasFavoritasCargadas.value = todasLasRutas.filter((ruta) => favoritosIds.includes(ruta.id))
+
+    console.log('✅ Favoritos cargados en menú lateral:', rutasFavoritasCargadas.value.length)
+  } catch (error) {
+    console.error('❌ Error al cargar favoritos completos:', error)
+    rutasFavoritasCargadas.value = []
+  }
+}
+
+async function abrirFavoritos() {
   mostrarMenuRutas.value = false
   mostrarFavoritos.value = true
   mostrarForo.value = false
+  await cargarFavoritosCompletos()
 }
 
 function cerrarMenuRutas() {
@@ -222,8 +247,6 @@ function handleLogout() {
   showUserMenu.value = false
   logout()
 }
-
-const { favoritos } = useFavoritos()
 
 watch(
   () => props.isOpen,
