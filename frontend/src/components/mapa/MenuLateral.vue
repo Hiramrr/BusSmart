@@ -345,7 +345,8 @@ onUnmounted(() => {
   width: 300px;
   flex-shrink: 0; /* Evita que el panel se encoja */
   height: 100%;
-  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-y: hidden;
   padding: 0 0.75rem;
   box-sizing: border-box;
   display: flex;
@@ -385,7 +386,7 @@ onUnmounted(() => {
   max-width: calc(100% - 32px);
 }
 
-.close-btn {
+/*.close-btn {
   background: rgba(255, 255, 255, 0.9);
   border: none;
   font-size: 1rem;
@@ -396,7 +397,7 @@ onUnmounted(() => {
   color: #2c3e50;
   width: 32px;
   height: 32px;
-}
+}*/
 
 .close-btn:hover {
   background: rgba(255, 255, 255, 1);
@@ -404,7 +405,7 @@ onUnmounted(() => {
 
 .sidebar-menu {
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 .sidebar-menu ul {
@@ -450,12 +451,11 @@ onUnmounted(() => {
 
 .user-section {
   margin-top: auto;
-  padding: 1.4rem;
+  padding: 1.2rem 2.5rem;
   border-top: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.6);
   flex-shrink: 0;
-  margin: 0  -0.7rem;
-
+  margin: 0  -0.7rem -0.7rem;
 }
 
 .login-btn {
@@ -707,5 +707,10 @@ onUnmounted(() => {
   .user-role {
     font-size: 0.7rem;
   }
+}
+
+.main-menu::-webkit-scrollbar,
+.rutas-menu-container::-webkit-scrollbar {
+  display: none;
 }
 </style>
