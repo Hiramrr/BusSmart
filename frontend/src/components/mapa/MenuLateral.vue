@@ -294,8 +294,8 @@ onUnmounted(() => {
 .sidebar {
   position: fixed;
   top: 0;
-  left: -300px;
-  width: 300px;
+  left: -320px;
+  width: 320px;
   height: 100%;
   z-index: 2000;
   border-radius: 20px;
@@ -333,6 +333,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   height: 100%;
   overflow-y: auto;
+  padding: 0 0.75rem;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
@@ -342,6 +344,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   height: 100%;
   overflow-y: auto;
+  padding: 0 0.75rem;
+  box-sizing: border-box;
 }
 
 .sidebar-header {
@@ -359,6 +363,7 @@ onUnmounted(() => {
   height: 50px;
   width: auto;
   margin-left: 1rem;
+  max-width: calc(100% - 32px);
 }
 
 
@@ -415,6 +420,8 @@ onUnmounted(() => {
     color 0.2s;
   font-size: 1.1rem;
   text-decoration: none;
+  white-space: normal; /* allow wrapping */
+  word-break: break-word;
 }
 
 .menu-btn:hover,
@@ -494,9 +501,30 @@ onUnmounted(() => {
   font-weight: 600;
   font-size: 0.95rem;
   color: #2c3e50;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal; /* allow wrapping so name doesn't get cut */
+  overflow: visible;
+  text-overflow: initial;
+  word-break: break-word;
+}
+
+/* Ensure child elements use border-box sizing so padding doesn't cut content */
+.sidebar,
+.sidebar * {
+  box-sizing: border-box;
+}
+
+/* make sure long lists have space at the bottom so last items aren't hidden */
+.sidebar-menu {
+  padding-bottom: 1rem;
+}
+
+/* ensure close button in rutas view won't overlap content */
+.rutas-close-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  background: rgba(255,255,255,0.95);
 }
 
 .user-role {

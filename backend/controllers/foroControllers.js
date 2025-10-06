@@ -19,7 +19,7 @@ export const obtenerReportes = async (req, res) => {
 
 export const crearReporte = async (req, res) => {
   try {
-    const { tipo, descripcion, ubicacion } = req.body;
+    const { tipo, descripcion, ubicacion, lat, lng } = req.body;
 
     if (!tipo || !descripcion) {
       return res
@@ -38,13 +38,17 @@ export const crearReporte = async (req, res) => {
       tipo,
       descripcion: descripcion.trim(),
       ubicacion: ubicacion ? ubicacion.trim() : null,
-      fecha: new Date().toLocaleString("es-MX", {
-        zonaHoraria: "America/Mexico_City",
-        año: "numeric",
-        mes: "2-digit",
-        dia: "2-digit",
-        hora: "2-digit",
-        minuto: "2-digit",
+      // Optional coordinates when user marks location on map
+      ...(typeof lat === 'number' && typeof lng === 'number'
+        ? { lat: Number(lat), lng: Number(lng), location: { type: 'Point', coordinates: [Number(lng), Number(lat)] } }
+        : {}),
+      fecha: new Date().toLocaleString('es-MX', {
+        timeZone: 'America/Mexico_City',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
       }),
       timestamp: new Date(),
       activo: true,

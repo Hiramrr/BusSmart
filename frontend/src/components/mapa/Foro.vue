@@ -31,11 +31,50 @@
         <label for="ubicacion">Ubicación (opcional):</label>
         <input
           id="ubicacion"
+          ref="ubicacionInput"
           v-model="reporte.ubicacion"
           type="text"
           :disabled="enviando"
-          placeholder="Ejemplo: Calle, colonia, referencia"
+          placeholder="Escribe una calle o lugar (autocompleta)"
+          @input="onPlaceInput"
         />
+
+        <!-- suggestion list will be rendered in a portal to body to avoid stacking/context issues -->
+        <teleport to="body">
+          <ul
+            v-if="placeSuggestions.length"
+            class="place-suggestions"
+            role="listbox"
+            :style="dropdownStyle"
+          >
+            <li
+              v-for="(p, idx) in placeSuggestions"
+              :key="idx"
+              @click="selectPlace(p)"
+              class="place-suggestion-item"
+              role="option"
+              :style="{ color: '#0b2538', backgroundColor: '#ffffff' }"
+            >
+              {{ p.display_name || p.nombre }}
+            </li>
+          </ul>
+        </teleport>
+        <div class="map-marker-controls">
+          <button type="button" class="menu-btn small" @click="mapSelection.startSelecting()">
+            📌 Marcar en mapa
+          </button>
+          <button
+            v-if="mapSelection.selectedPoint"
+            type="button"
+            class="menu-btn small"
+            @click="mapSelection.clearPoint()"
+          >
+            ❌ Quitar marcación
+          </button>
+          <div v-if="mapSelection.selectedPoint" class="selected-coords">
+            📍 {{ mapSelection.selectedPoint.lat.toFixed(6) }}, {{ mapSelection.selectedPoint.lng.toFixed(6) }}
+          </div>
+        </div>
       </div>
 
       <button type="submit" class="menu-btn" :disabled="enviando">
@@ -77,11 +116,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useForoStore } from '../../stores/foro'
+import { useMapSelection } from '../../stores/mapSelection'
 import { mostrarAlertaError } from '../../utils/alertas'
+import { fetchAutocomplete } from '@/services/api.js'
 
 const foroStore = useForoStore()
+const mapSelection = useMapSelection()
 const mensajeEnviado = ref(false)
 const enviando = ref(false)
 const reporte = ref({
@@ -90,11 +132,74 @@ const reporte = ref({
   ubicacion: '',
 })
 
+const placeSuggestions = ref([])
+const typing = ref(false)
+let searchTimeout = null
+const ubicacionInput = ref(null)
+const dropdownStyle = ref({ display: 'none' })
+
 defineEmits(['close'])
 
 onMounted(async () => {
   await foroStore.cargarReportesRecientes()
 })
+
+async function onPlaceInput() {
+  // debounce
+  placeSuggestions.value = []
+  if (searchTimeout) clearTimeout(searchTimeout)
+
+  const q = reporte.value.ubicacion
+  if (!q || q.trim().length === 0) {
+    // clear selection when empty
+    // do not clear previously selectedPoint automatically
+    // hide dropdown
+    dropdownStyle.value = { display: 'none' }
+    return
+  }
+
+  typing.value = true
+  searchTimeout = setTimeout(async () => {
+    try {
+      // use internal backend autocomplete (places from our rutas/geocodificacion)
+      const results = await fetchAutocomplete(q)
+      // results expected shape: [{ nombre, location: { coordinates: [lng, lat] } }, ...]
+      placeSuggestions.value = results || []
+      // compute position of dropdown portal
+      nextTick(() => {
+        if (ubicacionInput.value) {
+          const rect = ubicacionInput.value.getBoundingClientRect()
+          dropdownStyle.value = {
+            position: 'fixed',
+            top: `${rect.bottom + 6}px`,
+            left: `${rect.left}px`,
+            width: `${rect.width}px`,
+            zIndex: 9999,
+            background: '#ffffff',
+          }
+        }
+      })
+    } catch (err) {
+      console.error('Error buscando lugares', err)
+      placeSuggestions.value = []
+      dropdownStyle.value = { display: 'none' }
+    } finally {
+      typing.value = false
+    }
+  }, 300)
+}
+
+function selectPlace(p) {
+  // backend returns { nombre, location }
+  reporte.value.ubicacion = p.nombre || p.display_name || ''
+  placeSuggestions.value = []
+  dropdownStyle.value = { display: 'none' }
+  if (p.location && p.location.coordinates && p.location.coordinates.length >= 2) {
+    const lng = Number(p.location.coordinates[0])
+    const lat = Number(p.location.coordinates[1])
+    mapSelection.setPoint(lat, lng)
+  }
+}
 
 async function enviarReporte() {
   if (enviando.value) return
@@ -112,7 +217,14 @@ async function enviarReporte() {
   foroStore.limpiarError()
 
   try {
-    await foroStore.agregarReporte(reporte.value)
+    // attach selected coordinates if available
+    const payload = { ...reporte.value }
+    if (mapSelection.selectedPoint) {
+      payload.lat = mapSelection.selectedPoint.lat
+      payload.lng = mapSelection.selectedPoint.lng
+    }
+
+    await foroStore.agregarReporte(payload)
 
     mensajeEnviado.value = true
 
@@ -121,6 +233,9 @@ async function enviarReporte() {
       descripcion: '',
       ubicacion: '',
     }
+
+    // clear selection after sending
+    mapSelection.clearPoint()
 
     setTimeout(() => {
       mensajeEnviado.value = false
@@ -247,6 +362,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  position: relative; /* for absolute suggestions */
 }
 
 .foro-formulario label {
@@ -262,6 +378,8 @@ button:disabled {
   padding: 0.5rem;
   font-size: 1rem;
   font-family: inherit;
+  color: #0b2538 !important; /* force dark text */
+  background: #fff !important;
 }
 
 .foro-formulario .mensaje-enviado {
@@ -294,6 +412,88 @@ button:disabled {
 .menu-btn:hover:not(:disabled) {
   background: #ffffffbd;
   color: #0b0c0c;
+}
+
+.map-marker-controls {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.menu-btn.small {
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.selected-coords {
+  font-size: 0.9rem;
+  color: #2d6ca2;
+}
+
+.place-suggestions {
+  margin: 0;
+  padding: 6px 0;
+  list-style: none;
+  border: 1px solid #e0e7ef;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow: auto;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 6px 22px rgba(18, 52, 86, 0.08);
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 3200;
+}
+
+.place-suggestion-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #0b2538;
+  line-height: 1.2;
+  background-color: #ffffff !important;
+}
+
+.place-suggestion-item:hover,
+.place-suggestion-item:focus,
+.place-suggestion-item:active {
+  background: #0b69d6 !important; /* blue highlight */
+  color: #fff !important;
+}
+
+/* selected-like visual when user clicks (applies inline class if needed) */
+.place-suggestion-item.selected {
+  background: #0b69d6 !important;
+  color: #fff !important;
+}
+
+/* Strong override: force visible text for suggestions even if global theme overrides */
+.place-suggestions,
+.place-suggestions li,
+.place-suggestions .place-suggestion-item,
+.place-suggestions .place-suggestion-item * {
+  color: #0b2538 !important;
+  background-color: white;
+}
+
+.place-suggestions .place-suggestion-item:hover,
+.place-suggestions .place-suggestion-item:focus,
+.place-suggestions .place-suggestion-item:active,
+.place-suggestions .place-suggestion-item.selected {
+  background-color: #0b69d6 !important;
+  color: #ffffff !important;
+}
+
+
+/* ensure placeholder is visible */
+.foro-formulario input::placeholder {
+  color: #6b7b8c !important;
 }
 
 /* Agregar al final del <style scoped> en Foro.vue */
