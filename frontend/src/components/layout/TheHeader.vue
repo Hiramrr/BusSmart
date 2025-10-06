@@ -41,7 +41,6 @@
           <li>
             <router-link to="/map" class="nav-link" @click="closeMobileMenu">Mapa</router-link>
           </li>
-          <li><a href="#descargar" @click="closeMobileMenu">Descargar</a></li>
           <li>
             <a
               href="https://github.com/Hiramrr/BusSmart"

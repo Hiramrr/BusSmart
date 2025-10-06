@@ -369,10 +369,13 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.2rem 1rem;
+  margin: 0 -1.5rem;
+  padding: 1.2rem 2.5rem; 
   border-bottom: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.85);
   flex-shrink: 0;
+  position: relative;
+  
 }
 
 .sidebar-logo {
@@ -447,10 +450,12 @@ onUnmounted(() => {
 
 .user-section {
   margin-top: auto;
-  padding: 1rem;
+  padding: 1.4rem;
   border-top: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.6);
   flex-shrink: 0;
+  margin: 0  -0.7rem;
+
 }
 
 .login-btn {
