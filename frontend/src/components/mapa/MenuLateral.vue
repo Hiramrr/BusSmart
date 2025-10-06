@@ -1,9 +1,12 @@
 <template>
-  <aside class="sidebar" :class="{ active: isOpen }">
-    <div
-      class="sidebar-content-wrapper"
-      :class="{ 'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo }"
+    <aside 
+    class="sidebar" 
+    :class="{ 
+        active: isOpen, 
+        'sub-menu-active': mostrarMenuRutas || mostrarFavoritos || mostrarForo 
+    }"
     >
+   <div class="sidebar-content-wrapper">
       <div class="main-menu">
         <div class="sidebar-header">
           <img src="@/assets/Imagenes/LogoBusSmart.png" alt="Logo de BusSmart" class="sidebar-logo" />
@@ -295,42 +298,52 @@ onUnmounted(() => {
   position: fixed;
   top: 0;
   left: -300px;
+  /* Ancho inicial del menú principal */
   width: 300px;
   height: 100%;
   z-index: 2000;
   border-radius: 20px;
-  transition: left 0.4s cubic-bezier(0.77, 0, 0.18, 1);
   box-shadow: 8px 0 24px rgba(44, 62, 80, 0.12);
   font-family: 'Montserrat', Arial, sans-serif;
   color: #2c3e50;
-  pointer-events: none; /* ← No recibe clicks cuando está cerrado */
+  pointer-events: none;
+  /* El overflow es crucial para mantener los bordes redondeados durante la animación */
+  overflow: hidden;
+  /* Transicionamos el ancho (para expandir) y la posición (para mostrar/ocultar) */
+  transition: width 0.4s cubic-bezier(0.77, 0, 0.18, 1),
+              left 0.4s cubic-bezier(0.77, 0, 0.18, 1);
 }
 
 .sidebar.active {
   left: 0;
-  color: #2c3e50;
   backdrop-filter: blur(10px);
   background: rgba(255, 255, 255, 0.2);
-  box-shadow: 8px 0 24px rgba(44, 62, 80, 0.25);
-  pointer-events: auto; /* ← Recibe clicks cuando está abierto */
+  pointer-events: auto;
+}
+
+/* Cuando el submenú está activo, el sidebar se expande al nuevo tamaño */
+.sidebar.sub-menu-active {
+  width: 450px;
 }
 
 .sidebar-content-wrapper {
-  position: relative;
-  width: 200%;
-  height: 100%;
   display: flex;
+  height: 100%;
+  /* Ancho total = 300px (menú) + 450px (submenú) = 750px */
+  width: 750px;
+  /* Esta es la animación que desliza los paneles */
   transition: transform 0.4s cubic-bezier(0.77, 0, 0.18, 1);
-  overflow: hidden; /* ← CRÍTICO: Evita que el contenido se desborde */
+  transform: translateX(0);
 }
 
-.sidebar-content-wrapper.sub-menu-active {
-  transform: translateX(-50%);
+/* Al activarse, el wrapper se desliza para ocultar físicamente el menú principal */
+.sidebar.sub-menu-active .sidebar-content-wrapper {
+  transform: translateX(-300px);
 }
 
 .main-menu {
-  width: 50%;
-  flex-shrink: 0;
+  width: 300px;
+  flex-shrink: 0; /* Evita que el panel se encoja */
   height: 100%;
   overflow-y: auto;
   display: flex;
@@ -338,21 +351,26 @@ onUnmounted(() => {
 }
 
 .rutas-menu-container {
-  width: 50%;
-  flex-shrink: 0;
+  width: 450px;
+  flex-shrink: 0; /* Evita que el panel se encoja */
   height: 100%;
   overflow-y: auto;
+  background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
+  padding: 4.5rem 1.5rem 1.5rem;
+  box-sizing: border-box;
+  position: relative;
 }
+
+/* --- ESTILOS GENERALES Y DE USUARIO --- */
 
 .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 20px;
   padding: 1.2rem 1rem;
   border-bottom: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+  flex-shrink: 0;
 }
 
 .sidebar-logo {
@@ -360,7 +378,6 @@ onUnmounted(() => {
   width: auto;
   margin-left: 1rem;
 }
-
 
 .close-btn {
   background: rgba(255, 255, 255, 0.9);
@@ -380,7 +397,7 @@ onUnmounted(() => {
 }
 
 .sidebar-menu {
-  flex: 1;
+  flex-grow: 1;
   overflow-y: auto;
 }
 
@@ -423,12 +440,12 @@ onUnmounted(() => {
   color: #0b0c0c;
 }
 
-/* Sección de usuario */
 .user-section {
   margin-top: auto;
   padding: 1rem;
   border-top: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
 }
 
 .login-btn {
@@ -551,7 +568,6 @@ onUnmounted(() => {
   background: rgba(231, 76, 60, 0.1);
 }
 
-/* Animación del menú desplegable */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s ease;
@@ -567,35 +583,10 @@ onUnmounted(() => {
   transform: translateY(-5px);
 }
 
-.rutas-menu-container {
-  position: fixed;
-  top: 0;
-  left: 300px;
-  width: 30vw;
-  height: 100vh;
-  background: linear-gradient(135deg, #f9f9f9 0%, #e3f0ff 100%);
-  z-index: 2100;
-  box-shadow: 8px 0 24px rgba(44, 62, 80, 0.12);
-  border-top-right-radius: 24px;
-  border-bottom-right-radius: 24px;
-  animation: fadeInMenuRutas 0.4s cubic-bezier(0.77, 0, 0.18, 1);
-  overflow-y: auto;
-  padding: 4rem 1.5rem 1rem 3.5rem;
-}
-
-@keyframes fadeInMenuRutas {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .rutas-close-btn {
   position: absolute;
   top: 1.2rem;
-  left: 1rem;
+  left: 1.5rem;
   background: transparent;
   border: none;
   border-radius: 50%;
@@ -606,9 +597,7 @@ onUnmounted(() => {
   justify-content: center;
   cursor: pointer;
   color: #3498db;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  transition: background-color 0.2s;
 }
 
 .rutas-close-btn:hover {
@@ -652,57 +641,32 @@ onUnmounted(() => {
 @media (max-width: 768px) {
   .sidebar {
     width: 100vw;
-    left: -100vw; /* Completamente fuera de pantalla */
+    left: -100vw;
     border-radius: 0;
   }
-
+  
   .sidebar.active {
     left: 0;
   }
 
-  /* CRÍTICO: En móvil, el sidebar-content-wrapper debe ser 100% cuando está cerrado */
+  .sidebar.sub-menu-active {
+    width: 100vw; /* En móvil el ancho no cambia */
+  }
+
   .sidebar-content-wrapper {
-    width: 100%; /* ← Cambiado de 200% a 100% en móvil */
+    width: 200vw; 
+    transform: translateX(0);
   }
 
-  /* Solo cuando hay submenú activo, se duplica el ancho */
-  .sidebar-content-wrapper.sub-menu-active {
-    width: 200%;
-    transform: translateX(-50%);
+  .sidebar.sub-menu-active .sidebar-content-wrapper {
+    transform: translateX(-100vw);
   }
 
-  .main-menu {
-    width: 100%; /* ← Cambiado de 50% a 100% */
-  }
-
-  .sidebar-content-wrapper.sub-menu-active .main-menu {
-    width: 50%; /* ← Solo cuando hay submenú vuelve a 50% */
-  }
-
+  .main-menu,
   .rutas-menu-container {
-    width: 50%; /* ← Mantiene 50% cuando está activo */
-    left: 100vw;
     width: 100vw;
-    border-radius: 0;
-    padding: 3.5rem 1rem 1rem 1rem;
-  }
-
-  .sidebar-header h2 {
-    font-size: 1.3rem;
-  }
-
-  .menu-btn {
-    padding: 0.85rem 1.2rem;
-    font-size: 1rem;
-  }
-
-  .user-profile-header {
-    padding: 0.65rem;
-  }
-
-  .user-avatar {
-    width: 42px;
-    height: 42px;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
   .user-name {
@@ -711,36 +675,6 @@ onUnmounted(() => {
 
   .user-role {
     font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar-header {
-    padding: 1rem 0.75rem;
-  }
-
-  .sidebar-header h2 {
-    font-size: 1.2rem;
-  }
-
-  .menu-btn {
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    gap: 0.5rem;
-  }
-
-  .user-section {
-    padding: 0.75rem;
-  }
-
-  .login-btn {
-    padding: 0.65rem 1rem;
-    font-size: 0.95rem;
-  }
-
-  .dropdown-item {
-    padding: 0.65rem;
-    font-size: 0.9rem;
   }
 }
 </style>
