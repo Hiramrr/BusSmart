@@ -451,11 +451,11 @@ onUnmounted(() => {
 
 .user-section {
   margin-top: auto;
-  padding: 1.2rem 2.5rem;
+  padding: 2rem 2rem;
   border-top: 1px solid #e0e7ef;
   background: rgba(255, 255, 255, 0.6);
   flex-shrink: 0;
-  margin: 0  -0.7rem -0.7rem;
+  margin: 0  -1rem -0.7rem;
 }
 
 .login-btn {
