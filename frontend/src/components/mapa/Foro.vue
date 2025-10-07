@@ -206,10 +206,7 @@ async function enviarReporte() {
 
   // Validar antes de poner enviando en true
   if (!reporte.value.tipo || !reporte.value.descripcion) {
-    mostrarAlertaError(
-      'Campos incompletos',
-      'Se deben llenar todos los campos obligatorios antes de enviar el reporte.',
-    )
+    foroStore.error = 'Campos incompletos: Se deben llenar todos los campos obligatorios antes de enviar el reporte.'
     return
   }
 
