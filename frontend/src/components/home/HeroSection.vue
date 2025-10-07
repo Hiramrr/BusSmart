@@ -64,4 +64,14 @@
   border: 2px solid #213261;
   color: #213261;
 }
+
+/* ========== ESTILOS MÓVIL ========== */
+@media (max-width: 768px) {
+  #hero h1 {
+    font-size: 1.8rem; /* Hacemos el título más pequeño en pantallas chicas */
+  }
+  .hero-logo {
+    height: 100px; /* También podemos ajustar el logo */
+  }
+}
 </style>
